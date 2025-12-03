@@ -35,6 +35,13 @@ DxGameApp::~DxGameApp()
 
 bool DxGameApp::Initialize()
 {
+    // Check if there already is an instance of the game running
+    if (!IsOnlyInstance())
+    {
+        printf("There already is an instance of the game running");
+        return false;
+    }
+
     if (!Application::Initialize())
         return false;
 
@@ -298,6 +305,25 @@ DxGameApp::ComPtr<ID3D11PixelShader> DxGameApp::CreatePixelShader(const std::wst
     }
 
     return pixelShader;
+}
+
+bool DxGameApp::IsOnlyInstance()
+{
+    HANDLE handle = CreateMutex(nullptr, true, L"DxGame");
+    if (GetLastError() != ERROR_SUCCESS)
+    {
+        HWND existingWnd = FindWindow(nullptr, L"DxGame");
+        if (existingWnd)
+        {
+            ShowWindow(existingWnd, SW_SHOWNORMAL);
+            SetFocus(existingWnd);
+            SetForegroundWindow(existingWnd);
+            SetActiveWindow(existingWnd);
+			return false;
+        }
+    }
+
+    return true;
 }
 
 void DxGameApp::Update()

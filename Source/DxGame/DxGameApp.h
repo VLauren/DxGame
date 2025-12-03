@@ -50,5 +50,6 @@ private:
     ComPtr<ID3D11Buffer> m_triangleVertices = nullptr;
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
 
+    bool IsOnlyInstance();
 };
 
