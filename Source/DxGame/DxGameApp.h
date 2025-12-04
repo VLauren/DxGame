@@ -5,6 +5,10 @@
 #include <wrl.h>
 
 #include <filesystem>
+#include <crtdbg.h>
+
+// TODO debug new
+#define DXG_NEW new
 
 #include "Application.h"
 
@@ -55,5 +59,6 @@ private:
 
     bool IsOnlyInstance();
     bool CheckStorage(std::uintmax_t diskSpaceNeeded);
+    bool CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtualRAMNeeded);
 };
 

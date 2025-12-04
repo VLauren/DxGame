@@ -48,6 +48,8 @@ bool DxGameApp::Initialize()
         printf("Not enough free space on the drive.\n");
     }
 
+    // TODO add memory check
+
     if (!Application::Initialize())
         return false;
 
@@ -341,6 +343,27 @@ bool DxGameApp::CheckStorage(std::uintmax_t diskSpaceNeeded)
 
     // Check if it's enough
     return si.available >= diskSpaceNeeded;
+}
+
+bool DxGameApp::CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtualRAMNeeded)
+{
+    MEMORYSTATUSEX status{ sizeof(status) };
+    GlobalMemoryStatusEx(&status);
+
+    // Memory availability
+    if (status.ullTotalPhys < physicalRAMNeeded)
+        return false;
+    if (status.ullAvailVirtual < virtualRAMNeeded)
+        return false;
+
+    // Check if memory is available in one block
+    char* buff = DXG_NEW char[virtualRAMNeeded];
+    if (buff)
+        delete[] buff;
+    else
+        return false;
+
+    return true;
 }
 
 void DxGameApp::Update()
