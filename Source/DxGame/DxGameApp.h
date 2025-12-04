@@ -4,6 +4,8 @@
 #include <dxgi1_3.h>
 #include <wrl.h>
 
+#include <filesystem>
+
 #include "Application.h"
 
 class DxGameApp : public Application
@@ -50,6 +52,8 @@ private:
     ComPtr<ID3D11Buffer> m_triangleVertices = nullptr;
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
 
+
     bool IsOnlyInstance();
+    bool CheckStorage(std::uintmax_t diskSpaceNeeded);
 };
 

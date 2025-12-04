@@ -38,8 +38,14 @@ bool DxGameApp::Initialize()
     // Check if there already is an instance of the game running
     if (!IsOnlyInstance())
     {
-        printf("There already is an instance of the game running");
+        printf("There already is an instance of the game running.\n");
         return false;
+    }
+
+    // Check for enough disk space on the current disk
+    if (!CheckStorage(10ULL * 1024 * 1024)) // 10 MB
+    {
+        printf("Not enough free space on the drive.\n");
     }
 
     if (!Application::Initialize())
@@ -324,6 +330,17 @@ bool DxGameApp::IsOnlyInstance()
     }
 
     return true;
+}
+
+bool DxGameApp::CheckStorage(std::uintmax_t diskSpaceNeeded)
+{
+    // Find disk space available
+    namespace fs = std::filesystem;
+    const fs::path root = fs::path(fs::current_path()).root_path();
+    const fs::space_info si = fs::space(root);
+
+    // Check if it's enough
+    return si.available >= diskSpaceNeeded;
 }
 
 void DxGameApp::Update()
