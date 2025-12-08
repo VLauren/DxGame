@@ -50,17 +50,29 @@ bool DxGameApp::Initialize()
 
     // TODO add memory check
 
+    // TODO initialize resource cache
+
+    // Load strings
+    LoadStrings("English");
+
+    // printf("%ls", GetString(L"IDS_YES").c_str());
+
+    // TODO Script manager and events system
+
+    // Window creation
     if (!Application::Initialize())
         return false;
+
+    // TODO Set save game directory **
+
+    // Device creation
+    // ---------------
 
     if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&m_dxgiFactory))))
     {
         printf("DXGI: Unable to create DXGIFactory\n");
         return false;
     }
-
-    // Device creation
-    // ---------------
 
     constexpr D3D_FEATURE_LEVEL deviceFeatureLevel = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
 
@@ -115,6 +127,12 @@ bool DxGameApp::Initialize()
     {
         return false;
     }
+
+    // -----------------
+
+    // TODO Create game logic and game view
+
+    // TODO Preload selected resources
 
     return true;
 }
@@ -364,6 +382,64 @@ bool DxGameApp::CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtual
         return false;
 
     return true;
+}
+
+bool DxGameApp::LoadStrings(std::string language)
+{
+    std::string langFile = R"(..\..\Assets\Strings\)" + language + ".xml";
+
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(langFile.c_str()) != tinyxml2::XMLError::XML_SUCCESS)
+    {
+        printf("Strings are missing");
+        return false;
+    }
+
+    const tinyxml2::XMLElement* root = doc.FirstChildElement("strings");
+    if (!root)
+    {
+        printf("XML file format error");
+        return false;
+    }
+
+    // root->FirstChildElement("string")
+    for (const tinyxml2::XMLElement* pElem = root->FirstChildElement("string"); pElem != nullptr; pElem->NextSibling())
+    {
+        const char* pKey = pElem->Attribute("id");
+        const char* pText = pElem->Attribute("value");
+        if (pKey && pText)
+        {
+            // lambda helper to convert to wide string
+            auto Utf8ToWide = [](std::string_view u8) -> std::wstring
+                {
+                    if (u8.empty())
+                        return {};
+                    int wlen = MultiByteToWideChar(CP_UTF8, 0, u8.data(), (int)u8.size(), nullptr, 0);
+                    std::wstring ws(wlen, L'\0');
+                    MultiByteToWideChar(CP_UTF8, 0, u8.data(), (int)u8.size(), ws.data(), wlen);
+
+                    return ws;
+                };
+
+            std::wstring key = Utf8ToWide(pKey);
+            std::wstring text = Utf8ToWide(pText);
+            m_textResource[key] = text;
+        }
+    }
+
+    return true;
+}
+
+std::wstring DxGameApp::GetString(std::wstring sID)
+{
+    auto localizedString = m_textResource.find(sID);
+    if (localizedString == m_textResource.end())
+    {
+        printf("Missing localisation key: %ls\n", sID.c_str());
+        return sID;
+    }
+
+    return localizedString->second;
 }
 
 void DxGameApp::Update()

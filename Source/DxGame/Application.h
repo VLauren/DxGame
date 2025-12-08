@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <map>
 
 struct GLFWwindow;
 
@@ -25,6 +26,8 @@ protected:
 	[[nodiscard]] GLFWwindow* GetWindow() const;
 	[[nodiscard]] int32_t GetWindowWidth() const;
 	[[nodiscard]] int32_t GetWindowHeight() const;
+
+	std::map<std::wstring, std::wstring> m_textResource;
 
 private:
 	GLFWwindow* m_window = nullptr;

@@ -11,6 +11,8 @@
 #define DXG_NEW new
 
 #include "Application.h"
+#include <tinyxml2.h>
+#include <tinyxml2.h>
 
 class DxGameApp : public Application
 {
@@ -60,5 +62,7 @@ private:
     bool IsOnlyInstance();
     bool CheckStorage(std::uintmax_t diskSpaceNeeded);
     bool CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtualRAMNeeded);
+    bool LoadStrings(std::string language);
+    std::wstring GetString(std::wstring sID);
 };
 
