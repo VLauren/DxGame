@@ -1,5 +1,8 @@
+
 #include "Application.h"
 #include <GLFW/glfw3.h>
+
+#include <chrono>
 
 Application::Application(const std::string& title)
 {
@@ -20,11 +23,22 @@ void Application::Run()
 		return;
 
     // Main loop
+    // ---------
+
+    using clock = std::chrono::steady_clock;
+    using seconds = std::chrono::duration<float>;
+
+	clock::time_point last = clock::now();
 	while (!glfwWindowShouldClose(m_window))
 	{
+        clock::time_point now = clock::now();
+        float dt = std::chrono::duration_cast<seconds>(now - last).count();
+
 		glfwPollEvents();
-		Update();
+		Update(dt);
 		Render();
+
+        last = now;
 	}
 }
 

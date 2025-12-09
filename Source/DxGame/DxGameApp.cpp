@@ -216,8 +216,9 @@ std::wstring DxGameApp::GetString(std::wstring sID)
     return localizedString->second;
 }
 
-void DxGameApp::Update()
+void DxGameApp::Update(float deltaTime)
 {
+    printf("%f\n", deltaTime);
 }
 
 void DxGameApp::Render()

@@ -29,7 +29,7 @@ protected:
     bool Load() override;
     void OnResize(int32_t width, int32_t height) override;
     void Render() override;
-    void Update() override;
+    void Update(float deltaTime) override;
 
 private:
     std::unique_ptr<Graphics> m_gfx;

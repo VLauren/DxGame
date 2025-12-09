@@ -52,5 +52,9 @@ public:
 
     ComPtr<ID3D11Buffer> m_triangleVertices = nullptr;
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
+
+
+    ComPtr<ID3D11Buffer> m_frameConstantBuffer;
+uint32_t             m_frame = 0;      // rolling seed
 };
 

@@ -18,7 +18,7 @@ protected:
 	virtual bool Initialize();
     virtual bool Load() = 0;
 	virtual void Render() = 0;
-	virtual void Update() = 0;
+	virtual void Update(float deltaTime) = 0;
 
 	static void HandleResize(GLFWwindow* window, const int32_t width, const int32_t height);
 	virtual void OnResize(const int32_t width, const int32_t height);

@@ -8,6 +8,8 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
+#include <chrono>
+
 using Position = DirectX::XMFLOAT3;
 using Color = DirectX::XMFLOAT3;
 
@@ -105,24 +107,24 @@ bool Graphics::Load()
 
 	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
 	{
-	{
-	"POSITION",
-	0,
-	DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-	0,
-	offsetof(VertexPositionColor, position),
-	D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-	0
-	},
-	{
-	"COLOR",
-	0,
-	DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-	0,
-	offsetof(VertexPositionColor, color),
-	D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-	0
-	},
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexPositionColor, position),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"COLOR",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexPositionColor, color),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
 	};
 
 	if (FAILED(m_device->CreateInputLayout(
@@ -136,38 +138,45 @@ bool Graphics::Load()
 		return false;
 	}
 
-    /*
-	constexpr VertexPositionColor vertices[] = {
-	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
-	{  Position{ 0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
-	{ Position{ -0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.3f, 0.7f } },
-	// {  Position{ 0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
-	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
-	// {   Position{ 0.7f, 0.5f, 0.0f }, Color{ 0.3f, 0.3f, 0.7f } },
-	};
+	// Constant buffer for the dynamic shader
+	struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
+	D3D11_BUFFER_DESC desc = {};
+	desc.ByteWidth = sizeof(FrameCB);
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-	D3D11_BUFFER_DESC bufferInfo = {};
-	bufferInfo.ByteWidth = sizeof(vertices);
-	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
-	bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+	D3D11_SUBRESOURCE_DATA init = {};
+	FrameCB initial = {};
+	init.pSysMem = &initial;
 
-	D3D11_SUBRESOURCE_DATA resourceData = {};
-	resourceData.pSysMem = vertices;
-	if (FAILED(m_device->CreateBuffer(
-		&bufferInfo,
-		&resourceData,
-		&m_triangleVertices)))
+	HRESULT hr = m_device->CreateBuffer(&desc, &init, &m_frameConstantBuffer);
+	if (FAILED(hr))
 	{
-		printf("D3D11: Failed to create triangle vertex buffer\n");
+		printf("D3D11: Failed to create frame constant buffer\n");
 		return false;
 	}
-    */
 
 	return true;
 }
 
 void Graphics::Render()
 {
+	// ------------------- 
+	// Change over time
+
+	struct FrameCB { uint32_t seed; uint32_t pad[3]; };
+	FrameCB cb{};
+	cb.seed = m_frame++; // rolling seed
+
+	using namespace std::chrono;
+	auto now = std::chrono::steady_clock::now();
+	double t = duration<double>(now.time_since_epoch()).count();
+	const double oscillation = sin(t) / 2.0f + 0.5f;
+
+	// -------------------
+	// Geometry
+
 	constexpr VertexPositionColor vertices[] = {
 	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
 	{  Position{ 0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
@@ -176,6 +185,8 @@ void Graphics::Render()
 	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
 	{   Position{ 0.7f, 0.5f, 0.0f }, Color{ 0.7f, 0.7f, 0.2f } },
 	};
+
+	// -------------------
 
 	D3D11_BUFFER_DESC bufferInfo = {};
 	bufferInfo.ByteWidth = sizeof(vertices);
@@ -193,6 +204,14 @@ void Graphics::Render()
 		return;
 	}
 
+	D3D11_MAPPED_SUBRESOURCE mapped;
+	if (SUCCEEDED(m_deviceContext->Map(m_frameConstantBuffer.Get(), 0,
+		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+	{
+		*static_cast<FrameCB*>(mapped.pData) = cb;
+		m_deviceContext->Unmap(m_frameConstantBuffer.Get(), 0);
+	}
+
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -201,9 +220,13 @@ void Graphics::Render()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	constexpr float clearColor[] = { 0.1f, 0.12f, 0.1f, 0.1f };
+	// constexpr float clearColor[] = { 0.1f, 0.12f, 0.1f, 0.1f };
+	const float clearColor[] = { 0.2f + oscillation * 0.1f, 0.2f + oscillation * 0.4f, 0.2f, 1.0f }; // Oscillating colour
 	constexpr UINT vertexStride = sizeof(VertexPositionColor);
 	constexpr UINT vertexOffset = 0;
+
+	// -------------------
+	// Rendering stages
 
 	m_deviceContext->ClearRenderTargetView(m_renderTarget.Get(), clearColor);
 
@@ -221,6 +244,7 @@ void Graphics::Render()
 
 	// Pixel Shader
 	m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	m_deviceContext->PSSetConstantBuffers(0, 1, m_frameConstantBuffer.GetAddressOf());
 
 	// Output Merger
 	m_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
