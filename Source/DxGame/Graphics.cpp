@@ -178,29 +178,50 @@ void Graphics::Render()
 	// Geometry
 
 	constexpr VertexPositionColor vertices[] = {
-	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
-	{  Position{ 0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
-	{ Position{ -0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.3f, 0.7f } },
-	{  Position{ 0.4f, -0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
-	{   Position{ 0.0f, 0.6f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
-	{   Position{ 0.7f, 0.5f, 0.0f }, Color{ 0.7f, 0.7f, 0.2f } },
+	{   Position{ -0.6f, 0.4f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
+	{  Position{ 0.6f, 0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
+	{ Position{ -0.6f, -0.4f, 0.0f }, Color{ 0.3f, 0.3f, 0.7f } },
+	{  Position{ 0.6f, -0.4f, 0.0f }, Color{ 0.8f, 0.3f, 0.3f } },
+	};
+
+	const unsigned short indices[] =
+	{
+		0,1,2,
+		2,1,3
 	};
 
 	// -------------------
 
+	// Vertex buffer creation
 	D3D11_BUFFER_DESC bufferInfo = {};
 	bufferInfo.ByteWidth = sizeof(vertices);
 	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
 	bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-
 	D3D11_SUBRESOURCE_DATA resourceData = {};
 	resourceData.pSysMem = vertices;
 	if (FAILED(m_device->CreateBuffer(
 		&bufferInfo,
 		&resourceData,
-		&m_triangleVertices)))
+		&m_vertexBuffer)))
 	{
-		printf("D3D11: Failed to create triangle vertex buffer\n");
+		printf("D3D11: Failed to create vertex buffer\n");
+		return;
+	}
+
+	// Index buffer creation
+	D3D11_BUFFER_DESC indexBufferInfo = {};
+	indexBufferInfo.ByteWidth = sizeof(indices);
+	indexBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	indexBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+	indexBufferInfo.StructureByteStride = sizeof(unsigned short);
+	D3D11_SUBRESOURCE_DATA indexResourceData = {};
+	indexResourceData.pSysMem = indices;
+	if (FAILED(m_device->CreateBuffer(
+		&indexBufferInfo,
+		&indexResourceData,
+		&m_indexBuffer)))
+	{
+		printf("D3D11: Failed to create index buffer\n");
 		return;
 	}
 
@@ -232,9 +253,9 @@ void Graphics::Render()
 
 	// Input Assembler
 	m_deviceContext->IASetInputLayout(m_vertexLayout.Get());
-	m_deviceContext->IASetVertexBuffers(0, 1, m_triangleVertices.GetAddressOf(), &vertexStride, &vertexOffset);
+	m_deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &vertexStride, &vertexOffset);
+	m_deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	// Vertex Shader
 	m_deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
@@ -249,7 +270,8 @@ void Graphics::Render()
 	// Output Merger
 	m_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
 
-	m_deviceContext->Draw(std::size(vertices), 0);
+	// m_deviceContext->Draw(std::size(vertices), 0);
+	m_deviceContext->DrawIndexed(std::size(indices), 0, 0);
 	m_swapChain->Present(1, 0);
 }
 

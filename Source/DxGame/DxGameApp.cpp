@@ -218,7 +218,7 @@ std::wstring DxGameApp::GetString(std::wstring sID)
 
 void DxGameApp::Update(float deltaTime)
 {
-    printf("%f\n", deltaTime);
+    // printf("%f\n", deltaTime);
 }
 
 void DxGameApp::Render()
