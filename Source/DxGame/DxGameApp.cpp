@@ -403,7 +403,7 @@ bool DxGameApp::LoadStrings(std::string language)
     }
 
     // root->FirstChildElement("string")
-    for (const tinyxml2::XMLElement* pElem = root->FirstChildElement("string"); pElem != nullptr; pElem->NextSibling())
+    for (const tinyxml2::XMLElement* pElem = root->FirstChildElement("string"); pElem != nullptr; pElem = pElem->NextSiblingElement())
     {
         const char* pKey = pElem->Attribute("id");
         const char* pText = pElem->Attribute("value");
