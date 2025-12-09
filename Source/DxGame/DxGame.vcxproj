@@ -158,12 +158,14 @@
     <ClCompile Include="..\3rdParty\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="DxGameApp.h" />
+    <ClInclude Include="Graphics.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\Main.ps.hlsl">
