@@ -24,6 +24,7 @@ public:
     ~DxGameApp() override;
 
 protected:
+    void Cleanup() override;
     bool Initialize() override;
     bool Load() override;
     void OnResize(int32_t width, int32_t height) override;
@@ -64,5 +65,8 @@ private:
     bool CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtualRAMNeeded);
     bool LoadStrings(std::string language);
     std::wstring GetString(std::wstring sID);
+
+public:
+    std::wstring m_saveGameDirectory;
 };
 

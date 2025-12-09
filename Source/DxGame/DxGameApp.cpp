@@ -6,6 +6,7 @@
 
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
+#include <ShlObj.h>
 
 #include <iostream>
 
@@ -31,6 +32,7 @@ DxGameApp::DxGameApp(const std::string& title)
 
 DxGameApp::~DxGameApp()
 {
+    Cleanup();
 }
 
 bool DxGameApp::Initialize()
@@ -63,7 +65,19 @@ bool DxGameApp::Initialize()
     if (!Application::Initialize())
         return false;
 
-    // TODO Set save game directory **
+    // Set save game directory
+	PWSTR path = nullptr;
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path)))
+	{
+		m_saveGameDirectory = std::wstring(path) + L"\\DXGame";
+        CreateDirectory(m_saveGameDirectory.c_str(), nullptr);
+		CoTaskMemFree(path);
+	}
+    else
+    {
+        printf("Unable to set save game directory\n");
+        return false;
+    }
 
     // Device creation
     // ---------------
@@ -135,6 +149,13 @@ bool DxGameApp::Initialize()
     // TODO Preload selected resources
 
     return true;
+}
+
+void DxGameApp::Cleanup()
+{
+    // TODO Delete game logic
+    // TODO Delete event system and script manager
+    // TODO Delete resource cache
 }
 
 // Loads shader and geometry data
