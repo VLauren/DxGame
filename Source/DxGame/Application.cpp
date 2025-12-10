@@ -33,6 +33,7 @@ void Application::Run()
 	{
         clock::time_point now = clock::now();
         float dt = std::chrono::duration_cast<seconds>(now - last).count();
+        m_totalTime += dt;
 
 		glfwPollEvents();
 		Update(dt);
@@ -111,4 +112,9 @@ int32_t Application::GetWindowWidth() const
 int32_t Application::GetWindowHeight() const
 {
     return m_height;
+}
+
+float Application::GetTotalGameTime() const
+{
+    return m_totalTime;
 }

@@ -27,6 +27,7 @@ public:
 	[[nodiscard]] GLFWwindow* GetWindow() const;
 	[[nodiscard]] int32_t GetWindowWidth() const;
 	[[nodiscard]] int32_t GetWindowHeight() const;
+	float GetTotalGameTime() const;
 
 protected:
 	std::map<std::wstring, std::wstring> m_textResource;
@@ -36,6 +37,7 @@ private:
 	int32_t m_width = 0;
 	int32_t m_height = 0;
 	std::string m_title;
+	float m_totalTime = 0;
 
 };
 

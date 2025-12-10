@@ -138,19 +138,17 @@ bool Graphics::Load()
 		return false;
 	}
 
-	// Constant buffer for the dynamic shader
+	// Constant pixel buffer for the dynamic shader
 	struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
-	D3D11_BUFFER_DESC desc = {};
-	desc.ByteWidth = sizeof(FrameCB);
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
+	D3D11_BUFFER_DESC constPixBufferInfo = {};
+	constPixBufferInfo.ByteWidth = sizeof(FrameCB);
+	constPixBufferInfo.Usage = D3D11_USAGE_DYNAMIC;
+	constPixBufferInfo.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constPixBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	D3D11_SUBRESOURCE_DATA init = {};
 	FrameCB initial = {};
 	init.pSysMem = &initial;
-
-	HRESULT hr = m_device->CreateBuffer(&desc, &init, &m_frameConstantBuffer);
+	HRESULT hr = m_device->CreateBuffer(&constPixBufferInfo, &init, &m_pixelConstantBuffer);
 	if (FAILED(hr))
 	{
 		printf("D3D11: Failed to create frame constant buffer\n");
@@ -169,10 +167,7 @@ void Graphics::Render()
 	FrameCB cb{};
 	cb.seed = m_frame++; // rolling seed
 
-	using namespace std::chrono;
-	auto now = std::chrono::steady_clock::now();
-	double t = duration<double>(now.time_since_epoch()).count();
-	const double oscillation = sin(t) / 2.0f + 0.5f;
+	const double oscillation = sin(m_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
 
 	// -------------------
 	// Geometry
@@ -208,6 +203,40 @@ void Graphics::Render()
 		return;
 	}
 
+	// Constant vertex buffer for transformations
+	struct ConstantBuffer
+	{
+		struct
+		{
+			float element[4][4];
+		} transformation;
+	};
+	float angle = DirectX::XM_PI * m_appRef->GetTotalGameTime() / 3;
+	const ConstantBuffer cvb =
+	{
+		{
+			std::cos(angle), std::sin(angle), 0.0f, 0.0f,
+			-std::sin(angle), std::cos(angle), 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f,
+		}
+	};
+	D3D11_BUFFER_DESC constVertBufferInfo = {};
+	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+	constVertBufferInfo.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+	constVertBufferInfo.ByteWidth = sizeof(cvb);
+	D3D11_SUBRESOURCE_DATA constVertResourceData = {};
+	constVertResourceData.pSysMem = &cvb;
+	if (FAILED(m_device->CreateBuffer(
+		&constVertBufferInfo,
+		&constVertResourceData,
+		&m_vertexConstantBuffer)))
+	{
+		printf("D3D11: Failed to create constant vertex buffer\n");
+		return;
+	}
+
 	// Index buffer creation
 	D3D11_BUFFER_DESC indexBufferInfo = {};
 	indexBufferInfo.ByteWidth = sizeof(indices);
@@ -226,11 +255,11 @@ void Graphics::Render()
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	if (SUCCEEDED(m_deviceContext->Map(m_frameConstantBuffer.Get(), 0,
+	if (SUCCEEDED(m_deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
 		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
 	{
 		*static_cast<FrameCB*>(mapped.pData) = cb;
-		m_deviceContext->Unmap(m_frameConstantBuffer.Get(), 0);
+		m_deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
 	}
 
 	D3D11_VIEWPORT viewport = {};
@@ -259,13 +288,14 @@ void Graphics::Render()
 
 	// Vertex Shader
 	m_deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
+	m_deviceContext->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
 	// Rasterizer Stage
 	m_deviceContext->RSSetViewports(1, &viewport);
 
 	// Pixel Shader
 	m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	m_deviceContext->PSSetConstantBuffers(0, 1, m_frameConstantBuffer.GetAddressOf());
+	m_deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 
 	// Output Merger
 	m_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
