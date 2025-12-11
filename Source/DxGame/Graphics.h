@@ -56,6 +56,7 @@ public:
 
     ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
     ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
-	uint32_t m_frame = 0; // rolling seed
+
+	uint32_t m_frame = 0;
 };
 

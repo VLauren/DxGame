@@ -11,15 +11,20 @@ struct VSOutput
     float3 color : COLOR0;
 };
 
-cbuffer CBuf
+cbuffer Constants : register(b0)
 {
     matrix transform;
+    matrix viewProj;
 };
 
 VSOutput main(VSInput input)
 {
-    VSOutput output = (VSOutput) 0;
-    output.position = mul(float4(input.position, 1.0), transform);
+    float4 worldPos = mul(float4(input.position, 1.0), transform);
+    float4 clipPos = mul(worldPos, viewProj);
+
+    VSOutput output;
     output.color = input.color;
+    output.position = clipPos;
+
     return output;
 }

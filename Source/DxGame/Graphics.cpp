@@ -160,6 +160,8 @@ bool Graphics::Load()
 
 void Graphics::Render()
 {
+	using namespace DirectX;
+
 	// ------------------- 
 	// Change over time
 
@@ -168,32 +170,59 @@ void Graphics::Render()
 	cb.seed = m_frame++; // rolling seed
 
 	const double oscillation = sin(m_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
+	float angle = DirectX::XM_PI * m_appRef->GetTotalGameTime() / 3;
+
+	// -------------------
+	// Hardcoded camera
+
+	float aspect = (float)m_appRef->GetWindowWidth() / m_appRef->GetWindowHeight();
+	float fov = XM_PI / 3.f; // vertical fov: 60 deg
+	float nearZ = 0.1f;
+	float farZ = 100.f;
+
+	//XMMATRIX view = XMMatrixLookToLH(
+	XMMATRIX view = XMMatrixLookAtLH(
+		XMVectorSet(0, 2, -5, 0),
+		XMVectorSet(0, 0, 0, 0),
+		XMVectorSet(0, 1, 0, 0));
+
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
+
+	// rotate around Y
+	float time = m_appRef->GetTotalGameTime();
+	XMMATRIX world = XMMatrixRotationY(time/3);
+
 
 	// -------------------
 	// Geometry
 
-	constexpr VertexPositionColor vertices[] = {
-	{   Position{ -0.6f, 0.4f, 0.0f }, Color{ 0.8f, 0.8f, 0.8f } },
-	{  Position{ 0.6f, 0.4f, 0.0f }, Color{ 0.3f, 0.8f, 0.3f } },
-	{ Position{ -0.6f, -0.4f, 0.0f }, Color{ 0.3f, 0.3f, 0.7f } },
-	{  Position{ 0.6f, -0.4f, 0.0f }, Color{ 0.8f, 0.3f, 0.3f } },
-	};
-
-	const unsigned short indices[] =
+	// cube vertices with colors
+	constexpr VertexPositionColor cubeVerts[8] = 
 	{
-		0,1,2,
-		2,1,3
+		{ {-1,-1,-1}, {0.7f,0.2f,0.2f} }, { { 1,-1,-1}, {0.2f,0.7f,0.2f} },
+		{ { 1, 1,-1}, {0.2f,0.2f,0.7f} }, { {-1, 1,-1}, {0.7f,0.7f,0.2f} },
+		{ {-1,-1, 1}, {0.7f,0.2f,0.7f} }, { { 1,-1, 1}, {0.2f,0.7f,0.7f} },
+		{ { 1, 1, 1}, {0.7f,0.7f,0.7f} }, { {-1, 1, 1}, {0.2f,0.2f,0.2f} }
+	};
+	constexpr unsigned short cubeIdx[36] =
+	{
+		0,2,1, 2,0,3,
+		4,6,7, 6,4,5,
+		0,5,4, 5,0,1,
+		2,7,6, 7,2,3,
+		0,7,3, 7,0,4,
+		1,6,5, 6,1,2
 	};
 
 	// -------------------
 
 	// Vertex buffer creation
 	D3D11_BUFFER_DESC bufferInfo = {};
-	bufferInfo.ByteWidth = sizeof(vertices);
+	bufferInfo.ByteWidth = sizeof(cubeVerts);
 	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
 	bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	D3D11_SUBRESOURCE_DATA resourceData = {};
-	resourceData.pSysMem = vertices;
+	resourceData.pSysMem = cubeVerts;
 	if (FAILED(m_device->CreateBuffer(
 		&bufferInfo,
 		&resourceData,
@@ -206,25 +235,18 @@ void Graphics::Render()
 	// Constant vertex buffer for transformations
 	struct ConstantBuffer
 	{
-		struct
-		{
-			float element[4][4];
-		} transformation;
+		XMMATRIX transform;
+		XMMATRIX viewProj;
 	};
-	float angle = DirectX::XM_PI * m_appRef->GetTotalGameTime() / 3;
-	const ConstantBuffer cvb =
-	{
-		{
-			std::cos(angle), std::sin(angle), 0.0f, 0.0f,
-			-std::sin(angle), std::cos(angle), 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f,
-		}
-	};
+	
+	ConstantBuffer cvb;
+	cvb.transform = XMMatrixTranspose(world); // transpose because HLSL matrices are row major
+	cvb.viewProj = XMMatrixTranspose(view * proj);
+
 	D3D11_BUFFER_DESC constVertBufferInfo = {};
 	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
 	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-	constVertBufferInfo.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+	constVertBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
 	constVertBufferInfo.ByteWidth = sizeof(cvb);
 	D3D11_SUBRESOURCE_DATA constVertResourceData = {};
 	constVertResourceData.pSysMem = &cvb;
@@ -237,14 +259,22 @@ void Graphics::Render()
 		return;
 	}
 
+	D3D11_MAPPED_SUBRESOURCE vertexMapResource;
+	if (SUCCEEDED(m_deviceContext->Map(m_vertexConstantBuffer.Get(), 0,
+		D3D11_MAP_WRITE_DISCARD, 0, &vertexMapResource)))
+	{
+		*static_cast<ConstantBuffer*>(vertexMapResource.pData) = cvb;
+		m_deviceContext->Unmap(m_vertexConstantBuffer.Get(), 0);
+	}
+
 	// Index buffer creation
 	D3D11_BUFFER_DESC indexBufferInfo = {};
-	indexBufferInfo.ByteWidth = sizeof(indices);
+	indexBufferInfo.ByteWidth = sizeof(cubeIdx);
 	indexBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
 	indexBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 	indexBufferInfo.StructureByteStride = sizeof(unsigned short);
 	D3D11_SUBRESOURCE_DATA indexResourceData = {};
-	indexResourceData.pSysMem = indices;
+	indexResourceData.pSysMem = cubeIdx;
 	if (FAILED(m_device->CreateBuffer(
 		&indexBufferInfo,
 		&indexResourceData,
@@ -297,11 +327,12 @@ void Graphics::Render()
 	m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	m_deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 
+
 	// Output Merger
 	m_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
 
 	// m_deviceContext->Draw(std::size(vertices), 0);
-	m_deviceContext->DrawIndexed(std::size(indices), 0, 0);
+	m_deviceContext->DrawIndexed(std::size(cubeIdx), 0, 0);
 	m_swapChain->Present(1, 0);
 }
 

@@ -91,6 +91,7 @@ bool Application::Initialize()
 void Application::HandleResize(GLFWwindow* window, const int32_t width, const int32_t height)
 {
     Application* application = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    application->OnResize(width, height);
 }
 
 void Application::OnResize(const int32_t width, const int32_t height)
