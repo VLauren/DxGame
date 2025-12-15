@@ -75,7 +75,9 @@ bool DxGameApp::Initialize()
 
     // -----------------
 
-    // TODO Create game logic and game view
+    // WIP Create game logic and game view
+    m_game = std::make_unique<Game>();
+    m_game->Init();
 
     // TODO Preload selected resources
 
@@ -218,7 +220,7 @@ std::wstring DxGameApp::GetString(std::wstring sID)
 
 void DxGameApp::Update(float deltaTime)
 {
-    // printf("%f\n", deltaTime);
+    m_game->Update(deltaTime);
 }
 
 void DxGameApp::Render()

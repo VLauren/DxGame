@@ -4,6 +4,8 @@
 #include <iostream>
 #include <map>
 
+#include "Game.h"
+
 struct GLFWwindow;
 
 class Application
@@ -31,6 +33,7 @@ public:
 
 protected:
 	std::map<std::wstring, std::wstring> m_textResource;
+    std::unique_ptr<Game> m_game;
 
 private:
 	GLFWwindow* m_window = nullptr;

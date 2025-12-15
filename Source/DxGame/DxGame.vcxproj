@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +111,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,7 +145,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,15 +156,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\3rdParty\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="Actors\Actor.cpp" />
+    <ClCompile Include="Actors\ActorComponent.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="Actors\Actor.h" />
+    <ClInclude Include="Actors\ActorComponent.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="DxGameApp.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
   </ItemGroup>
   <ItemGroup>
