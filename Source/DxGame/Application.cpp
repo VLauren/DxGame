@@ -41,6 +41,8 @@ void Application::Run()
 
         last = now;
 	}
+
+    m_game->Destroy();
 }
 
 void Application::Cleanup()

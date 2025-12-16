@@ -11,6 +11,7 @@ class Game
 
 public:
 	void Init();
+	void Destroy();
 	void Update(float deltaTime);
 
 	void AddActor(std::shared_ptr<Actor> actor)

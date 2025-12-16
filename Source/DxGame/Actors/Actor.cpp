@@ -22,6 +22,9 @@ void Actor::Destroy()
 
 void Actor::Update(float deltaTime)
 {
+	// Update the actor components
+	for(auto& component : m_components)
+		component->VUpdate(deltaTime);
 }
 
 void Actor::AddComponent(std::shared_ptr<ActorComponent> pComponent)

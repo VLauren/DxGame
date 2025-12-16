@@ -159,6 +159,8 @@
     <ClCompile Include="Actors\Actor.cpp" />
     <ClCompile Include="Actors\ActorComponent.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Actors\CubeActor.cpp" />
+    <ClCompile Include="Actors\CubeRenderComponent.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -169,6 +171,8 @@
     <ClInclude Include="Actors\Actor.h" />
     <ClInclude Include="Actors\ActorComponent.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Actors\CubeActor.h" />
+    <ClInclude Include="Actors\CubeRenderComponent.h" />
     <ClInclude Include="DxGameApp.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics.h" />
