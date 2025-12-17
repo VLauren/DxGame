@@ -229,6 +229,11 @@ std::wstring DxGameApp::GetString(std::wstring sID)
 
 void DxGameApp::Update(float deltaTime)
 {
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
     m_game->Update(deltaTime);
 }
 
@@ -242,12 +247,7 @@ void DxGameApp::Render()
 			if (auto cubeRender = std::dynamic_pointer_cast<CubeRenderComponent>(component))
 				cubeRender->Render();
 
-	bool show_demo_window = true;
-
-	// Start the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	bool show_demo_window = false;
 
 	// Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (show_demo_window)
