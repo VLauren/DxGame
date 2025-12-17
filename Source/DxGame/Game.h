@@ -23,5 +23,7 @@ public:
 	{
 		std::erase(m_actors, actor);
 	}
+
+	std::vector<std::shared_ptr<Actor>> GetActors() { return m_actors; }
 };
 

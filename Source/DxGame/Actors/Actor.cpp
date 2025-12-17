@@ -13,6 +13,8 @@ Actor::~Actor()
 
 void Actor::Init()
 {
+	for (auto& component : m_components)
+		component->VInit();
 }
 
 void Actor::Destroy()

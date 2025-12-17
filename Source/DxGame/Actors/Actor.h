@@ -6,11 +6,11 @@
 
 class ActorComponent;
 
-class Actor
+class Actor : public std::enable_shared_from_this<Actor>
 {
-	DirectX::XMFLOAT3 position = { 0, 0, 0 };
-	DirectX::XMFLOAT3 rotation = { 0, 0, 0 };
-	DirectX::XMFLOAT3 scale = { 1, 1, 1 };
+	DirectX::XMFLOAT3 m_position = { 0, 0, 0 };
+	DirectX::XMFLOAT3 m_rotation = { 0, 0, 0 };
+	DirectX::XMFLOAT3 m_scale = { 1, 1, 1 };
 
 	int m_id;
 	std::vector<std::shared_ptr<ActorComponent>> m_components;
@@ -19,12 +19,20 @@ public:
 	explicit Actor(int id);
 	~Actor();
 
-	void Init();
+	virtual void Init();
 
 	void Destroy();
 	void Update(float deltaTime);
 
 	int GetId() const { return m_id; }
+
+	void SetPosition(const DirectX::XMFLOAT3& p) { m_position = p; }
+	void SetRotation(const DirectX::XMFLOAT3& r) { m_rotation = r; }
+	void SetScale	(const DirectX::XMFLOAT3& s) { m_scale = s; }
+
+	DirectX::XMFLOAT3 GetPosition() const { return m_position; }
+	DirectX::XMFLOAT3 GetRotation() const { return m_rotation; }
+	DirectX::XMFLOAT3 GetScale()	const { return m_scale; }
 
 	template<class T>
 	std::weak_ptr<T> GetComponent()
@@ -40,5 +48,7 @@ public:
 	}
 
 	void AddComponent(std::shared_ptr<ActorComponent> pComponent);
+
+	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
 };
 

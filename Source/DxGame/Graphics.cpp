@@ -45,9 +45,9 @@ bool Graphics::Initialize()
         &deviceFeatureLevel,
         1,
         D3D11_SDK_VERSION,
-        &m_device,
+        &s_device,
         nullptr,
-        &m_deviceContext)))
+        &s_deviceContext)))
     {
         printf("D3D11: Failed to create device and device context\n");
         return false;
@@ -72,7 +72,7 @@ bool Graphics::Initialize()
     swapChainFullScreenDescriptor.Windowed = true;
 
     if (FAILED(m_dxgiFactory->CreateSwapChainForHwnd(
-        m_device.Get(),
+        s_device.Get(),
         glfwGetWin32Window(m_appRef->GetWindow()),
         &swapChainDescriptor,
         &swapChainFullScreenDescriptor,
@@ -96,78 +96,12 @@ Graphics::~Graphics()
 
 bool Graphics::Load()
 {
-	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-	m_vertexShader = CreateVertexShader(L"../Shaders/Main.vs.hlsl", vertexShaderBlob);
-	if (m_vertexShader == nullptr)
-		return false;
-
-	m_pixelShader = CreatePixelShader(L"../Shaders/Main.ps.hlsl");
-	if (m_pixelShader == nullptr)
-		return false;
-
-	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
-	{
-		{
-			"POSITION",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			offsetof(VertexPositionColor, position),
-			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"COLOR",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			offsetof(VertexPositionColor, color),
-			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-	};
-
-	if (FAILED(m_device->CreateInputLayout(
-		vertexInputLayoutInfo,
-		_countof(vertexInputLayoutInfo),
-		vertexShaderBlob->GetBufferPointer(),
-		vertexShaderBlob->GetBufferSize(),
-		&m_vertexLayout)))
-	{
-		printf("D3D11: Failed to create default vertex input layout\n");
-		return false;
-	}
-
-	// Constant pixel buffer for the dynamic shader
-	struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
-	D3D11_BUFFER_DESC constPixBufferInfo = {};
-	constPixBufferInfo.ByteWidth = sizeof(FrameCB);
-	constPixBufferInfo.Usage = D3D11_USAGE_DYNAMIC;
-	constPixBufferInfo.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constPixBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA init = {};
-	FrameCB initial = {};
-	init.pSysMem = &initial;
-	HRESULT hr = m_device->CreateBuffer(&constPixBufferInfo, &init, &m_pixelConstantBuffer);
-	if (FAILED(hr))
-	{
-		printf("D3D11: Failed to create frame constant buffer\n");
-		return false;
-	}
-
 	return true;
 }
 
 void Graphics::Render()
 {
 	using namespace DirectX;
-
-	// ------------------- 
-	// Change over time
-
-	struct FrameCB { uint32_t seed; uint32_t pad[3]; };
-	FrameCB cb{};
-	cb.seed = m_frame++; // rolling seed
 
 	const double oscillation = sin(m_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
 	float angle = DirectX::XM_PI * m_appRef->GetTotalGameTime() / 3;
@@ -188,109 +122,12 @@ void Graphics::Render()
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
 
+    s_viewProj = view * proj;
+
 	// rotate around Y
-	float time = m_appRef->GetTotalGameTime();
-	XMMATRIX world = XMMatrixRotationY(time/3);
-
+	// float time = m_appRef->GetTotalGameTime();
 
 	// -------------------
-	// Geometry
-
-	// cube vertices with colors
-	constexpr VertexPositionColor cubeVerts[8] = 
-	{
-		{ {-1,-1,-1}, {0.7f,0.2f,0.2f} }, { { 1,-1,-1}, {0.2f,0.7f,0.2f} },
-		{ { 1, 1,-1}, {0.2f,0.2f,0.7f} }, { {-1, 1,-1}, {0.7f,0.7f,0.2f} },
-		{ {-1,-1, 1}, {0.7f,0.2f,0.7f} }, { { 1,-1, 1}, {0.2f,0.7f,0.7f} },
-		{ { 1, 1, 1}, {0.7f,0.7f,0.7f} }, { {-1, 1, 1}, {0.2f,0.2f,0.2f} }
-	};
-	constexpr unsigned short cubeIdx[36] =
-	{
-		0,2,1, 2,0,3,
-		4,6,7, 6,4,5,
-		0,5,4, 5,0,1,
-		2,7,6, 7,2,3,
-		0,7,3, 7,0,4,
-		1,6,5, 6,1,2
-	};
-
-	// -------------------
-
-	// Vertex buffer creation
-	D3D11_BUFFER_DESC bufferInfo = {};
-	bufferInfo.ByteWidth = sizeof(cubeVerts);
-	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
-	bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-	D3D11_SUBRESOURCE_DATA resourceData = {};
-	resourceData.pSysMem = cubeVerts;
-	if (FAILED(m_device->CreateBuffer(
-		&bufferInfo,
-		&resourceData,
-		&m_vertexBuffer)))
-	{
-		printf("D3D11: Failed to create vertex buffer\n");
-		return;
-	}
-
-	// Constant vertex buffer for transformations
-	struct ConstantBuffer
-	{
-		XMMATRIX transform;
-		XMMATRIX viewProj;
-	};
-	
-	ConstantBuffer cvb;
-	cvb.transform = XMMatrixTranspose(world); // transpose because HLSL matrices are row major
-	cvb.viewProj = XMMatrixTranspose(view * proj);
-
-	D3D11_BUFFER_DESC constVertBufferInfo = {};
-	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-	constVertBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
-	constVertBufferInfo.ByteWidth = sizeof(cvb);
-	D3D11_SUBRESOURCE_DATA constVertResourceData = {};
-	constVertResourceData.pSysMem = &cvb;
-	if (FAILED(m_device->CreateBuffer(
-		&constVertBufferInfo,
-		&constVertResourceData,
-		&m_vertexConstantBuffer)))
-	{
-		printf("D3D11: Failed to create constant vertex buffer\n");
-		return;
-	}
-
-	D3D11_MAPPED_SUBRESOURCE vertexMapResource;
-	if (SUCCEEDED(m_deviceContext->Map(m_vertexConstantBuffer.Get(), 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &vertexMapResource)))
-	{
-		*static_cast<ConstantBuffer*>(vertexMapResource.pData) = cvb;
-		m_deviceContext->Unmap(m_vertexConstantBuffer.Get(), 0);
-	}
-
-	// Index buffer creation
-	D3D11_BUFFER_DESC indexBufferInfo = {};
-	indexBufferInfo.ByteWidth = sizeof(cubeIdx);
-	indexBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	indexBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
-	indexBufferInfo.StructureByteStride = sizeof(unsigned short);
-	D3D11_SUBRESOURCE_DATA indexResourceData = {};
-	indexResourceData.pSysMem = cubeIdx;
-	if (FAILED(m_device->CreateBuffer(
-		&indexBufferInfo,
-		&indexResourceData,
-		&m_indexBuffer)))
-	{
-		printf("D3D11: Failed to create index buffer\n");
-		return;
-	}
-
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	if (SUCCEEDED(m_deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-	{
-		*static_cast<FrameCB*>(mapped.pData) = cb;
-		m_deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
-	}
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
@@ -301,44 +138,32 @@ void Graphics::Render()
 	viewport.MaxDepth = 1.0f;
 
 	// constexpr float clearColor[] = { 0.1f, 0.12f, 0.1f, 0.1f };
-	const float clearColor[] = { 0.2f + oscillation * 0.1f, 0.2f + oscillation * 0.4f, 0.2f, 1.0f }; // Oscillating colour
-	constexpr UINT vertexStride = sizeof(VertexPositionColor);
-	constexpr UINT vertexOffset = 0;
+	constexpr float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	// const float clearColor[] = { 0.2f + oscillation * 0.1f, 0.2f + oscillation * 0.4f, 0.2f, 1.0f }; // Oscillating colour
 
 	// -------------------
 	// Rendering stages
 
-	m_deviceContext->ClearRenderTargetView(m_renderTarget.Get(), clearColor);
+	s_deviceContext->ClearRenderTargetView(m_renderTarget.Get(), clearColor);
 
-	// Input Assembler
-	m_deviceContext->IASetInputLayout(m_vertexLayout.Get());
-	m_deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &vertexStride, &vertexOffset);
-	m_deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
-	m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Vertex Shader
-	m_deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	m_deviceContext->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
 	// Rasterizer Stage
-	m_deviceContext->RSSetViewports(1, &viewport);
-
-	// Pixel Shader
-	m_deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	m_deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
+	s_deviceContext->RSSetViewports(1, &viewport);
 
 
 	// Output Merger
-	m_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
+	s_deviceContext->OMSetRenderTargets(1, m_renderTarget.GetAddressOf(), nullptr);
 
-	// m_deviceContext->Draw(std::size(vertices), 0);
-	m_deviceContext->DrawIndexed(std::size(cubeIdx), 0, 0);
+}
+
+void Graphics::Present()
+{
 	m_swapChain->Present(1, 0);
 }
 
 void Graphics::OnResize(int32_t width, int32_t height)
 {
-    m_deviceContext->Flush();
+    s_deviceContext->Flush();
 
     DestroySwapchainResources();
 
@@ -369,7 +194,7 @@ bool Graphics::CreateSwapchainResources()
         return false;
     }
 
-    if (FAILED(m_device->CreateRenderTargetView(
+    if (FAILED(s_device->CreateRenderTargetView(
         backBuffer.Get(),
         nullptr,
         &m_renderTarget)))
@@ -390,7 +215,7 @@ bool Graphics::CompileShader(
     const std::wstring& fileName,
     const std::string& entryPoint,
     const std::string& profile,
-    ComPtr<ID3DBlob>& shaderBlob) const
+    ComPtr<ID3DBlob>& shaderBlob)
 {
     constexpr UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 
@@ -422,13 +247,13 @@ bool Graphics::CompileShader(
 
 Graphics::ComPtr<ID3D11VertexShader> Graphics::CreateVertexShader(
     const std::wstring& fileName,
-    ComPtr<ID3DBlob>& vertexShaderBlob) const
+    ComPtr<ID3DBlob>& vertexShaderBlob)
 {
     if (!CompileShader(fileName, "main", "vs_5_0", vertexShaderBlob))
         return nullptr;
 
     ComPtr<ID3D11VertexShader> vertexShader;
-    if (FAILED(m_device->CreateVertexShader(
+    if (FAILED(s_device->CreateVertexShader(
         vertexShaderBlob->GetBufferPointer(),
         vertexShaderBlob->GetBufferSize(),
         nullptr,
@@ -441,7 +266,7 @@ Graphics::ComPtr<ID3D11VertexShader> Graphics::CreateVertexShader(
     return vertexShader;
 }
 
-Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShader(const std::wstring& fileName) const
+Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShader(const std::wstring& fileName)
 {
     ComPtr<ID3DBlob> pixelShaderBlob = nullptr;
     if (!CompileShader(fileName, "main", "ps_5_0", pixelShaderBlob))
@@ -450,7 +275,7 @@ Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShader(const std::wstri
     }
 
     ComPtr<ID3D11PixelShader> pixelShader;
-    if (FAILED(m_device->CreatePixelShader(
+    if (FAILED(s_device->CreatePixelShader(
         pixelShaderBlob->GetBufferPointer(),
         pixelShaderBlob->GetBufferSize(),
         nullptr,

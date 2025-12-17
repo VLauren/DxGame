@@ -7,5 +7,7 @@ class CubeActor : public Actor
 {
 public:
 	explicit CubeActor(int id);
+
+	void Init();
 };
 

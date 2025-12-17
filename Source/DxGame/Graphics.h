@@ -14,49 +14,44 @@ class Graphics
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+    inline static DirectX::XMMATRIX s_viewProj = DirectX::XMMatrixIdentity();
+    inline static ComPtr<ID3D11DeviceContext> s_deviceContext = nullptr;
+    inline static ComPtr<ID3D11Device> s_device = nullptr;
+
 public:
     Graphics(Application* app);
 	~Graphics();
 
+    static const DirectX::XMMATRIX& GetViewProjMatrix() { return s_viewProj; }
+    static const ComPtr<ID3D11Device>& GetDevice() { return s_device; }
+    static const ComPtr<ID3D11DeviceContext>& GetDeviceContext() { return s_deviceContext; }
 	
 	bool Initialize();
 	void Render();
+    void Present();
     bool Load();
     void OnResize(int32_t width, int32_t height);
 
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
 
-    bool CompileShader(
+    static bool CompileShader(
         const std::wstring& fileName,
         const std::string& entryPoint,
         const std::string& profile,
-        ComPtr<ID3DBlob>& shaderBlob) const;
+        ComPtr<ID3DBlob>& shaderBlob);
 
-    [[nodiscard]] ComPtr<ID3D11VertexShader> CreateVertexShader(
+    [[nodiscard]] static ComPtr<ID3D11VertexShader> CreateVertexShader(
         const std::wstring& fileName,
-        ComPtr<ID3DBlob>& vertexShaderBlob) const;
+        ComPtr<ID3DBlob>& vertexShaderBlob);
 
-    [[nodiscard]] ComPtr<ID3D11PixelShader> CreatePixelShader(const std::wstring& fileName) const;
+    [[nodiscard]] static ComPtr<ID3D11PixelShader> CreatePixelShader(const std::wstring& fileName);
 
     Application* m_appRef;
 
     ComPtr<ID3D11Device> m_device = nullptr;
-    ComPtr<ID3D11DeviceContext> m_deviceContext = nullptr;
     ComPtr<IDXGIFactory2> m_dxgiFactory = nullptr;
     ComPtr<IDXGISwapChain1> m_swapChain = nullptr;
     ComPtr<ID3D11RenderTargetView> m_renderTarget = nullptr;
-
-    ComPtr<ID3D11VertexShader> m_vertexShader = nullptr;
-    ComPtr<ID3D11PixelShader> m_pixelShader = nullptr;
-
-    ComPtr<ID3D11Buffer> m_vertexBuffer = nullptr;
-    ComPtr<ID3D11Buffer> m_indexBuffer = nullptr;
-    ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
-
-    ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
-    ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
-
-	uint32_t m_frame = 0;
 };
 

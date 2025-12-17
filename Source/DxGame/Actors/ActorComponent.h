@@ -10,6 +10,7 @@ protected:
 	std::shared_ptr<Actor> m_pOwner;
 
 public:
+	ActorComponent(std::shared_ptr<Actor> owner) { m_pOwner = owner; }
 	virtual ~ActorComponent() { m_pOwner.reset(); }
 
 	virtual void VInit() = 0;

@@ -7,6 +7,7 @@
 #include <ShlObj.h>
 
 #include <iostream>
+#include "Actors/CubeRenderComponent.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -226,5 +227,13 @@ void DxGameApp::Update(float deltaTime)
 void DxGameApp::Render()
 {
     m_gfx->Render();
+
+    // Render components that draw
+    for (auto& actor : m_game->GetActors())
+        for (auto& component : actor->GetComponents())
+            if (auto cubeRender = std::dynamic_pointer_cast<CubeRenderComponent>(component))
+                cubeRender->Render();
+
+    m_gfx->Present();
 }
 
