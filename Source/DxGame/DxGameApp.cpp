@@ -1,5 +1,9 @@
 #include "DxGameApp.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_dx11.h"
+
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -73,6 +77,10 @@ bool DxGameApp::Initialize()
     m_gfx = std::make_unique<Graphics>(this);
     if (!m_gfx->Initialize())
         return false;
+
+    // Setup Dear Imgui Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOther(m_window, true);
+    ImGui_ImplDX11_Init(Graphics::GetDevice().Get(), Graphics::GetDeviceContext().Get());
 
     // -----------------
 
@@ -228,11 +236,26 @@ void DxGameApp::Render()
 {
     m_gfx->Render();
 
-    // Render components that draw
-    for (auto& actor : m_game->GetActors())
-        for (auto& component : actor->GetComponents())
-            if (auto cubeRender = std::dynamic_pointer_cast<CubeRenderComponent>(component))
-                cubeRender->Render();
+	// Render components that draw
+	for (auto& actor : m_game->GetActors())
+		for (auto& component : actor->GetComponents())
+			if (auto cubeRender = std::dynamic_pointer_cast<CubeRenderComponent>(component))
+				cubeRender->Render();
+
+	bool show_demo_window = true;
+
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	// Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+	if (show_demo_window)
+		ImGui::ShowDemoWindow(&show_demo_window);
+
+	// Rendering
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     m_gfx->Present();
 }

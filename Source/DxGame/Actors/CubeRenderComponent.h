@@ -32,14 +32,3 @@ public:
     ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
     ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
 };
-
-// TODO
-// [component de cubo de dibuja]
-// version minima, estructura cutre
-// - desde Application.cpp, Render() lo que hacer es, gfx Render, m_game por cada actor, por cada render component Render(), gfx Present()
-// - mover present a gfx Present, ver que todo va bien y se llama cube render
-// - mover a cube render: geometria, todo lo que depende de geometría manteniendo el orden
-// - ver si pinta bien
-// - ver si puedo mover mas
-// - calcular world transform con datos de actor
-

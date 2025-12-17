@@ -35,8 +35,9 @@ protected:
 	std::map<std::wstring, std::wstring> m_textResource;
     std::unique_ptr<Game> m_game;
 
-private:
 	GLFWwindow* m_window = nullptr;
+
+private:
 	int32_t m_width = 0;
 	int32_t m_height = 0;
 	std::string m_title;
