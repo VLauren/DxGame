@@ -52,6 +52,10 @@ void Application::Run()
 
 void Application::Cleanup()
 {
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     if (m_window != nullptr)
     {
         glfwDestroyWindow(m_window);
