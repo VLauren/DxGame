@@ -5,14 +5,17 @@
 
 #include <stdio.h>
 
-std::shared_ptr<CubeActor> testCube;
+std::shared_ptr<CubeActor> testCube, testCube2;
 
 void Game::Init()
 {
 	auto cubeActor = std::make_shared<CubeActor>(0);
 	AddActor(cubeActor);
+	auto cubeActor2 = std::make_shared<CubeActor>(0);
+	AddActor(cubeActor2);
 
 	testCube = cubeActor;
+	testCube2 = cubeActor2;
 
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();

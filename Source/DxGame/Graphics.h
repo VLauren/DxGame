@@ -53,5 +53,6 @@ public:
     ComPtr<IDXGIFactory2> m_dxgiFactory = nullptr;
     ComPtr<IDXGISwapChain1> m_swapChain = nullptr;
     ComPtr<ID3D11RenderTargetView> m_renderTarget = nullptr;
+    ComPtr<ID3D11DepthStencilView> m_depthStencil = nullptr;
 };
 
