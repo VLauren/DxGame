@@ -10,6 +10,9 @@
     <Filter Include="3rdParty">
       <UniqueIdentifier>{438e5038-1865-4a79-a0a5-d8d0cc12f026}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{a0431e70-45f8-45da-8918-651cd3e2e227}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actors\Actor.cpp">
@@ -21,7 +24,6 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="..\3rdParty\tinyxml2\tinyxml2.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
@@ -52,8 +54,13 @@
     <ClCompile Include="..\3rdParty\imgui\imgui_widgets.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>3rdParty</Filter>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,7 +73,6 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="DxGameApp.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Graphics.h" />
     <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h">
       <Filter>3rdParty</Filter>
     </ClInclude>
@@ -75,6 +81,13 @@
     </ClInclude>
     <ClInclude Include="Actors\CubeActor.h">
       <Filter>Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneNode.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
