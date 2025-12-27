@@ -5,18 +5,12 @@
 #include <DirectXMath.h>
 
 class ActorComponent;
+class Game;
 
 class Actor : public std::enable_shared_from_this<Actor>
 {
-	DirectX::XMFLOAT3 m_position = { 0, 0, 0 };
-	DirectX::XMFLOAT3 m_rotation = { 0, 0, 0 };
-	DirectX::XMFLOAT3 m_scale = { 1, 1, 1 };
-
-	int m_id;
-	std::vector<std::shared_ptr<ActorComponent>> m_components;
-
 public:
-	explicit Actor(int id);
+	explicit Actor(int id, Game* game);
 	~Actor();
 
 	virtual void Init();
@@ -50,5 +44,17 @@ public:
 	void AddComponent(std::shared_ptr<ActorComponent> pComponent);
 
 	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
+
+private:
+
+	int m_id;
+	std::vector<std::shared_ptr<ActorComponent>> m_components;
+
+	DirectX::XMFLOAT3 m_position = { 0, 0, 0 };
+	DirectX::XMFLOAT3 m_rotation = { 0, 0, 0 };
+	DirectX::XMFLOAT3 m_scale = { 1, 1, 1 };
+
+protected:
+	Game* m_game;
 };
 

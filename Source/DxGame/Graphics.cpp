@@ -107,7 +107,6 @@ void Graphics::Render()
 	using namespace DirectX;
 
 	const double oscillation = sin(m_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
-	float angle = DirectX::XM_PI * m_appRef->GetTotalGameTime() / 3;
 
 	// -------------------
 	// Hardcoded camera

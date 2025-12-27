@@ -7,11 +7,13 @@
 
 std::shared_ptr<CubeActor> testCube, testCube2;
 
+Game::Game(Scene* scene) : m_scene(scene) {}
+
 void Game::Init()
 {
-	auto cubeActor = std::make_shared<CubeActor>(0);
+	auto cubeActor = std::make_shared<CubeActor>(0, this);
 	AddActor(cubeActor);
-	auto cubeActor2 = std::make_shared<CubeActor>(0);
+	auto cubeActor2 = std::make_shared<CubeActor>(0, this);
 	AddActor(cubeActor2);
 
 	testCube = cubeActor;

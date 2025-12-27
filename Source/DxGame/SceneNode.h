@@ -11,23 +11,18 @@ class Scene;
 class SceneNode
 {
 public:
-	SceneNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix)
-	{
-		m_actorId = actorId;
-		m_name = name;
-		m_worldMatrix = worldMatrix;
-	}
+	SceneNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix);
 
 	virtual void VSetTransform(const DirectX::XMMATRIX& worldMatrix) { m_worldMatrix = worldMatrix; }
 	virtual DirectX::XMMATRIX VGetTransform() { return  m_worldMatrix; }
 
-	virtual void VPreRender(Scene *pScene) = 0;
-	virtual void VRender(Scene *pScene) = 0;
-	virtual void VRenderChildren(Scene *pScene) = 0;
-	virtual void VPostRender(Scene *pScene) = 0;
+	virtual void VPreRender(Scene* pScene) {};
+	virtual void VRender(Scene* pScene) {};
+	virtual void VRenderChildren(Scene* pScene);
+	virtual void VPostRender(Scene* pScene) {};
 
-	virtual bool VAddChild(std::shared_ptr<SceneNode> child) = 0;
-	virtual bool VRemoveChild(int actorId) = 0;
+	virtual bool VAddChild(std::shared_ptr<SceneNode> child);
+	virtual bool VRemoveChild(int actorId);
 
 	virtual ~SceneNode() {}
 

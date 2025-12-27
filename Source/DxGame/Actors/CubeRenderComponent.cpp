@@ -71,10 +71,27 @@ void CubeRenderComponent::VInit()
 	{
 		printf("D3D11: Failed to create frame constant buffer\n");
 	}
+
+	// -----------------
+	// Post init
+
+	// TODO world matrix from actor
+	auto node = std::make_shared<SceneNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
 }
 
 void CubeRenderComponent::VUpdate(float deltaTime)
 {
+	using namespace DirectX;
+
+	XMFLOAT3 p = m_pOwner->GetPosition();
+	XMFLOAT3 r = m_pOwner->GetRotation();
+	XMFLOAT3 s = m_pOwner->GetScale();
+	XMMATRIX world = XMMatrixScalingFromVector(XMLoadFloat3(&s)) *
+		XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&r)) *
+		XMMatrixTranslationFromVector(XMLoadFloat3(&p));
+
+	if(auto node = m_sceneNode.lock())
+		node->VSetTransform(world);
 }
 
 void CubeRenderComponent::Render()

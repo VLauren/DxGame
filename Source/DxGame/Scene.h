@@ -11,28 +11,19 @@ class SceneNode;
 
 class Scene
 {
-protected:
-	std::shared_ptr<SceneNode> m_root;
 
 public:
-	Scene() {}
+	Scene();
 	~Scene() {}
 
-	void OnRender()
-	{
+	void OnRender();
 
-	}
+	bool AddChild(int actorId, std::shared_ptr<SceneNode> child);
 
-	bool AddChild(int actorId, std::shared_ptr<SceneNode> child)
-	{
-		// return m_root->VAddChild(child);
-	}
+	bool RemoveChild(int actorId);
 
-	bool RemoveChild(int actorId)
-	{
-		// return m_root->VRemoveChild(child);
-	}
-
+protected:
+	std::shared_ptr<SceneNode> m_root;
 	
 };
 

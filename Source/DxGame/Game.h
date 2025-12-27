@@ -5,11 +5,13 @@
 
 #include "Actors/Actor.h"
 
+class Scene;
+
 class Game
 {
-	std::vector<std::shared_ptr<Actor>> m_actors;
-
 public:
+	explicit Game(Scene* scene);
+
 	void Init();
 	void Destroy();
 	void Update(float deltaTime);
@@ -25,5 +27,10 @@ public:
 	}
 
 	std::vector<std::shared_ptr<Actor>> GetActors() { return m_actors; }
+	Scene* GetScene() { return m_scene; }
+
+private:
+	std::vector<std::shared_ptr<Actor>> m_actors;
+    Scene* m_scene;
 };
 

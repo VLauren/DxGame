@@ -12,6 +12,7 @@
 
 #include "Application.h"
 #include "Graphics.h"
+#include "Scene.h"
 #include <tinyxml2.h>
 
 class DxGameApp : public Application
@@ -31,8 +32,12 @@ protected:
     void Render() override;
     void Update(float deltaTime) override;
 
+public:
+    std::wstring m_saveGameDirectory;
+
 private:
     std::unique_ptr<Graphics> m_gfx;
+    std::unique_ptr<Scene> m_scene;
 
     bool IsOnlyInstance();
     bool CheckStorage(std::uintmax_t diskSpaceNeeded);
@@ -40,7 +45,5 @@ private:
     bool LoadStrings(std::string language);
     std::wstring GetString(std::wstring sID);
 
-public:
-    std::wstring m_saveGameDirectory;
 };
 

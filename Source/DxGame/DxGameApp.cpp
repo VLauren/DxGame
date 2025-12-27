@@ -77,6 +77,7 @@ bool DxGameApp::Initialize()
     m_gfx = std::make_unique<Graphics>(this);
     if (!m_gfx->Initialize())
         return false;
+    m_scene = std::make_unique<Scene>();
 
     // Setup Dear Imgui Platform/Renderer backends
     ImGui_ImplGlfw_InitForOther(m_window, true);
@@ -85,7 +86,7 @@ bool DxGameApp::Initialize()
     // -----------------
 
     // WIP Create game logic and game view
-    m_game = std::make_unique<Game>();
+    m_game = std::make_unique<Game>(m_scene.get());
     m_game->Init();
 
     // TODO Preload selected resources
@@ -240,6 +241,7 @@ void DxGameApp::Update(float deltaTime)
 void DxGameApp::Render()
 {
     m_gfx->Render();
+    m_scene->OnRender();
 
 	// Render components that draw
 	for (auto& actor : m_game->GetActors())

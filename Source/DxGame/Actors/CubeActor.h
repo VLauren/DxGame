@@ -6,7 +6,7 @@
 class CubeActor : public Actor
 {
 public:
-	explicit CubeActor(int id);
+	explicit CubeActor(int id, Game* game);
 
 	void Init();
 };

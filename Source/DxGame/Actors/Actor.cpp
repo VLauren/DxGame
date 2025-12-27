@@ -1,10 +1,7 @@
 #include "ActorComponent.h"
 #include "Actor.h"
 
-Actor::Actor(int id)
-{
-	m_id = id;
-}
+Actor::Actor(int id, Game* game) : m_id(id), m_game(game) {}
 
 Actor::~Actor()
 {
