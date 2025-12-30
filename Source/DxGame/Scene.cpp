@@ -1,16 +1,14 @@
 #include "Scene.h"
-#include "SceneNode.h"
+#include "SceneNodes.h"
 
 Scene::Scene() 
 {
-	// m_root = std::make_shared<SceneNode>(1, std::string("root node"), DirectX::XMMatrixIdentity);
+	m_root = std::make_shared<SceneNode>(1, std::string("root node"), DirectX::XMMatrixIdentity());
 }
 
 void Scene::OnRender()
 {
-	// m_root->VRenderChildren(this);
-
-	std::printf("scene render\n");
+	m_root->VRenderChildren(this);
 }
 
 bool Scene::AddChild(int actorId, std::shared_ptr<SceneNode> child)

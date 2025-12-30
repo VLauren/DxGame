@@ -10,15 +10,6 @@
 
 #include <chrono>
 
-using Position = DirectX::XMFLOAT3;
-using Color = DirectX::XMFLOAT3;
-
-struct VertexPositionColor
-{
-    Position position;
-    Color color;
-};
-
 Graphics::Graphics(Application* app)
 {
     m_appRef = app;
