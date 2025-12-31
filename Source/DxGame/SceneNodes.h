@@ -40,23 +40,26 @@ protected:
 
 class ShaderMeshNode : public SceneNode
 {
+public:
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	struct FrameCB { uint32_t seed; uint32_t pad[3]; };
+
 	struct ConstantBuffer
 	{
 		DirectX::XMMATRIX transform;
 		DirectX::XMMATRIX viewProj;
 	};
 
-public:
+	struct VertexPositionColor
+	{
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 color;
+	};
 
 	ShaderMeshNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
 		SceneNode(actorId, name, worldMatrix) {}
-
-	virtual void VPreRender(Scene* pScene);
-	virtual void VRender(Scene* pScene);
 
 	virtual void VLoadResources();
 	virtual void SetShadersAndLayout(
@@ -64,8 +67,33 @@ public:
 		ComPtr<ID3D11PixelShader> ps,
 		ComPtr<ID3D11InputLayout> il);
 
-protected:
+	// -------------------
+	// Geometry
 
+	// cube vertices with colors
+	static constexpr VertexPositionColor cubeVerts[8] = 
+	{
+		{ {-1,-1,-1}, {0.7f,0.2f,0.2f} }, { { 1,-1,-1}, {0.2f,0.7f,0.2f} },
+		{ { 1, 1,-1}, {0.2f,0.2f,0.7f} }, { {-1, 1,-1}, {0.7f,0.7f,0.2f} },
+		{ {-1,-1, 1}, {0.7f,0.2f,0.7f} }, { { 1,-1, 1}, {0.2f,0.7f,0.7f} },
+		{ { 1, 1, 1}, {0.7f,0.7f,0.7f} }, { {-1, 1, 1}, {0.2f,0.2f,0.2f} }
+	};
+
+	static constexpr unsigned short cubeIdx[36] =
+	{
+		0,2,1, 2,0,3,
+		4,6,7, 6,4,5,
+		0,5,4, 5,0,1,
+		2,7,6, 7,2,3,
+		0,7,3, 7,0,4,
+		1,6,5, 6,1,2
+	};
+
+protected:
+	virtual void VPreRender(Scene* pScene);
+	virtual void VRender(Scene* pScene);
+
+private:
     ComPtr<ID3D11Buffer> m_vertexBuffer = nullptr;
     ComPtr<ID3D11Buffer> m_indexBuffer = nullptr;
 

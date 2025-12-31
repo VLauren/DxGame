@@ -243,12 +243,6 @@ void DxGameApp::Render()
     m_gfx->Render();
     m_scene->OnRender();
 
-	// Render components that draw
-	for (auto& actor : m_game->GetActors())
-		for (auto& component : actor->GetComponents())
-			if (auto cubeRender = std::dynamic_pointer_cast<CubeRenderComponent>(component))
-				cubeRender->Render();
-
 	bool show_demo_window = false;
 
 	// Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).

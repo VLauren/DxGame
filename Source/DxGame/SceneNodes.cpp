@@ -29,40 +29,15 @@ bool SceneNode::VRemoveChild(int actorId)
 	return true;
 }
 
-
-	// -------------------
-	// Geometry
-
-	struct VertexPositionColor
-	{
-		DirectX::XMFLOAT3 position;
-		DirectX::XMFLOAT3 color;
-	};
-
-	// cube vertices with colors
-	static constexpr VertexPositionColor cubeVerts[8] = 
-	{
-		{ {-1,-1,-1}, {0.7f,0.2f,0.2f} }, { { 1,-1,-1}, {0.2f,0.7f,0.2f} },
-		{ { 1, 1,-1}, {0.2f,0.2f,0.7f} }, { {-1, 1,-1}, {0.7f,0.7f,0.2f} },
-		{ {-1,-1, 1}, {0.7f,0.2f,0.7f} }, { { 1,-1, 1}, {0.2f,0.7f,0.7f} },
-		{ { 1, 1, 1}, {0.7f,0.7f,0.7f} }, { {-1, 1, 1}, {0.2f,0.2f,0.2f} }
-	};
-
-	static constexpr unsigned short cubeIdx[36] =
-	{
-		0,2,1, 2,0,3,
-		4,6,7, 6,4,5,
-		0,5,4, 5,0,1,
-		2,7,6, 7,2,3,
-		0,7,3, 7,0,4,
-		1,6,5, 6,1,2
-	};
+// ===========================
+//		Shader Mesh Node
+// ===========================
 
 void ShaderMeshNode::VLoadResources() 
 {
 	using namespace DirectX;
 
-	// Vertex buffer creation
+	// Vertex buffer
 	D3D11_BUFFER_DESC bufferInfo = {};
 	bufferInfo.ByteWidth = sizeof(cubeVerts);
 	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
@@ -78,11 +53,10 @@ void ShaderMeshNode::VLoadResources()
 		return;
 	}
 
+	// Constant vertex buffer for transformations
 	ConstantBuffer cvb;
 	cvb.transform = XMMatrixTranspose(m_worldMatrix); // transpose because HLSL matrices are row major
 	cvb.viewProj = XMMatrixTranspose(Graphics::GetViewProjMatrix());
-
-	// Constant vertex buffer for transformations
 	D3D11_BUFFER_DESC constVertBufferInfo = {};
 	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
 	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
@@ -115,7 +89,6 @@ void ShaderMeshNode::VLoadResources()
 		printf("D3D11: Failed to create index buffer\n");
 		return;
 	}
-
 
 	FrameCB cb{};
 	cb.seed = m_frame++; // rolling seed
@@ -156,10 +129,10 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	auto device = Graphics::GetDevice();
 	auto deviceContext = Graphics::GetDeviceContext();
 
+	// per object constants
 	ConstantBuffer cvb;
 	cvb.transform = XMMatrixTranspose(m_worldMatrix); // transpose because HLSL matrices are row major
 	cvb.viewProj = XMMatrixTranspose(Graphics::GetViewProjMatrix());
-
 	D3D11_MAPPED_SUBRESOURCE vertexMapResource;
 	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(m_vertexConstantBuffer.Get(), 0,
 		D3D11_MAP_WRITE_DISCARD, 0, &vertexMapResource)))
@@ -168,11 +141,9 @@ void ShaderMeshNode::VRender(Scene* pScene)
 		Graphics::GetDeviceContext()->Unmap(m_vertexConstantBuffer.Get(), 0);
 	}
 
-	// ------------------- 
-
+	// rolling seed
 	FrameCB cb{};
 	cb.seed = m_frame++; // rolling seed
-
 	D3D11_MAPPED_SUBRESOURCE mapped;
 	if (SUCCEEDED(deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
 		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
@@ -181,10 +152,9 @@ void ShaderMeshNode::VRender(Scene* pScene)
 		deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
 	}
 
+	// Input Assembler
 	constexpr UINT vertexStride = sizeof(VertexPositionColor);
 	constexpr UINT vertexOffset = 0;
-
-	// Input Assembler
 	deviceContext->IASetInputLayout(m_vertexLayout.Get());
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &vertexStride, &vertexOffset);
 	deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
@@ -198,6 +168,6 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 
+	// Draw
 	deviceContext->DrawIndexed(std::size(cubeIdx), 0, 0);
-
 }
