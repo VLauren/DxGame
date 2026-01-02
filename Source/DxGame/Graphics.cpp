@@ -12,7 +12,7 @@
 
 Graphics::Graphics(Application* app)
 {
-    m_appRef = app;
+    s_appRef = app;
 }
 
 bool Graphics::Initialize() 
@@ -48,8 +48,8 @@ bool Graphics::Initialize()
     // -------------------
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDescriptor = {};
-	swapChainDescriptor.Width = m_appRef->GetWindowWidth();
-    swapChainDescriptor.Height = m_appRef->GetWindowHeight();
+	swapChainDescriptor.Width = s_appRef->GetWindowWidth();
+    swapChainDescriptor.Height = s_appRef->GetWindowHeight();
     swapChainDescriptor.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapChainDescriptor.SampleDesc.Count = 1;
     swapChainDescriptor.SampleDesc.Quality = 0;
@@ -64,7 +64,7 @@ bool Graphics::Initialize()
 
     if (FAILED(m_dxgiFactory->CreateSwapChainForHwnd(
         s_device.Get(),
-        glfwGetWin32Window(m_appRef->GetWindow()),
+        glfwGetWin32Window(s_appRef->GetWindow()),
         &swapChainDescriptor,
         &swapChainFullScreenDescriptor,
         nullptr,
@@ -97,25 +97,25 @@ void Graphics::Render()
 {
 	using namespace DirectX;
 
-	const double oscillation = sin(m_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
+	const double oscillation = sin(s_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
 
 	// -------------------
 	// Hardcoded camera
 
-	float aspect = (float)m_appRef->GetWindowWidth() / m_appRef->GetWindowHeight();
-	float fov = XM_PI / 3.f; // vertical fov: 60 deg
-	float nearZ = 0.1f;
-	float farZ = 100.f;
+	// float aspect = (float)m_appRef->GetWindowWidth() / m_appRef->GetWindowHeight();
+	// float fov = XM_PI / 3.f; // vertical fov: 60 deg
+	// float nearZ = 0.1f;
+	// float farZ = 100.f;
 
 	//XMMATRIX view = XMMatrixLookToLH(
-	XMMATRIX view = XMMatrixLookAtLH(
-		XMVectorSet(0, 2, -5, 0),
-		XMVectorSet(0, 0, 0, 0),
-		XMVectorSet(0, 1, 0, 0));
+	// XMMATRIX view = XMMatrixLookAtLH(
+		// XMVectorSet(0, 2, -5, 0),
+		// XMVectorSet(0, 0, 0, 0),
+		// XMVectorSet(0, 1, 0, 0));
+ 
+	// XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
 
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
-
-    s_viewProj = view * proj;
+    // s_viewProj = view * proj;
 
 	// rotate around Y
 	// float time = m_appRef->GetTotalGameTime();
@@ -125,8 +125,8 @@ void Graphics::Render()
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = static_cast<float>(m_appRef->GetWindowWidth());
-	viewport.Height = static_cast<float>(m_appRef->GetWindowHeight());
+	viewport.Width = static_cast<float>(s_appRef->GetWindowWidth());
+	viewport.Height = static_cast<float>(s_appRef->GetWindowHeight());
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
@@ -211,8 +211,8 @@ bool Graphics::CreateSwapchainResources()
 
     ComPtr<ID3D11Texture2D> pDepthStencil;
     D3D11_TEXTURE2D_DESC depthTextureDescriptor = {};
-    depthTextureDescriptor.Width = m_appRef->GetWindowWidth();
-    depthTextureDescriptor.Height = m_appRef->GetWindowHeight();
+    depthTextureDescriptor.Width = s_appRef->GetWindowWidth();
+    depthTextureDescriptor.Height = s_appRef->GetWindowHeight();
     depthTextureDescriptor.MipLevels = 1;
     depthTextureDescriptor.ArraySize = 1;
     depthTextureDescriptor.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;

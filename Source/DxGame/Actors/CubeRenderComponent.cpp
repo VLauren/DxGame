@@ -63,7 +63,7 @@ void CubeRenderComponent::VInit()
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
 	m_scene->AddChild(m_pOwner->GetId(), node);
 
-	node->VLoadResources();
+	node->VLoadResources(m_scene);
 	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
 
 	m_sceneNode = node;

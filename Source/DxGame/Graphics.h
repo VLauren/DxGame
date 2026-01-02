@@ -14,7 +14,7 @@ class Graphics
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-    inline static DirectX::XMMATRIX s_viewProj = DirectX::XMMatrixIdentity();
+    // inline static DirectX::XMMATRIX s_viewProj = DirectX::XMMatrixIdentity();
     inline static ComPtr<ID3D11DeviceContext> s_deviceContext = nullptr;
     inline static ComPtr<ID3D11Device> s_device = nullptr;
 
@@ -22,9 +22,10 @@ public:
     Graphics(Application* app);
 	~Graphics();
 
-    static const DirectX::XMMATRIX& GetViewProjMatrix() { return s_viewProj; }
+    // static const DirectX::XMMATRIX& GetViewProjMatrix() { return s_viewProj; }
     static const ComPtr<ID3D11Device>& GetDevice() { return s_device; }
     static const ComPtr<ID3D11DeviceContext>& GetDeviceContext() { return s_deviceContext; }
+    static const Application* GetApplication() { return s_appRef; }
 	
 	bool Initialize();
 	void Render();
@@ -47,7 +48,7 @@ public:
 
     [[nodiscard]] static ComPtr<ID3D11PixelShader> CreatePixelShader(const std::wstring& fileName);
 
-    Application* m_appRef;
+    inline static Application* s_appRef;
 
     ComPtr<ID3D11Device> m_device = nullptr;
     ComPtr<IDXGIFactory2> m_dxgiFactory = nullptr;

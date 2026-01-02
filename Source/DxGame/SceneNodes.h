@@ -61,7 +61,7 @@ public:
 	ShaderMeshNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
 		SceneNode(actorId, name, worldMatrix) {}
 
-	virtual void VLoadResources();
+	virtual void VLoadResources(Scene* pScene);
 	virtual void SetShadersAndLayout(
 		ComPtr<ID3D11VertexShader> vs,
 		ComPtr<ID3D11PixelShader> ps,
@@ -118,5 +118,31 @@ private:
     ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
 
 	uint32_t m_frame = 0;
+};
+
+
+class CameraNode : public SceneNode
+{
+public:
+	CameraNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
+		SceneNode(actorId, name, worldMatrix) {}
+	~CameraNode() {}
+
+	virtual void VPreRender(Scene* pScene);
+	virtual void VRender(Scene* pScene);
+	virtual void VRenderChildren(Scene* pScene);
+	virtual void VPostRender(Scene* pScene);
+
+	// virtual bool VAddChild(std::shared_ptr<SceneNode> child);
+	// virtual bool VRemoveChild(int actorId);
+
+private:
+	float m_aspectRatio;
+	float m_fov;
+	float m_nearZ;
+	float m_farZ;
+
+	DirectX::XMMATRIX m_view;
+	DirectX::XMMATRIX m_projection;
 };
 

@@ -1,3 +1,4 @@
+#include "Scene.h"
 #include "SceneNodes.h"
 #include "Graphics.h"
 
@@ -33,7 +34,7 @@ bool SceneNode::VRemoveChild(int actorId)
 //		Shader Mesh Node
 // ===========================
 
-void ShaderMeshNode::VLoadResources() 
+void ShaderMeshNode::VLoadResources(Scene* pScene) 
 {
 	using namespace DirectX;
 
@@ -56,7 +57,7 @@ void ShaderMeshNode::VLoadResources()
 	// Constant vertex buffer for transformations
 	ConstantBuffer cvb;
 	cvb.transform = XMMatrixTranspose(m_worldMatrix); // transpose because HLSL matrices are row major
-	cvb.viewProj = XMMatrixTranspose(Graphics::GetViewProjMatrix());
+	cvb.viewProj = XMMatrixTranspose(pScene->GetViewProjMatrix());
 	D3D11_BUFFER_DESC constVertBufferInfo = {};
 	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
 	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
@@ -132,7 +133,7 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	// per object constants
 	ConstantBuffer cvb;
 	cvb.transform = XMMatrixTranspose(m_worldMatrix); // transpose because HLSL matrices are row major
-	cvb.viewProj = XMMatrixTranspose(Graphics::GetViewProjMatrix());
+	cvb.viewProj = XMMatrixTranspose(pScene->GetViewProjMatrix());
 	D3D11_MAPPED_SUBRESOURCE vertexMapResource;
 	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(m_vertexConstantBuffer.Get(), 0,
 		D3D11_MAP_WRITE_DISCARD, 0, &vertexMapResource)))
@@ -170,4 +171,41 @@ void ShaderMeshNode::VRender(Scene* pScene)
 
 	// Draw
 	deviceContext->DrawIndexed(std::size(cubeIdx), 0, 0);
+}
+
+
+// ===========================
+//		Camera Node
+// ===========================
+
+void CameraNode::VPreRender(Scene* pScene)
+{
+}
+
+void CameraNode::VRender(Scene* pScene)
+{
+	using namespace DirectX;
+
+	
+	float aspect = (float) Graphics::GetApplication()->GetWindowWidth() / Graphics::GetApplication()->GetWindowHeight();
+	m_fov = XM_PI / 3.f; // vertical fov: 60 deg
+	m_nearZ = 0.1f;
+	m_farZ = 100.f;
+
+	XMMATRIX view = XMMatrixLookAtLH(
+		XMVectorSet(0, 2, -7, 0),
+		XMVectorSet(0, 0, 0, 0),
+		XMVectorSet(0, 1, 0, 0));
+
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(m_fov, aspect, m_nearZ, m_farZ);
+
+	pScene->SetViewProjMatrix(view * proj);
+}
+
+void CameraNode::VRenderChildren(Scene* pScene)
+{
+}
+
+void CameraNode::VPostRender(Scene* pScene)
+{
 }

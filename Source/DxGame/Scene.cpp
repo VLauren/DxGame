@@ -4,10 +4,12 @@
 Scene::Scene() 
 {
 	m_root = std::make_shared<SceneNode>(1, std::string("root node"), DirectX::XMMatrixIdentity());
+	m_cameraNode = std::make_shared<CameraNode>(1, std::string("camera node"), DirectX::XMMatrixIdentity());
 }
 
 void Scene::OnRender()
 {
+	m_cameraNode->VRender(this);
 	m_root->VRenderChildren(this);
 }
 
