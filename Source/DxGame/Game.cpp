@@ -20,6 +20,9 @@ void Game::Init()
 	auto camActor = std::make_shared<CameraActor>(1, this);
 	AddActor(camActor);
 
+	camActor->SetPosition(DirectX::XMFLOAT3(0, 2, -7));
+	camActor->SetRotation(DirectX::XMFLOAT3(0.2f, 0, 0));
+
 	testCube = cubeActor;
 	testCube2 = cubeActor2;
 	testCam = camActor;
