@@ -64,6 +64,12 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Actors\CameraComponent.cpp">
+      <Filter>Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actors\CameraActor.cpp">
+      <Filter>Actors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors\Actor.h">
@@ -92,6 +98,12 @@
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Actors\CameraComponent.h">
+      <Filter>Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Actors\CameraActor.h">
+      <Filter>Actors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

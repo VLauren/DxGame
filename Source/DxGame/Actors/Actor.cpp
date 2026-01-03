@@ -22,7 +22,7 @@ void Actor::Destroy()
 void Actor::Update(float deltaTime)
 {
 	// Update the actor components
-	for(auto& component : m_components)
+	for (auto& component : m_components)
 		component->VUpdate(deltaTime);
 }
 

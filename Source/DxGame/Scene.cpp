@@ -4,17 +4,24 @@
 Scene::Scene() 
 {
 	m_root = std::make_shared<SceneNode>(1, std::string("root node"), DirectX::XMMatrixIdentity());
-	m_cameraNode = std::make_shared<CameraNode>(1, std::string("camera node"), DirectX::XMMatrixIdentity());
 }
 
 void Scene::OnRender()
 {
-	m_cameraNode->VRender(this);
+	if (m_cameraNode)
+		m_cameraNode->VRender(this);
+	else
+		printf("No cam!\n");
 	m_root->VRenderChildren(this);
 }
 
 bool Scene::AddChild(int actorId, std::shared_ptr<SceneNode> child)
 {
+	// save camera reference
+	auto cam = std::dynamic_pointer_cast<CameraNode>(child);
+	if (cam)
+		m_cameraNode = cam;
+
 	return m_root->VAddChild(child);
 }
 

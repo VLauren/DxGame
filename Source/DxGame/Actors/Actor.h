@@ -16,7 +16,7 @@ public:
 	virtual void Init();
 
 	void Destroy();
-	void Update(float deltaTime);
+	virtual void Update(float deltaTime);
 
 	int GetId() const { return m_id; }
 
@@ -45,7 +45,7 @@ public:
 
 	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
 
-private:
+protected:
 
 	int m_id;
 	std::vector<std::shared_ptr<ActorComponent>> m_components;
@@ -54,7 +54,6 @@ private:
 	DirectX::XMFLOAT3 m_rotation = { 0, 0, 0 };
 	DirectX::XMFLOAT3 m_scale = { 1, 1, 1 };
 
-protected:
 	Game* m_game;
 };
 

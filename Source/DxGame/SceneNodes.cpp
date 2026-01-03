@@ -192,10 +192,12 @@ void CameraNode::VRender(Scene* pScene)
 	m_nearZ = 0.1f;
 	m_farZ = 100.f;
 
-	XMMATRIX view = XMMatrixLookAtLH(
-		XMVectorSet(0, 2, -7, 0),
-		XMVectorSet(0, 0, 0, 0),
-		XMVectorSet(0, 1, 0, 0));
+	// XMMATRIX view = XMMatrixLookAtLH(
+		// XMVectorSet(0, 2, -7, 0),
+		// XMVectorSet(0, 0, 0, 0),
+		// XMVectorSet(0, 1, 0, 0));
+
+	XMMATRIX view = XMMatrixInverse(nullptr, m_worldMatrix);
 
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(m_fov, aspect, m_nearZ, m_farZ);
 

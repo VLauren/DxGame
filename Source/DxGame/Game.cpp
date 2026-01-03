@@ -2,10 +2,12 @@
 #include "imgui.h"
 #include "Game.h"
 #include "Actors/CubeActor.h"
+#include "Actors/CameraActor.h"
 
 #include <stdio.h>
 
 std::shared_ptr<CubeActor> testCube, testCube2;
+std::shared_ptr<CameraActor> testCam;
 
 Game::Game(Scene* scene) : m_scene(scene) {}
 
@@ -15,9 +17,12 @@ void Game::Init()
 	AddActor(cubeActor);
 	auto cubeActor2 = std::make_shared<CubeActor>(0, this);
 	AddActor(cubeActor2);
+	auto camActor = std::make_shared<CameraActor>(1, this);
+	AddActor(camActor);
 
 	testCube = cubeActor;
 	testCube2 = cubeActor2;
+	testCam = camActor;
 
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();
