@@ -1,8 +1,16 @@
 
+cbuffer cbLight : register(b1)
+{
+    float3 g_LightDir;
+    float3 g_LightColor;
+    float3 g_Ambient;
+};
+
 struct PSInput
 {
     float4 position : SV_Position;
     float3 color : COLOR0;
+    float3 normal : NORMAL;
 };
 
 struct PSOutput
@@ -13,7 +21,19 @@ struct PSOutput
 PSOutput main(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
-    output.color = float4(input.color, 1.0);
+
+    float3 N = normalize(input.normal);
+    // float L = normalize(-g_LightDir);
+    float3 L = normalize(-float3(3, -2, 1.5));
+    
+    float NdotL = saturate(dot(N, L));
+
+    // float3 diffuse = g_LightColor * NdotL * input.color;
+    // float3 final = diffuse + g_Ambient * input.color;
+    float3 diffuse =  NdotL * input.color;
+    float3 final = diffuse + 0.3;
+    
+    output.color = float4(final, 1.0);
     return output;
 }
 
