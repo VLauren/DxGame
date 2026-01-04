@@ -5,13 +5,12 @@
 #include "../Scene.h"
 #include "../Graphics.h"
 
-using Position = DirectX::XMFLOAT3;
-using Color = DirectX::XMFLOAT3;
 
 struct VertexPositionColor
 {
-    Position position;
-    Color color;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 color;
+	DirectX::XMFLOAT3 normal;
 };
 
 template <typename T>
@@ -45,6 +44,15 @@ void CubeRenderComponent::VInit()
 			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
 			0,
 			offsetof(VertexPositionColor, color),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"NORMAL",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexPositionColor, normal),
 			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
 			0
 		},
