@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include <GLFW/glfw3.h>
 
 class ActorComponent;
 class Game;

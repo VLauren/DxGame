@@ -14,3 +14,19 @@ void CubeActor::Init()
 
 	Actor::Init();
 }
+
+void CubeActor::Update(float deltaTime)
+{
+	Actor::Update(deltaTime);
+
+	auto pos = GetPosition();
+	if (glfwGetKey(m_game->GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
+		pos.z += deltaTime * 2;
+	if (glfwGetKey(m_game->GetWindow(), GLFW_KEY_A) == GLFW_PRESS)
+		pos.x -= deltaTime * 2;
+	if (glfwGetKey(m_game->GetWindow(), GLFW_KEY_S) == GLFW_PRESS)
+		pos.z -= deltaTime * 2;
+	if (glfwGetKey(m_game->GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
+		pos.x += deltaTime * 2;
+	SetPosition(pos);
+}

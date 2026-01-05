@@ -29,6 +29,7 @@ public:
 
 	std::vector<std::shared_ptr<Actor>> GetActors() { return m_actors; }
 	Scene* GetScene() { return m_scene; }
+	GLFWwindow* GetWindow() { return m_window; }
 
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;

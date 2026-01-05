@@ -9,5 +9,6 @@ public:
 	explicit CubeActor(int id, Game* game);
 
 	void Init();
+	void Update(float deltaTime);
 };
 

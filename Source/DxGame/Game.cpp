@@ -15,8 +15,8 @@ void Game::Init()
 {
 	auto cubeActor = std::make_shared<CubeActor>(0, this);
 	AddActor(cubeActor);
-	auto cubeActor2 = std::make_shared<CubeActor>(0, this);
-	AddActor(cubeActor2);
+	// auto cubeActor2 = std::make_shared<CubeActor>(0, this);
+	// AddActor(cubeActor2);
 	auto camActor = std::make_shared<CameraActor>(1, this);
 	AddActor(camActor);
 
@@ -24,7 +24,7 @@ void Game::Init()
 	camActor->SetRotation(DirectX::XMFLOAT3(0.2f, 0, 0));
 
 	testCube = cubeActor;
-	testCube2 = cubeActor2;
+	// testCube2 = cubeActor2;
 	testCam = camActor;
 
 	// Init all actors
@@ -41,6 +41,7 @@ void Game::Update(float deltaTime)
 	// Update all actors
 	for (auto& actor : m_actors) actor->Update(deltaTime);
 
+	/*
 	auto pos = testCube->GetPosition();
 	auto rot = testCube->GetRotation();
 	auto sca = testCube->GetScale();
@@ -65,21 +66,11 @@ void Game::Update(float deltaTime)
 	testCube->SetPosition(pos);
 	testCube->SetRotation(rot);
 	testCube->SetScale(sca);
+	*/
 
-	pos = testCube2->GetPosition();
-
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
-		pos.z += deltaTime * 2;
-	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
-		pos.x -= deltaTime * 2;
-	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
-		pos.z -= deltaTime * 2;
-	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
-		pos.x += deltaTime * 2;
-
-
-	testCube2->SetPosition(pos);
-
+	// GLFWgamepadstate gp;
+	// if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gp))
+		// testCam->SetRotation(DirectX::XMFLOAT3(testCam->GetRotation().x + gp.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] * deltaTime * 0.3f, 0, 0));
 
 }
 
