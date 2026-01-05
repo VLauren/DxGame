@@ -86,7 +86,7 @@ bool DxGameApp::Initialize()
     // -----------------
 
     // WIP Create game logic and game view
-    m_game = std::make_unique<Game>(m_scene.get());
+    m_game = std::make_unique<Game>(m_scene.get(), m_window);
     m_game->Init();
 
     // TODO Preload selected resources

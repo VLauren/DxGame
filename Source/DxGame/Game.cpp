@@ -9,7 +9,7 @@
 std::shared_ptr<CubeActor> testCube, testCube2;
 std::shared_ptr<CameraActor> testCam;
 
-Game::Game(Scene* scene) : m_scene(scene) {}
+Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) {}
 
 void Game::Init()
 {
@@ -62,12 +62,24 @@ void Game::Update(float deltaTime)
 
 	ImGui::End();
 
-	// testCube->SetPosition({ testCube->GetPosition().x + deltaTime * 0.2f, 0, 0});
-	// testCube->SetRotation({ 0, testCube->GetRotation().y + deltaTime * DirectX::XM_PI * 0.05f, 0});
-
 	testCube->SetPosition(pos);
 	testCube->SetRotation(rot);
 	testCube->SetScale(sca);
+
+	pos = testCube2->GetPosition();
+
+	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+		pos.z += deltaTime * 2;
+	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+		pos.x -= deltaTime * 2;
+	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+		pos.z -= deltaTime * 2;
+	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+		pos.x += deltaTime * 2;
+
+
+	testCube2->SetPosition(pos);
+
 
 }
 

@@ -41,6 +41,7 @@ void Application::Run()
         m_totalTime += dt;
 
 		glfwPollEvents();
+
 		Update(dt);
 		Render();
 

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <GLFW/glfw3.h>
 
 #include "Actors/Actor.h"
 
@@ -10,7 +11,7 @@ class Scene;
 class Game
 {
 public:
-	explicit Game(Scene* scene);
+	explicit Game(Scene* scene, GLFWwindow* window);
 
 	void Init();
 	void Destroy();
@@ -32,5 +33,6 @@ public:
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
     Scene* m_scene;
+	GLFWwindow* m_window;
 };
 
