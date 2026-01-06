@@ -31,9 +31,13 @@ public:
 	Scene* GetScene() { return m_scene; }
 	GLFWwindow* GetWindow() { return m_window; }
 
+	int NextId() { return m_idCount++; }
+
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
     Scene* m_scene;
 	GLFWwindow* m_window;
+
+	std::atomic<int> m_idCount;
 };
 

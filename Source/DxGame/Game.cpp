@@ -13,11 +13,11 @@ Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) 
 
 void Game::Init()
 {
-	auto cubeActor = std::make_shared<CubeActor>(0, this);
+	auto cubeActor = std::make_shared<CubeActor>(NextId(), this);
 	AddActor(cubeActor);
-	// auto cubeActor2 = std::make_shared<CubeActor>(0, this);
+	// auto cubeActor2 = std::make_shared<CubeActor>(NextId(), this);
 	// AddActor(cubeActor2);
-	auto camActor = std::make_shared<CameraActor>(1, this);
+	auto camActor = std::make_shared<CameraActor>(NextId(), this);
 	AddActor(camActor);
 
 	camActor->SetPosition(DirectX::XMFLOAT3(0, 2, -7));
