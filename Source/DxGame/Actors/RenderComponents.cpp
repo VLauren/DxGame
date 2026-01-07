@@ -18,6 +18,28 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 void RenderComponent::VInit()
 {
+}
+
+void RenderComponent::VUpdate(float deltaTime)
+{
+	using namespace DirectX;
+
+	XMFLOAT3 p = m_pOwner->GetPosition();
+	XMFLOAT3 r = m_pOwner->GetRotation();
+	XMFLOAT3 s = m_pOwner->GetScale();
+	XMMATRIX world = XMMatrixScalingFromVector(XMLoadFloat3(&s)) *
+		XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&r)) *
+		XMMatrixTranslationFromVector(XMLoadFloat3(&p));
+
+	if(auto node = m_sceneNode.lock())
+		node->VSetTransform(world);
+}
+
+
+void CubeRenderComponent::VInit()
+{
+	RenderComponent::VInit();
+
 	auto device = Graphics::GetDevice();
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
@@ -71,29 +93,60 @@ void RenderComponent::VInit()
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
 	m_scene->AddChild(m_pOwner->GetId(), node);
 
+	constexpr VertexPositionColor cubeVerts[24] =
+	{
+		{ { 1,-1,-1}, {1.0f,0.5f,0.5f}, {1,0,0} },
+		{ { 1, 1,-1}, {1.0f,0.5f,0.5f}, {1,0,0} },
+		{ { 1, 1, 1}, {1.0f,0.5f,0.5f}, {1,0,0} },
+		{ { 1,-1, 1}, {1.0f,0.5f,0.5f}, {1,0,0} },
+
+		{ {-1,-1, 1}, {0.5f,1.0f,0.5f}, {-1,0,0} },
+		{ {-1, 1, 1}, {0.5f,1.0f,0.5f}, {-1,0,0} },
+		{ {-1, 1,-1}, {0.5f,1.0f,0.5f}, {-1,0,0} },
+		{ {-1,-1,-1}, {0.5f,1.0f,0.5f}, {-1,0,0} },
+
+		{ {-1, 1,-1}, {0.5f,0.5f,1.0f}, {0,1,0} },
+		{ { 1, 1,-1}, {0.5f,0.5f,1.0f}, {0,1,0} },
+		{ { 1, 1, 1}, {0.5f,0.5f,1.0f}, {0,1,0} },
+		{ {-1, 1, 1}, {0.5f,0.5f,1.0f}, {0,1,0} },
+
+		{ {-1,-1, 1}, {1.0f,1.0f,0.5f}, {0,-1,0} },
+		{ { 1,-1, 1}, {1.0f,1.0f,0.5f}, {0,-1,0} },
+		{ { 1,-1,-1}, {1.0f,1.0f,0.5f}, {0,-1,0} },
+		{ {-1,-1,-1}, {1.0f,1.0f,0.5f}, {0,-1,0} },
+
+		{ {-1,-1, 1}, {1.0f,0.5f,1.0f}, {0,0,1} },
+		{ {-1, 1, 1}, {1.0f,0.5f,1.0f}, {0,0,1} },
+		{ { 1, 1, 1}, {1.0f,0.5f,1.0f}, {0,0,1} },
+		{ { 1,-1, 1}, {1.0f,0.5f,1.0f}, {0,0,1} },
+
+		{ { 1,-1,-1}, {0.5f,1.0f,1.0f}, {0,0,-1} },
+		{ { 1, 1,-1}, {0.5f,1.0f,1.0f}, {0,0,-1} },
+		{ {-1, 1,-1}, {0.5f,1.0f,1.0f}, {0,0,-1} },
+		{ {-1,-1,-1}, {0.5f,1.0f,1.0f}, {0,0,-1} }
+	};
+
+	constexpr unsigned short cubeIdx[36] =
+	{
+		0, 1, 2,    0, 2, 3,
+		4, 5, 6,    4, 6, 7,
+		8,10, 9,    8,11,10,
+	   12,14,13,   12,15,14,
+	   16,18,17,   16,19,18,
+	   20,22,21,   20,23,22
+	};
+
+	ShaderMeshNode::GeometryDesc geometryDesc = {};
+	geometryDesc.vertexStride = sizeof(VertexPositionColor);
+	geometryDesc.vertexCount = 24;
+	geometryDesc.vertexData = cubeVerts;
+	geometryDesc.indexCount = 36;
+	geometryDesc.indexData = cubeIdx;
+
+	node->SetGeometry(geometryDesc);
 	node->VLoadResources(m_scene);
 	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
 
 	m_sceneNode = node;
-}
 
-void RenderComponent::VUpdate(float deltaTime)
-{
-	using namespace DirectX;
-
-	XMFLOAT3 p = m_pOwner->GetPosition();
-	XMFLOAT3 r = m_pOwner->GetRotation();
-	XMFLOAT3 s = m_pOwner->GetScale();
-	XMMATRIX world = XMMatrixScalingFromVector(XMLoadFloat3(&s)) *
-		XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&r)) *
-		XMMatrixTranslationFromVector(XMLoadFloat3(&p));
-
-	if(auto node = m_sceneNode.lock())
-		node->VSetTransform(world);
-}
-
-
-void CubeRenderComponent::VInit()
-{
-	RenderComponent::VInit();
 }

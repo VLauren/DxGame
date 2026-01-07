@@ -52,6 +52,16 @@ public:
 		DirectX::XMMATRIX viewProj;
 	};
 
+	struct GeometryDesc
+	{
+		int32_t vertexStride = 0;
+		int32_t vertexCount = 0;
+		const void* vertexData = nullptr;
+
+		int32_t indexCount = 0;
+		const void* indexData = nullptr;
+	};
+
 	struct VertexPositionColor
 	{
 		DirectX::XMFLOAT3 position;
@@ -62,6 +72,7 @@ public:
 	ShaderMeshNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
 		SceneNode(actorId, name, worldMatrix) {}
 
+	virtual void SetGeometry(const GeometryDesc& desc);
 	virtual void VLoadResources(Scene* pScene);
 	virtual void SetShadersAndLayout(
 		ComPtr<ID3D11VertexShader> vs,
@@ -120,6 +131,8 @@ protected:
 	virtual void VRender(Scene* pScene);
 
 private:
+	GeometryDesc m_geometryDesc{};
+
     ComPtr<ID3D11Buffer> m_vertexBuffer = nullptr;
     ComPtr<ID3D11Buffer> m_indexBuffer = nullptr;
 

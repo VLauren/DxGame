@@ -34,10 +34,49 @@ bool SceneNode::VRemoveChild(int actorId)
 //		Shader Mesh Node
 // ===========================
 
-void ShaderMeshNode::VLoadResources(Scene* pScene) 
+void ShaderMeshNode::SetGeometry(const GeometryDesc& desc) 
+{
+	m_geometryDesc = desc;
+}
+
+void ShaderMeshNode::VLoadResources(Scene* pScene)
 {
 	using namespace DirectX;
 
+	// Vertex buffer
+	D3D11_BUFFER_DESC bufferInfo = {};
+	bufferInfo.ByteWidth = m_geometryDesc.vertexStride * m_geometryDesc.vertexCount;
+	bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
+	bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+	D3D11_SUBRESOURCE_DATA resourceData = {};
+	resourceData.pSysMem = m_geometryDesc.vertexData;
+	if (FAILED(Graphics::GetDevice()->CreateBuffer(
+		&bufferInfo,
+		&resourceData,
+		&m_vertexBuffer)))
+	{
+		printf("D3D11: Failed to create vertex buffer\n");
+		return;
+	}
+
+	// Index buffer creation
+	D3D11_BUFFER_DESC indexBufferInfo = {};
+	indexBufferInfo.ByteWidth = sizeof(uint16_t) * m_geometryDesc.indexCount;
+	indexBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+	indexBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+	indexBufferInfo.StructureByteStride = sizeof(unsigned short);
+	D3D11_SUBRESOURCE_DATA indexResourceData = {};
+	indexResourceData.pSysMem = m_geometryDesc.indexData;
+	if (FAILED(Graphics::GetDevice()->CreateBuffer(
+		&indexBufferInfo,
+		&indexResourceData,
+		&m_indexBuffer)))
+	{
+		printf("D3D11: Failed to create index buffer\n");
+		return;
+	}
+
+	/*
 	// Vertex buffer
 	D3D11_BUFFER_DESC bufferInfo = {};
 	bufferInfo.ByteWidth = sizeof(cubeVerts);
@@ -53,6 +92,7 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		printf("D3D11: Failed to create vertex buffer\n");
 		return;
 	}
+	*/
 
 	// Constant vertex buffer for transformations
 	ConstantBuffer cvb;
@@ -74,6 +114,7 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		return;
 	}
 
+	/*
 	// Index buffer creation
 	D3D11_BUFFER_DESC indexBufferInfo = {};
 	indexBufferInfo.ByteWidth = sizeof(cubeIdx);
@@ -90,6 +131,7 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		printf("D3D11: Failed to create index buffer\n");
 		return;
 	}
+	*/
 
 	FrameCB cb{};
 	cb.seed = m_frame++; // rolling seed
