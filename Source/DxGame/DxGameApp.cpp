@@ -11,7 +11,7 @@
 #include <ShlObj.h>
 
 #include <iostream>
-#include "Actors/CubeRenderComponent.h"
+#include "Actors/RenderComponents.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")

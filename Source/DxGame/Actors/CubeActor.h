@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor.h"
-#include "CubeRenderComponent.h"
+#include "RenderComponents.h"
 
 class CubeActor : public Actor
 {

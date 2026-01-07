@@ -27,7 +27,7 @@
     <ClCompile Include="..\3rdParty\tinyxml2\tinyxml2.cpp">
       <Filter>3rdParty</Filter>
     </ClCompile>
-    <ClCompile Include="Actors\CubeRenderComponent.cpp">
+    <ClCompile Include="Actors\RenderComponents.cpp">
       <Filter>Actors</Filter>
     </ClCompile>
     <ClCompile Include="Actors\CubeActor.cpp">
@@ -84,7 +84,7 @@
     <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h">
       <Filter>3rdParty</Filter>
     </ClInclude>
-    <ClInclude Include="Actors\CubeRenderComponent.h">
+    <ClInclude Include="Actors\RenderComponents.h">
       <Filter>Actors</Filter>
     </ClInclude>
     <ClInclude Include="Actors\CubeActor.h">

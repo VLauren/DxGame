@@ -38,6 +38,6 @@ private:
     Scene* m_scene;
 	GLFWwindow* m_window;
 
-	std::atomic<int> m_idCount;
+	int m_idCount;
 };
 

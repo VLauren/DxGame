@@ -167,7 +167,7 @@
     <ClCompile Include="Actors\ActorComponent.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Actors\CubeActor.cpp" />
-    <ClCompile Include="Actors\CubeRenderComponent.cpp" />
+    <ClCompile Include="Actors\RenderComponents.cpp" />
     <ClCompile Include="Actors\CameraComponent.cpp" />
     <ClCompile Include="Actors\CameraActor.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
@@ -183,7 +183,7 @@
     <ClInclude Include="Actors\ActorComponent.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Actors\CubeActor.h" />
-    <ClInclude Include="Actors\CubeRenderComponent.h" />
+    <ClInclude Include="Actors\RenderComponents.h" />
     <ClInclude Include="Actors\CameraComponent.h" />
     <ClInclude Include="Actors\CameraActor.h" />
     <ClInclude Include="DxGameApp.h" />

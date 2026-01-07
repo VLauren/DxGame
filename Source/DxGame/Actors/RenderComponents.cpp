@@ -1,4 +1,4 @@
-#include "CubeRenderComponent.h"
+#include "RenderComponents.h"
 
 #include <DirectXMath.h>
 #include <d3d11.h>
@@ -16,7 +16,7 @@ struct VertexPositionColor
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-void CubeRenderComponent::VInit()
+void RenderComponent::VInit()
 {
 	auto device = Graphics::GetDevice();
 
@@ -77,7 +77,7 @@ void CubeRenderComponent::VInit()
 	m_sceneNode = node;
 }
 
-void CubeRenderComponent::VUpdate(float deltaTime)
+void RenderComponent::VUpdate(float deltaTime)
 {
 	using namespace DirectX;
 
@@ -90,4 +90,10 @@ void CubeRenderComponent::VUpdate(float deltaTime)
 
 	if(auto node = m_sceneNode.lock())
 		node->VSetTransform(world);
+}
+
+
+void CubeRenderComponent::VInit()
+{
+	RenderComponent::VInit();
 }
