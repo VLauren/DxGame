@@ -28,6 +28,11 @@ bool Graphics::Initialize()
 
     constexpr D3D_FEATURE_LEVEL deviceFeatureLevel = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
 
+    uint32_t flags = 0;
+#ifdef _DEBUG
+    flags |= D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
     if (FAILED(D3D11CreateDevice(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
@@ -251,7 +256,11 @@ bool Graphics::CompileShader(
     const std::string& profile,
     ComPtr<ID3DBlob>& shaderBlob)
 {
-    constexpr UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    UINT compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    compileFlags |= D3DCOMPILE_DEBUG;
+    compileFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
 
     ComPtr<ID3DBlob> tempShaderBlob = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
