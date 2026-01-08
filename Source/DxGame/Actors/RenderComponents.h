@@ -38,7 +38,15 @@ public:
 	explicit CubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
 
 	void VInit();
+};
 
-private:
-	uint32_t m_frame = 0;
+class TextureCubeRenderComponent : public RenderComponent
+{
+public:
+    explicit TextureCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
+
+    void VInit();
+
+    ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
+    ComPtr<ID3D11SamplerState> m_sampler = nullptr;
 };

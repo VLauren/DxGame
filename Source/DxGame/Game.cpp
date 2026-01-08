@@ -41,7 +41,6 @@ void Game::Update(float deltaTime)
 	// Update all actors
 	for (auto& actor : m_actors) actor->Update(deltaTime);
 
-	/*
 	auto pos = testCube->GetPosition();
 	auto rot = testCube->GetRotation();
 	auto sca = testCube->GetScale();
@@ -66,7 +65,6 @@ void Game::Update(float deltaTime)
 	testCube->SetPosition(pos);
 	testCube->SetRotation(rot);
 	testCube->SetScale(sca);
-	*/
 
 	// GLFWgamepadstate gp;
 	// if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gp))

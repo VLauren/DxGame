@@ -13,6 +13,13 @@ struct VertexPositionColor
 	DirectX::XMFLOAT3 normal;
 };
 
+struct VertexNormalUV
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT2 uv;
+};
+
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -149,4 +156,152 @@ void CubeRenderComponent::VInit()
 
 	m_sceneNode = node;
 
+}
+
+void TextureCubeRenderComponent::VInit()
+{
+	RenderComponent::VInit();
+
+	auto device = Graphics::GetDevice();
+
+	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
+	m_vertexShader = Graphics::CreateVertexShader(L"../Shaders/Textured.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(L"../Shaders/Textured.ps.hlsl");
+
+	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
+	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
+
+	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
+	{
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, position),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"NORMAL",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, normal),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, uv),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+	};
+
+	if (FAILED(device->CreateInputLayout(
+		vertexInputLayoutInfo,
+		_countof(vertexInputLayoutInfo),
+		vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize(),
+		&m_vertexLayout)))
+	{
+		printf("D3D11: Failed to create default vertex input layout\n");
+	}
+
+	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
+	m_scene->AddChild(m_pOwner->GetId(), node);
+
+	static constexpr VertexNormalUV cubeVerts[24] =
+	{
+		// +X face
+		{ { 1,-1,-1}, {1,0,0}, {0,1} },
+		{ { 1, 1,-1}, {1,0,0}, {1,1} },
+		{ { 1, 1, 1}, {1,0,0}, {1,0} },
+		{ { 1,-1, 1}, {1,0,0}, {0,0} },
+		// -X face
+		{ {-1,-1, 1}, {-1,0,0}, {0,1} },
+		{ {-1, 1, 1}, {-1,0,0}, {1,1} },
+		{ {-1, 1,-1}, {-1,0,0}, {1,0} },
+		{ {-1,-1,-1}, {-1,0,0}, {0,0} },
+		// +Y face
+		{ {-1, 1,-1}, {0,1,0}, {0,1} },
+		{ { 1, 1,-1}, {0,1,0}, {1,1} },
+		{ { 1, 1, 1}, {0,1,0}, {1,0} },
+		{ {-1, 1, 1}, {0,1,0}, {0,0} },
+		// -Y face
+		{ {-1,-1, 1}, {0,-1,0}, {0,1} },
+		{ { 1,-1, 1}, {0,-1,0}, {1,1} },
+		{ { 1,-1,-1}, {0,-1,0}, {1,0} },
+		{ {-1,-1,-1}, {0,-1,0}, {0,0} },
+		// +Z face
+		{ {-1,-1, 1}, {0,0,1}, {0,1} },
+		{ {-1, 1, 1}, {0,0,1}, {1,1} },
+		{ { 1, 1, 1}, {0,0,1}, {1,0} },
+		{ { 1,-1, 1}, {0,0,1}, {0,0} },
+		// -Z face
+		{ { 1,-1,-1}, {0,0,-1}, {0,1} },
+		{ { 1, 1,-1}, {0,0,-1}, {1,1} },
+		{ {-1, 1,-1}, {0,0,-1}, {1,0} },
+		{ {-1,-1,-1}, {0,0,-1}, {0,0} }
+	};
+
+	constexpr unsigned short cubeIdx[36] =
+	{
+		0, 1, 2,    0, 2, 3,
+		4, 5, 6,    4, 6, 7,
+		8,10, 9,    8,11,10,
+	   12,14,13,   12,15,14,
+	   16,18,17,   16,19,18,
+	   20,22,21,   20,23,22
+	};
+
+	ShaderMeshNode::GeometryDesc geometryDesc = {};
+	geometryDesc.vertexStride = sizeof(VertexNormalUV);
+	geometryDesc.vertexCount = 24;
+	geometryDesc.vertexData = cubeVerts;
+	geometryDesc.indexCount = 36;
+	geometryDesc.indexData = cubeIdx;
+
+	ComPtr<ID3D11Texture2D> tex;
+	ComPtr<ID3D11ShaderResourceView> srv;
+
+	D3D11_TEXTURE2D_DESC td = {};
+	td.Width = 1;
+	td.Height = 1;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+	td.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	td.SampleDesc = { 1, 0 };
+	td.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
+	td.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
+
+	constexpr uint32_t white = 0xFFFFFFFF;
+	D3D11_SUBRESOURCE_DATA init = {};
+	init.pSysMem = &white;
+	init.SysMemPitch = sizeof(white);
+
+	device->CreateTexture2D(&td, &init, tex.GetAddressOf());
+	device->CreateShaderResourceView(tex.Get(), nullptr, srv.GetAddressOf());
+
+	// 2. create sampler
+	CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
+	ComPtr<ID3D11SamplerState> sampler;
+	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
+
+	// 3. store them in the component
+	m_diffuseSRV = srv;
+	m_sampler = sampler;
+
+	Graphics::GetDeviceContext()->PSSetShaderResources(0, 1, m_diffuseSRV.GetAddressOf());
+	Graphics::GetDeviceContext()->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
+
+	node->SetGeometry(geometryDesc);
+	node->VLoadResources(m_scene);
+	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
+
+	m_sceneNode = node;
 }
