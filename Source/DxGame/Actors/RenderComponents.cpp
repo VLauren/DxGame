@@ -269,15 +269,31 @@ void TextureCubeRenderComponent::VInit()
 	ComPtr<ID3D11ShaderResourceView> srv;
 
 	// Texture generation, checkerboard pattern
+	// constexpr int TEX = 128;
+	// std::vector<UINT32> pixels(TEX* TEX);
+	// auto checker = [&](int x, int y, uint32_t a, uint32_t b)
+		// {
+			// return ((x / 32 + y / 32) % 2) ? a : b;
+		// };
+	// for (int y = 0; y < TEX; ++y)
+		// for (int x = 0; x < TEX; ++x)
+			// pixels[y * TEX + x] = checker(x, y, 0xFF003366, 0xFFCCCCCC);
+
+	// Texture generation, tile
 	constexpr int TEX = 128;
+	constexpr int lineThikness = 8;
 	std::vector<UINT32> pixels(TEX* TEX);
 	auto checker = [&](int x, int y, uint32_t a, uint32_t b)
 		{
-			return ((x / 32 + y / 32) % 2) ? a : b;
+			if (x < lineThikness || x > TEX - lineThikness)
+				return a;
+			if (y < lineThikness || y > TEX - lineThikness)
+				return a;
+			return b;
 		};
 	for (int y = 0; y < TEX; ++y)
 		for (int x = 0; x < TEX; ++x)
-			pixels[y * TEX + x] = checker(x, y, 0xFF003366, 0xFFCCCCCC);
+			pixels[y * TEX + x] = checker(x, y, 0xFF0224422, 0xFFCCCCCC);
 
 	D3D11_TEXTURE2D_DESC td = {};
 	td.Width = td.Height = TEX;
@@ -295,9 +311,15 @@ void TextureCubeRenderComponent::VInit()
 	device->CreateTexture2D(&td, &init, tex.GetAddressOf());
 	device->CreateShaderResourceView(tex.Get(), nullptr, srv.GetAddressOf());
 
-	CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
+	// CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
+	CD3D11_SAMPLER_DESC samplDesc = {};
+	samplDesc.Filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplDesc.AddressU = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressV = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressW = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ComPtr<ID3D11SamplerState> sampler;
-	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
+	device->CreateSamplerState(&samplDesc, sampler.GetAddressOf());
 
 	m_diffuseSRV = srv;
 	m_sampler = sampler;
