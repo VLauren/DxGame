@@ -217,32 +217,31 @@ void TextureCubeRenderComponent::VInit()
 
 	static constexpr VertexNormalUV cubeVerts[24] =
 	{
-		// +X face
 		{ { 1,-1,-1}, {1,0,0}, {0,1} },
 		{ { 1, 1,-1}, {1,0,0}, {1,1} },
 		{ { 1, 1, 1}, {1,0,0}, {1,0} },
 		{ { 1,-1, 1}, {1,0,0}, {0,0} },
-		// -X face
+
 		{ {-1,-1, 1}, {-1,0,0}, {0,1} },
 		{ {-1, 1, 1}, {-1,0,0}, {1,1} },
 		{ {-1, 1,-1}, {-1,0,0}, {1,0} },
 		{ {-1,-1,-1}, {-1,0,0}, {0,0} },
-		// +Y face
+
 		{ {-1, 1,-1}, {0,1,0}, {0,1} },
 		{ { 1, 1,-1}, {0,1,0}, {1,1} },
 		{ { 1, 1, 1}, {0,1,0}, {1,0} },
 		{ {-1, 1, 1}, {0,1,0}, {0,0} },
-		// -Y face
+
 		{ {-1,-1, 1}, {0,-1,0}, {0,1} },
 		{ { 1,-1, 1}, {0,-1,0}, {1,1} },
 		{ { 1,-1,-1}, {0,-1,0}, {1,0} },
 		{ {-1,-1,-1}, {0,-1,0}, {0,0} },
-		// +Z face
+
 		{ {-1,-1, 1}, {0,0,1}, {0,1} },
 		{ {-1, 1, 1}, {0,0,1}, {1,1} },
 		{ { 1, 1, 1}, {0,0,1}, {1,0} },
 		{ { 1,-1, 1}, {0,0,1}, {0,0} },
-		// -Z face
+
 		{ { 1,-1,-1}, {0,0,-1}, {0,1} },
 		{ { 1, 1,-1}, {0,0,-1}, {1,1} },
 		{ {-1, 1,-1}, {0,0,-1}, {1,0} },
@@ -269,9 +268,19 @@ void TextureCubeRenderComponent::VInit()
 	ComPtr<ID3D11Texture2D> tex;
 	ComPtr<ID3D11ShaderResourceView> srv;
 
+	// Texture generation, checkerboard pattern
+	constexpr int TEX = 128;
+	std::vector<UINT32> pixels(TEX* TEX);
+	auto checker = [&](int x, int y, uint32_t a, uint32_t b)
+		{
+			return ((x / 32 + y / 32) % 2) ? a : b;
+		};
+	for (int y = 0; y < TEX; ++y)
+		for (int x = 0; x < TEX; ++x)
+			pixels[y * TEX + x] = checker(x, y, 0xFF003366, 0xFFCCCCCC);
+
 	D3D11_TEXTURE2D_DESC td = {};
-	td.Width = 1;
-	td.Height = 1;
+	td.Width = td.Height = TEX;
 	td.MipLevels = 1;
 	td.ArraySize = 1;
 	td.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -279,20 +288,17 @@ void TextureCubeRenderComponent::VInit()
 	td.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
 	td.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
 
-	constexpr uint32_t white = 0xFFFFFFFF;
 	D3D11_SUBRESOURCE_DATA init = {};
-	init.pSysMem = &white;
-	init.SysMemPitch = sizeof(white);
+	init.pSysMem = pixels.data();
+	init.SysMemPitch = TEX * sizeof(uint32_t);
 
 	device->CreateTexture2D(&td, &init, tex.GetAddressOf());
 	device->CreateShaderResourceView(tex.Get(), nullptr, srv.GetAddressOf());
 
-	// 2. create sampler
 	CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
 	ComPtr<ID3D11SamplerState> sampler;
 	device->CreateSamplerState(&sampDesc, sampler.GetAddressOf());
 
-	// 3. store them in the component
 	m_diffuseSRV = srv;
 	m_sampler = sampler;
 
