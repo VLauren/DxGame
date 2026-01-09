@@ -102,31 +102,6 @@ void Graphics::Render()
 {
 	using namespace DirectX;
 
-	const double oscillation = sin(s_appRef->GetTotalGameTime()) / 2.0f + 0.5f;
-
-	// -------------------
-	// Hardcoded camera
-
-	// float aspect = (float)m_appRef->GetWindowWidth() / m_appRef->GetWindowHeight();
-	// float fov = XM_PI / 3.f; // vertical fov: 60 deg
-	// float nearZ = 0.1f;
-	// float farZ = 100.f;
-
-	//XMMATRIX view = XMMatrixLookToLH(
-	// XMMATRIX view = XMMatrixLookAtLH(
-		// XMVectorSet(0, 2, -5, 0),
-		// XMVectorSet(0, 0, 0, 0),
-		// XMVectorSet(0, 1, 0, 0));
- 
-	// XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
-
-    // s_viewProj = view * proj;
-
-	// rotate around Y
-	// float time = m_appRef->GetTotalGameTime();
-
-	// -------------------
-
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -135,9 +110,7 @@ void Graphics::Render()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	// constexpr float clearColor[] = { 0.1f, 0.12f, 0.1f, 0.1f };
 	constexpr float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	// const float clearColor[] = { 0.2f + oscillation * 0.1f, 0.2f + oscillation * 0.4f, 0.2f, 1.0f }; // Oscillating colour
 
 	// -------------------
 	// Rendering stages

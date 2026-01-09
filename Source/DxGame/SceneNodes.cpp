@@ -159,7 +159,7 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	}
 
 	// Input Assembler
-	constexpr UINT vertexStride = sizeof(VertexPositionColor);
+	UINT vertexStride = m_geometryDesc.vertexStride;
 	constexpr UINT vertexOffset = 0;
 	deviceContext->IASetInputLayout(m_vertexLayout.Get());
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &vertexStride, &vertexOffset);
@@ -175,7 +175,7 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 
 	// Draw
-	deviceContext->DrawIndexed(std::size(cubeIdx), 0, 0);
+	deviceContext->DrawIndexed(m_geometryDesc.indexCount, 0, 0);
 }
 
 
