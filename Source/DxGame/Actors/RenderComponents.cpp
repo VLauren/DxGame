@@ -5,6 +5,13 @@
 #include "../Scene.h"
 #include "../Graphics.h"
 
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+#include <algorithm>
 
 struct VertexPositionColor
 {
@@ -279,21 +286,23 @@ void TextureCubeRenderComponent::VInit()
 		// for (int x = 0; x < TEX; ++x)
 			// pixels[y * TEX + x] = checker(x, y, 0xFF003366, 0xFFCCCCCC);
 
-	// Texture generation, tile
 	constexpr int TEX = 128;
-	constexpr int lineThikness = 8;
+	constexpr int border = 6;
 	std::vector<UINT32> pixels(TEX* TEX);
-	auto checker = [&](int x, int y, uint32_t a, uint32_t b)
-		{
-			if (x < lineThikness || x > TEX - lineThikness)
-				return a;
-			if (y < lineThikness || y > TEX - lineThikness)
-				return a;
-			return b;
-		};
+
+	std::srand(static_cast<unsigned>(std::time(nullptr)));
+
 	for (int y = 0; y < TEX; ++y)
 		for (int x = 0; x < TEX; ++x)
-			pixels[y * TEX + x] = checker(x, y, 0xFF0224422, 0xFFCCCCCC);
+		{
+			float dark = 0.10f * std::pow((std::rand() % 100) / 100.0f, 2);
+			float edge = 0.70 * !(x<border || y<border || (x + border)>TEX || (y + border)>TEX) + 0.3f;
+			float grey = std::min(1 - dark, edge);
+			uint8_t v = static_cast<uint8_t>(grey * 255.0f);
+
+			pixels[y * TEX + x] = 0xFF000000u | (v << 16) | (v << 8) | v;
+		}
+
 
 	D3D11_TEXTURE2D_DESC td = {};
 	td.Width = td.Height = TEX;
