@@ -9,6 +9,7 @@ struct VSInput
 struct VSOutput
 {
     float4 position : SV_Position;
+    float3 worldPos : TEXCOORD1;
     float3 normalW : NORMAL;
     float2 uv : TEXCOORD0;
 };
@@ -26,6 +27,7 @@ VSOutput main(VSInput input)
 
     VSOutput output;
     output.position = clipPos;
+    output.worldPos = worldPos.xyz;
     output.normalW = mul(input.normal, (float3x3) transform);
     output.uv = input.uv;
 
