@@ -40,9 +40,10 @@ protected:
 
 class ShaderMeshNode : public SceneNode
 {
-public:
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+public:
 
 	struct FrameCB { uint32_t seed; uint32_t pad[3]; };
 
@@ -123,5 +124,26 @@ private:
 
 	DirectX::XMMATRIX m_view;
 	DirectX::XMMATRIX m_projection;
+};
+
+class LightNode : public SceneNode
+{
+    template <typename T>
+    using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+public:
+	LightNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
+		SceneNode(actorId, name, worldMatrix) {}
+	~LightNode() {}
+
+	virtual void VLoadResources(Scene* pScene);
+	virtual void VRender(Scene* pScene);
+
+private:
+	DirectX::XMFLOAT3 m_colour;
+	float m_intensity;
+	float m_attenuation[3];
+
+	ComPtr<ID3D11Buffer> m_constantBuffer;
 };
 

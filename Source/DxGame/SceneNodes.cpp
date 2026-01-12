@@ -216,3 +216,92 @@ void CameraNode::VRenderChildren(Scene* pScene)
 void CameraNode::VPostRender(Scene* pScene)
 {
 }
+
+// ===========================
+//		Light Node
+// ===========================
+
+void LightNode::VLoadResources(Scene* pScene)
+{
+	using namespace DirectX;
+
+	struct LightConstantBuf
+	{
+		XMFLOAT3 Pos;
+		float _pad0; // 12 + 4 = 16
+		XMFLOAT3 Color;
+		float _pad1; // 12 + 4 = 16
+		float Intensity;
+		float AttConst;
+		float AttLin;
+		float AttQuad;
+	};
+
+	static_assert(sizeof(LightConstantBuf) % 16 == 0);
+
+	LightConstantBuf lightBuf = {};
+	lightBuf.Pos = XMFLOAT3(-2, 2, -2);
+	lightBuf.Color = XMFLOAT3(1, 1, 1);
+	lightBuf.Intensity = 1.0f;
+	lightBuf.AttConst = 1.0;
+	lightBuf.AttLin = 0.09f;
+	lightBuf.AttQuad = 0.032f;
+
+	D3D11_BUFFER_DESC constVertBufferInfo = {};
+	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+	constVertBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
+	constVertBufferInfo.ByteWidth = sizeof(LightConstantBuf);
+
+	D3D11_SUBRESOURCE_DATA constVertResourceData = { &lightBuf };
+
+	if (FAILED(Graphics::GetDevice()->CreateBuffer(
+		&constVertBufferInfo,
+		&constVertResourceData,
+		&m_constantBuffer)))
+	{
+		// HRESULT reason = Graphics::GetDevice()->GetDeviceRemovedReason();
+		// printf("D3D11: Failed to create light constant vertex buffer: 0x%08X device removed 0x%08X\n", );
+		printf("D3D11: Failed to create light constant vertex buffer\n");
+		return;
+	}
+}
+
+void LightNode::VRender(Scene* pScene)
+{
+	using namespace DirectX;
+
+	struct LightConstantBuf
+	{
+		XMFLOAT3 Pos;
+		float _pad0; // 12 + 4 = 16
+		XMFLOAT3 Color;
+		float _pad1; // 12 + 4 = 16
+		float Intensity;
+		float AttConst;
+		float AttLin;
+		float AttQuad;
+	};
+
+	LightConstantBuf lightBuf = {};
+	lightBuf.Pos = XMFLOAT3(-2, 2, -2);
+	lightBuf.Color = XMFLOAT3(1, 1, 1);
+	lightBuf.Intensity = 1.0f;
+	lightBuf.AttConst = 1.0;
+	lightBuf.AttLin = 0.09f;
+	lightBuf.AttQuad = 0.032f;
+
+	D3D11_MAPPED_SUBRESOURCE mr;
+	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(
+		m_constantBuffer.Get(),
+		0,
+		D3D11_MAP::D3D11_MAP_WRITE_DISCARD,
+		0,
+		&mr)))
+	{
+		*static_cast<LightConstantBuf*>(mr.pData) = lightBuf;
+		Graphics::GetDeviceContext()->Unmap(m_constantBuffer.Get(), 0);
+	}
+
+	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, m_constantBuffer.GetAddressOf());
+}

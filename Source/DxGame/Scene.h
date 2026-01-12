@@ -9,6 +9,7 @@
 
 class SceneNode;
 class CameraNode;
+class LightNode;
 
 class Scene
 {
@@ -29,5 +30,7 @@ protected:
 	std::shared_ptr<CameraNode> m_cameraNode;
 
     DirectX::XMMATRIX m_viewProj = DirectX::XMMatrixIdentity();
+
+	std::shared_ptr<LightNode> m_light;
 };
 

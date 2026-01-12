@@ -296,7 +296,7 @@ void TextureCubeRenderComponent::VInit()
 		for (int x = 0; x < TEX; ++x)
 		{
 			float dark = 0.10f * std::pow((std::rand() % 100) / 100.0f, 2);
-			float edge = 0.70 * !(x<border || y<border || (x + border)>TEX || (y + border)>TEX) + 0.3f;
+			float edge = 0.50 * !(x<border || y<border || (x + border)>TEX || (y + border)>TEX) + 0.5f;
 			float grey = std::min(1 - dark, edge);
 			uint8_t v = static_cast<uint8_t>(grey * 255.0f);
 

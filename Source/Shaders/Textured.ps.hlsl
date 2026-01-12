@@ -1,12 +1,24 @@
 
+static const float3 ambient = { 0.15f, 0.15f, 0.15f };
+
 Texture2D g_Diffuse : register(t0);
 SamplerState g_Sampler : register(s0);
 
+// cbuffer cbLight : register(b1)
+// {
+    // float3 g_LightDir;
+    // float3 g_LightColor;
+    // float3 g_Ambient;
+// };
+
 cbuffer cbLight : register(b1)
 {
-    float3 g_LightDir;
-    float3 g_LightColor;
-    float3 g_Ambient;
+    float3 g_lightPos;
+    float3 g_diffuseColor;
+    float g_diffuseIntensity;
+    float g_attConst;
+    float g_attLin;
+    float g_attQuad;
 };
 
 struct PSInput
@@ -22,13 +34,12 @@ struct PSOutput
     float4 color : SV_Target0;
 };
 
-static const float3 lightPos = { -2.0f, 2.0f, -2.0f };
-static const float3 ambient = { 0.15f, 0.15f, 0.15f };
-static const float3 diffuseColor = { 1.0f, 1.0f, 1.0f };
-static const float diffuseIntensity = 1.0f;
-static const float attConst = 1.0f;
-static const float attLin = 0.007f;
-static const float attQuad = 0.0002f;
+// static const float3 lightPos = { -2.0f, 2.0f, -2.0f };
+// static const float3 diffuseColor = { 1.0f, 1.0f, 1.0f };
+// static const float diffuseIntensity = 1.0f;
+// static const float attConst = 1.0f;
+// static const float attLin = 0.09f;
+// static const float attQuad = 0.032f;
 
 PSOutput main(PSInput input)
 {
@@ -50,13 +61,13 @@ PSOutput main(PSInput input)
     */
 
     // Point light 
-    const float3 vToL = lightPos - input.worldPos;
+    const float3 vToL = g_lightPos - input.worldPos;
     const float distToL = length(vToL);
     const float3 dirToL = vToL / distToL;
     // diffuse attenuation
-    const float att = 1.0 / (attConst + attLin * distToL + attQuad * (distToL * distToL));
+    const float att = 1.0 / (g_attConst + g_attLin * distToL + g_attQuad * (distToL * distToL));
     // diffuse intensity
-    const float3 diffuse = diffuseColor * diffuseIntensity * att * max(0.0f, dot(dirToL, input.normal)) * tex;
+    const float3 diffuse = g_diffuseColor * g_diffuseIntensity * att * max(0.0f, dot(dirToL, input.normal)) * tex;
     float3 final = saturate(diffuse + ambient * tex);
     
     output.color = float4(final, 1.0);
