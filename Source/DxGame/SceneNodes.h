@@ -82,7 +82,7 @@ public:
 
 protected:
 	virtual void VPreRender(Scene* pScene);
-	virtual void VRender(Scene* pScene);
+	virtual void VPostRender(Scene* pScene);
 
 private:
 	GeometryDesc m_geometryDesc{};
@@ -95,9 +95,9 @@ private:
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
 
     ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
-    ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
+    // ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
 
-	uint32_t m_frame = 0;
+	// uint32_t m_frame = 0;
 };
 
 
@@ -128,6 +128,18 @@ private:
 
 class LightNode : public SceneNode
 {
+	struct LightConstantBuf
+	{
+		DirectX::XMFLOAT3 Pos;
+		float _pad0; // 12 + 4 = 16
+		DirectX::XMFLOAT3 Color;
+		float _pad1; // 12 + 4 = 16
+		float Intensity;
+		float AttConst;
+		float AttLin;
+		float AttQuad;
+	};
+
     template <typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -137,6 +149,7 @@ public:
 	~LightNode() {}
 
 	virtual void VLoadResources(Scene* pScene);
+	virtual void VPreRender(Scene* pScene);
 	virtual void VRender(Scene* pScene);
 
 private:

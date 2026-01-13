@@ -28,7 +28,7 @@ VSOutput main(VSInput input)
     VSOutput output;
     output.position = clipPos;
     output.worldPos = worldPos.xyz;
-    output.normalW = mul(input.normal, (float3x3) transform);
+    output.normalW = normalize(mul(input.normal, (float3x3) transform));
     output.uv = input.uv;
 
     return output;

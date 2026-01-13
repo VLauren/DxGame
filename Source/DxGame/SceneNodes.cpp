@@ -96,24 +96,24 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		return;
 	}
 
-	FrameCB cb{};
-	cb.seed = m_frame++; // rolling seed
+	// FrameCB cb{};
+	// cb.seed = m_frame++; // rolling seed
 
 	// Constant pixel buffer for the dynamic shader
-	struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
-	D3D11_BUFFER_DESC constPixBufferInfo = {};
-	constPixBufferInfo.ByteWidth = sizeof(FrameCB);
-	constPixBufferInfo.Usage = D3D11_USAGE_DYNAMIC;
-	constPixBufferInfo.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constPixBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	D3D11_SUBRESOURCE_DATA init = {};
-	FrameCB initial = {};
-	init.pSysMem = &initial;
-	HRESULT hr = Graphics::GetDevice()->CreateBuffer(&constPixBufferInfo, &init, &m_pixelConstantBuffer);
-	if (FAILED(hr))
-	{
-		printf("D3D11: Failed to create frame constant buffer\n");
-	}
+	// struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
+	// D3D11_BUFFER_DESC constPixBufferInfo = {};
+	// constPixBufferInfo.ByteWidth = sizeof(FrameCB);
+	// constPixBufferInfo.Usage = D3D11_USAGE_DYNAMIC;
+	// constPixBufferInfo.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	// constPixBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	// D3D11_SUBRESOURCE_DATA init = {};
+	// FrameCB initial = {};
+	// init.pSysMem = &initial;
+	// HRESULT hr = Graphics::GetDevice()->CreateBuffer(&constPixBufferInfo, &init, &m_pixelConstantBuffer);
+	// if (FAILED(hr))
+	// {
+		// printf("D3D11: Failed to create frame constant buffer\n");
+	// }
 
 }
 
@@ -125,10 +125,6 @@ void ShaderMeshNode::SetShadersAndLayout(ComPtr<ID3D11VertexShader> vs, ComPtr<I
 }
 
 void ShaderMeshNode::VPreRender(Scene* pScene) 
-{
-}
-
-void ShaderMeshNode::VRender(Scene* pScene)
 {
 	using namespace DirectX;
 
@@ -148,15 +144,15 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	}
 
 	// rolling seed
-	FrameCB cb{};
-	cb.seed = m_frame++; // rolling seed
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	if (SUCCEEDED(deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
-		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-	{
-		*static_cast<FrameCB*>(mapped.pData) = cb;
-		deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
-	}
+	// FrameCB cb{};
+	// cb.seed = m_frame++; // rolling seed
+	// D3D11_MAPPED_SUBRESOURCE mapped;
+	// if (SUCCEEDED(deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
+		// D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+	// {
+		// *static_cast<FrameCB*>(mapped.pData) = cb;
+		// deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
+	// }
 
 	// Input Assembler
 	UINT vertexStride = m_geometryDesc.vertexStride;
@@ -172,10 +168,13 @@ void ShaderMeshNode::VRender(Scene* pScene)
 
 	// Pixel Shader
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
+	// deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
+}
 
+void ShaderMeshNode::VPostRender(Scene* pScene)
+{
 	// Draw
-	deviceContext->DrawIndexed(m_geometryDesc.indexCount, 0, 0);
+	Graphics::GetDeviceContext()->DrawIndexed(m_geometryDesc.indexCount, 0, 0);
 }
 
 
@@ -225,18 +224,6 @@ void LightNode::VLoadResources(Scene* pScene)
 {
 	using namespace DirectX;
 
-	struct LightConstantBuf
-	{
-		XMFLOAT3 Pos;
-		float _pad0; // 12 + 4 = 16
-		XMFLOAT3 Color;
-		float _pad1; // 12 + 4 = 16
-		float Intensity;
-		float AttConst;
-		float AttLin;
-		float AttQuad;
-	};
-
 	static_assert(sizeof(LightConstantBuf) % 16 == 0);
 
 	LightConstantBuf lightBuf = {};
@@ -267,21 +254,9 @@ void LightNode::VLoadResources(Scene* pScene)
 	}
 }
 
-void LightNode::VRender(Scene* pScene)
+void LightNode::VPreRender(Scene* pScene)
 {
 	using namespace DirectX;
-
-	struct LightConstantBuf
-	{
-		XMFLOAT3 Pos;
-		float _pad0; // 12 + 4 = 16
-		XMFLOAT3 Color;
-		float _pad1; // 12 + 4 = 16
-		float Intensity;
-		float AttConst;
-		float AttLin;
-		float AttQuad;
-	};
 
 	LightConstantBuf lightBuf = {};
 	lightBuf.Pos = XMFLOAT3(-2, 2, -2);
@@ -302,6 +277,9 @@ void LightNode::VRender(Scene* pScene)
 		*static_cast<LightConstantBuf*>(mr.pData) = lightBuf;
 		Graphics::GetDeviceContext()->Unmap(m_constantBuffer.Get(), 0);
 	}
+}
 
+void LightNode::VRender(Scene* pScene)
+{
 	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, m_constantBuffer.GetAddressOf());
 }
