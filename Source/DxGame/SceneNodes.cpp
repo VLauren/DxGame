@@ -226,13 +226,15 @@ void LightNode::VLoadResources(Scene* pScene)
 
 	static_assert(sizeof(LightConstantBuf) % 16 == 0);
 
+	XMFLOAT3 pos;
+	XMStoreFloat3(&pos, m_worldMatrix.r[3]);
 	LightConstantBuf lightBuf = {};
-	lightBuf.Pos = XMFLOAT3(-2, 2, -2);
-	lightBuf.Color = XMFLOAT3(1, 1, 1);
-	lightBuf.Intensity = 1.0f;
-	lightBuf.AttConst = 1.0;
-	lightBuf.AttLin = 0.09f;
-	lightBuf.AttQuad = 0.032f;
+	lightBuf.Pos = pos;
+	lightBuf.Color = m_colour;
+	lightBuf.Intensity = m_intensity;
+	lightBuf.AttConst = m_attenuation[0];
+	lightBuf.AttLin = m_attenuation[1];
+	lightBuf.AttQuad = m_attenuation[2];
 
 	D3D11_BUFFER_DESC constVertBufferInfo = {};
 	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
@@ -258,13 +260,15 @@ void LightNode::VPreRender(Scene* pScene)
 {
 	using namespace DirectX;
 
+	XMFLOAT3 pos;
+	XMStoreFloat3(&pos, m_worldMatrix.r[3]);
 	LightConstantBuf lightBuf = {};
-	lightBuf.Pos = XMFLOAT3(-2, 2, -2);
-	lightBuf.Color = XMFLOAT3(1, 1, 1);
-	lightBuf.Intensity = 1.0f;
-	lightBuf.AttConst = 1.0;
-	lightBuf.AttLin = 0.09f;
-	lightBuf.AttQuad = 0.032f;
+	lightBuf.Pos = pos;
+	lightBuf.Color = m_colour;
+	lightBuf.Intensity = m_intensity;
+	lightBuf.AttConst = m_attenuation[0];
+	lightBuf.AttLin = m_attenuation[1];
+	lightBuf.AttQuad = m_attenuation[2];
 
 	D3D11_MAPPED_SUBRESOURCE mr;
 	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(

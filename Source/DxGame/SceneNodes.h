@@ -19,6 +19,7 @@ public:
 
 	virtual void VSetTransform(const DirectX::XMMATRIX& worldMatrix) { m_worldMatrix = worldMatrix; }
 	virtual DirectX::XMMATRIX VGetTransform() { return  m_worldMatrix; }
+	virtual std::string VGetName() { return  m_name; }
 
 	virtual void VPreRender(Scene* pScene) {};
 	virtual void VRender(Scene* pScene) {};
