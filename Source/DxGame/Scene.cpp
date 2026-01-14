@@ -5,9 +5,9 @@ Scene::Scene()
 {
 	m_root = std::make_shared<SceneNode>(1, std::string("root node"), DirectX::XMMatrixIdentity());
 
-	m_light = std::make_shared<LightNode>(-1, "light node", DirectX::XMMatrixIdentity());
-	m_light->VLoadResources(this);
-	m_root->VAddChild(m_light);
+	// m_light = std::make_shared<LightNode>(-1, "light node", DirectX::XMMatrixIdentity());
+	// m_light->VLoadResources(this);
+	// m_root->VAddChild(m_light);
 }
 
 void Scene::OnRender()

@@ -343,9 +343,10 @@ void TextureCubeRenderComponent::VInit()
 	m_sceneNode = node;
 }
 
-void LightComponent::VInit()
+void LightComponent::VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation)
 {
-	auto node = std::make_shared<LightNode>(m_pOwner, "light node", DirectX::XMMatrixIdentity());
+	auto node = std::make_shared<LightNode>(m_pOwner->GetId(), "light node", DirectX::XMMatrixIdentity(), colour, intensity, attenuation);
 	m_scene->AddChild(m_pOwner->GetId(), node);
+	node->VLoadResources(m_scene);
 	m_sceneNode = node;
 }

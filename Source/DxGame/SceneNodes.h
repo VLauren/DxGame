@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include <d3d11.h>
 #include <dxgi1_3.h>
@@ -144,9 +145,13 @@ class LightNode : public SceneNode
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
-	LightNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix) :
-		SceneNode(actorId, name, worldMatrix) {}
-	~LightNode() {}
+	LightNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix, DirectX::XMFLOAT3 colour, float intensity, const std::array<float, 3>& attenuation)
+		: SceneNode(actorId, name, worldMatrix)
+		, m_colour(colour)
+		, m_intensity(intensity)
+		, m_attenuation(attenuation)
+	{
+	}
 
 	virtual void VLoadResources(Scene* pScene);
 	virtual void VPreRender(Scene* pScene);
@@ -155,7 +160,7 @@ public:
 private:
 	DirectX::XMFLOAT3 m_colour;
 	float m_intensity;
-	float m_attenuation[3];
+	std::array<float,3> m_attenuation;
 
 	ComPtr<ID3D11Buffer> m_constantBuffer;
 };

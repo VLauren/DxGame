@@ -8,6 +8,7 @@
 
 std::shared_ptr<CubeActor> testCube, testCube2;
 std::shared_ptr<CameraActor> testCam;
+std::shared_ptr<Actor> light;
 
 Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) {}
 
@@ -26,6 +27,15 @@ void Game::Init()
 	testCube = cubeActor;
 	// testCube2 = cubeActor2;
 	testCam = camActor;
+
+	// light
+	// --------
+	light = std::make_shared<Actor>(NextId(), this);
+	light->SetPosition(DirectX::XMFLOAT3(0, 2, 0));
+	auto lightComponent	 = std::make_shared<LightComponent>(light, GetScene());
+	light->AddComponent(lightComponent);
+	std::array<float,3> att = { 1.0f, 0.09f, 0.032f };
+	lightComponent->VInit(DirectX::XMFLOAT3(1, 1, 0), 1, att );
 
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();

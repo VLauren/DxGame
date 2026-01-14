@@ -56,5 +56,5 @@ class LightComponent : public RenderComponent
 public:
     explicit LightComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
 
-    void VInit();
+    void VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation);
 };
