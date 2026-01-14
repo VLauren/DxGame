@@ -342,3 +342,10 @@ void TextureCubeRenderComponent::VInit()
 
 	m_sceneNode = node;
 }
+
+void LightComponent::VInit()
+{
+	auto node = std::make_shared<LightNode>(m_pOwner, "light node", DirectX::XMMatrixIdentity());
+	m_scene->AddChild(m_pOwner->GetId(), node);
+	m_sceneNode = node;
+}

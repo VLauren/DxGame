@@ -25,7 +25,7 @@ protected:
 
     Scene* m_scene;
 
-    std::weak_ptr<ShaderMeshNode> m_sceneNode;
+    std::weak_ptr<SceneNode> m_sceneNode;
 
     ComPtr<ID3D11VertexShader> m_vertexShader = nullptr;
     ComPtr<ID3D11PixelShader> m_pixelShader = nullptr;
@@ -49,4 +49,12 @@ public:
 
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
     ComPtr<ID3D11SamplerState> m_sampler = nullptr;
+};
+
+class LightComponent : public RenderComponent
+{
+public:
+    explicit LightComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
+
+    void VInit();
 };
