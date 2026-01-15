@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ActorComponent.h"
-#include "../SceneNodes.h"
+#include "../Graphics/SceneNodes.h"
 
 class CameraComponent : public ActorComponent
 {

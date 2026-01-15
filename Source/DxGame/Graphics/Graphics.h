@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <crtdbg.h>
 
-#include "Application.h"
+#include "../Application.h"
 
 class Graphics
 {

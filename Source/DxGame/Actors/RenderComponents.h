@@ -5,7 +5,7 @@
 #include <wrl.h>
 
 #include "ActorComponent.h"
-#include "../SceneNodes.h"
+#include "../Graphics/SceneNodes.h"
 
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;

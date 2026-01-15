@@ -2,8 +2,8 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include "../Scene.h"
-#include "../Graphics.h"
+#include "../Graphics/Scene.h"
+#include "../Graphics/Graphics.h"
 
 #ifdef max
 #undef max

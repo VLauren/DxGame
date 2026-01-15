@@ -11,8 +11,8 @@
 #define DXG_NEW new
 
 #include "Application.h"
-#include "Graphics.h"
-#include "Scene.h"
+#include "Graphics/Graphics.h"
+#include "Graphics/Scene.h"
 #include <tinyxml2.h>
 
 class DxGameApp : public Application
