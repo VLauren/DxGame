@@ -3,10 +3,11 @@
 #include "Game.h"
 #include "Actors/CubeActor.h"
 #include "Actors/CameraActor.h"
+#include "Actors/Player.h"
 
 #include <stdio.h>
 
-std::shared_ptr<CubeActor> testCube, testCube2;
+// std::shared_ptr<CubeActor> testCube, testCube2;
 std::shared_ptr<CameraActor> testCam;
 std::shared_ptr<Actor> light;
 
@@ -14,8 +15,8 @@ Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) 
 
 void Game::Init()
 {
-	auto cubeActor = std::make_shared<CubeActor>(NextId(), this);
-	AddActor(cubeActor);
+	// auto cubeActor = std::make_shared<CubeActor>(NextId(), this);
+	// AddActor(cubeActor);
 	// auto cubeActor2 = std::make_shared<CubeActor>(NextId(), this);
 	// AddActor(cubeActor2);
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);
@@ -24,7 +25,7 @@ void Game::Init()
 	camActor->SetPosition(DirectX::XMFLOAT3(0, 2, -7));
 	camActor->SetRotation(DirectX::XMFLOAT3(0.2f, 0, 0));
 
-	testCube = cubeActor;
+	// testCube = cubeActor;
 	// testCube2 = cubeActor2;
 	testCam = camActor;
 
@@ -37,6 +38,9 @@ void Game::Init()
 	std::array<float,3> att = { 1.0f, 0.09f, 0.032f };
 	lightComponent->VInit(DirectX::XMFLOAT3(1, 0.7f, 0.2f), 1, att );
 	AddActor(light);
+
+	auto player = std::make_shared<Player>(NextId(), this);
+	AddActor(player);
 
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();
@@ -52,6 +56,7 @@ void Game::Update(float deltaTime)
 	// Update all actors
 	for (auto& actor : m_actors) actor->Update(deltaTime);
 
+	/*
 	auto pos = testCube->GetPosition();
 	auto rot = testCube->GetRotation();
 	auto sca = testCube->GetScale();
@@ -76,10 +81,11 @@ void Game::Update(float deltaTime)
 	testCube->SetPosition(pos);
 	testCube->SetRotation(rot);
 	testCube->SetScale(sca);
+	*/
 
 	// ------------
 
-	pos = light->GetPosition();
+	auto pos = light->GetPosition();
 	ImGui::SetNextWindowSize(ImVec2(800, 100), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(20, 145), ImGuiCond_Once);
 	ImGui::Begin("Light");
@@ -96,9 +102,6 @@ void Game::Update(float deltaTime)
 	ImGui::End();
 
 	light->SetPosition(pos);
-
-
-
 
 	// GLFWgamepadstate gp;
 	// if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gp))
