@@ -16,8 +16,8 @@ void Game::Init()
 	// Camera
 	// --------
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);
-	camActor->SetPosition(DirectX::XMFLOAT3(0, 5, -7));
-	camActor->SetRotation(DirectX::XMFLOAT3(0.4f, 0, 0));
+	camActor->SetPosition(DirectX::XMFLOAT3(0, 6, -9));
+	camActor->SetRotation(DirectX::XMFLOAT3(0.7f, 0, 0));
 	AddActor(camActor);
 
 	// light
@@ -33,8 +33,15 @@ void Game::Init()
 	// Floor
 	// --------
 	auto floor = std::make_shared<CubeActor>(NextId(), this);
-	floor->SetPosition(DirectX::XMFLOAT3(0, 0, 0));
-	floor->SetScale(DirectX::XMFLOAT3(0.2f, 0.2f, 0.2));
+	floor->SetPosition(DirectX::XMFLOAT3(0, -1.2f, 0));
+	floor->SetScale(DirectX::XMFLOAT3(10, 0.2f, 10));
+	AddActor(floor);
+
+	// Column
+	// --------
+	floor = std::make_shared<CubeActor>(NextId(), this);
+	floor->SetPosition(DirectX::XMFLOAT3(5, 2, 4));
+	floor->SetScale(DirectX::XMFLOAT3(0.5f, 3, 0.5f));
 	AddActor(floor);
 
 	// Player

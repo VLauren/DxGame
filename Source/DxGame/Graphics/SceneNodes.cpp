@@ -95,26 +95,6 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		printf("D3D11: Failed to create constant vertex buffer\n");
 		return;
 	}
-
-	// FrameCB cb{};
-	// cb.seed = m_frame++; // rolling seed
-
-	// Constant pixel buffer for the dynamic shader
-	// struct alignas(16) FrameCB { uint32_t seed; uint32_t pad[3]; }; // 16 bytes
-	// D3D11_BUFFER_DESC constPixBufferInfo = {};
-	// constPixBufferInfo.ByteWidth = sizeof(FrameCB);
-	// constPixBufferInfo.Usage = D3D11_USAGE_DYNAMIC;
-	// constPixBufferInfo.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	// constPixBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	// D3D11_SUBRESOURCE_DATA init = {};
-	// FrameCB initial = {};
-	// init.pSysMem = &initial;
-	// HRESULT hr = Graphics::GetDevice()->CreateBuffer(&constPixBufferInfo, &init, &m_pixelConstantBuffer);
-	// if (FAILED(hr))
-	// {
-		// printf("D3D11: Failed to create frame constant buffer\n");
-	// }
-
 }
 
 void ShaderMeshNode::SetShadersAndLayout(ComPtr<ID3D11VertexShader> vs, ComPtr<ID3D11PixelShader> ps, ComPtr<ID3D11InputLayout> il) 
@@ -124,7 +104,7 @@ void ShaderMeshNode::SetShadersAndLayout(ComPtr<ID3D11VertexShader> vs, ComPtr<I
 	m_vertexLayout = il;
 }
 
-void ShaderMeshNode::VPreRender(Scene* pScene) 
+void ShaderMeshNode::VRender(Scene* pScene)
 {
 	using namespace DirectX;
 
@@ -143,17 +123,6 @@ void ShaderMeshNode::VPreRender(Scene* pScene)
 		Graphics::GetDeviceContext()->Unmap(m_vertexConstantBuffer.Get(), 0);
 	}
 
-	// rolling seed
-	// FrameCB cb{};
-	// cb.seed = m_frame++; // rolling seed
-	// D3D11_MAPPED_SUBRESOURCE mapped;
-	// if (SUCCEEDED(deviceContext->Map(m_pixelConstantBuffer.Get(), 0,
-		// D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
-	// {
-		// *static_cast<FrameCB*>(mapped.pData) = cb;
-		// deviceContext->Unmap(m_pixelConstantBuffer.Get(), 0);
-	// }
-
 	// Input Assembler
 	UINT vertexStride = m_geometryDesc.vertexStride;
 	constexpr UINT vertexOffset = 0;
@@ -169,14 +138,10 @@ void ShaderMeshNode::VPreRender(Scene* pScene)
 	// Pixel Shader
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	// deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
-}
 
-void ShaderMeshNode::VPostRender(Scene* pScene)
-{
 	// Draw
 	Graphics::GetDeviceContext()->DrawIndexed(m_geometryDesc.indexCount, 0, 0);
 }
-
 
 // ===========================
 //		Camera Node
@@ -190,16 +155,10 @@ void CameraNode::VRender(Scene* pScene)
 {
 	using namespace DirectX;
 
-	
 	float aspect = (float) Graphics::GetApplication()->GetWindowWidth() / Graphics::GetApplication()->GetWindowHeight();
 	m_fov = XM_PI / 3.f; // vertical fov: 60 deg
 	m_nearZ = 0.1f;
 	m_farZ = 100.f;
-
-	// XMMATRIX view = XMMatrixLookAtLH(
-		// XMVectorSet(0, 2, -7, 0),
-		// XMVectorSet(0, 0, 0, 0),
-		// XMVectorSet(0, 1, 0, 0));
 
 	XMMATRIX view = XMMatrixInverse(nullptr, m_worldMatrix);
 
@@ -281,10 +240,7 @@ void LightNode::VPreRender(Scene* pScene)
 		*static_cast<LightConstantBuf*>(mr.pData) = lightBuf;
 		Graphics::GetDeviceContext()->Unmap(m_constantBuffer.Get(), 0);
 	}
-}
 
-void LightNode::VRender(Scene* pScene)
-{
 	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, m_constantBuffer.GetAddressOf());
 }
 

@@ -83,8 +83,7 @@ public:
 		ComPtr<ID3D11InputLayout> il);
 
 protected:
-	virtual void VPreRender(Scene* pScene);
-	virtual void VPostRender(Scene* pScene);
+	virtual void VRender(Scene* pScene);
 
 private:
 	GeometryDesc m_geometryDesc{};
@@ -156,7 +155,6 @@ public:
 
 	virtual void VLoadResources(Scene* pScene);
 	virtual void VPreRender(Scene* pScene);
-	virtual void VRender(Scene* pScene);
 	
 	virtual void SetColour(const DirectX::XMFLOAT3& colour);
 	virtual void SetIntensity(float intensity);

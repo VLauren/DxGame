@@ -11,6 +11,6 @@ public:
 	void Update(float deltaTime);
 
 private:
-	const float moveSpeed = 3;
+	const float moveSpeed = 5;
 };
 
