@@ -56,9 +56,15 @@ void CubeRenderComponent::VInit()
 
 	auto device = Graphics::GetDevice();
 
+#ifdef _DEBUG
+	std::wstring basePath = L"../Shaders/";
+#else
+	std::wstring basePath = L"";
+#endif
+
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-	m_vertexShader = Graphics::CreateVertexShader(L"../Shaders/Main.vs.hlsl", vertexShaderBlob);
-	m_pixelShader = Graphics::CreatePixelShader(L"../Shaders/Main.ps.hlsl");
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Main.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Main.ps.hlsl");
 
 	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
 	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
@@ -170,10 +176,16 @@ void TextureCubeRenderComponent::VInit()
 	RenderComponent::VInit();
 
 	auto device = Graphics::GetDevice();
+	
+#ifdef _DEBUG
+	std::wstring basePath = L"../Shaders/";
+#else
+	std::wstring basePath = L"";
+#endif
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-	m_vertexShader = Graphics::CreateVertexShader(L"../Shaders/Textured.vs.hlsl", vertexShaderBlob);
-	m_pixelShader = Graphics::CreatePixelShader(L"../Shaders/Textured.ps.hlsl");
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
 
 	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
 	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
