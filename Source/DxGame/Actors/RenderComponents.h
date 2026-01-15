@@ -60,7 +60,10 @@ public:
     void VUpdate(float deltaTime) override;
     void SetColour(const DirectX::XMFLOAT3& colour);
     DirectX::XMFLOAT3 GetColour() const { return m_colour; }
+    void SetIntensity(float intensity);
+    float GetIntensity() const { return m_intensity; }
 
 private:
 	DirectX::XMFLOAT3 m_colour = DirectX::XMFLOAT3(1, 1, 1);
+    float m_intensity;
 };

@@ -9,5 +9,8 @@ public:
 
 	void Init();
 	void Update(float deltaTime);
+
+private:
+	const float moveSpeed = 3;
 };
 

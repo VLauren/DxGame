@@ -358,6 +358,7 @@ void TextureCubeRenderComponent::VInit()
 void LightComponent::VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation)
 {
 	m_colour = colour;
+	m_intensity = intensity;
 	auto node = std::make_shared<LightNode>(m_pOwner->GetId(), "light node", DirectX::XMMatrixIdentity(), colour, intensity, attenuation);
 	m_scene->AddChild(m_pOwner->GetId(), node);
 	node->VLoadResources(m_scene);
@@ -370,10 +371,18 @@ void LightComponent::VUpdate(float deltaTime)
 
 	if (auto node = m_sceneNode.lock())
 		if (auto light = std::dynamic_pointer_cast<LightNode, SceneNode>(node))
+		{
 			light->SetColour(m_colour);
+			light->SetIntensity(m_intensity);
+		}
 }
 
 void LightComponent::SetColour(const DirectX::XMFLOAT3& colour)
 {
 	m_colour = colour;
+}
+
+void LightComponent::SetIntensity(float intensity) 
+{
+	m_intensity = intensity;
 }

@@ -159,6 +159,7 @@ public:
 	virtual void VRender(Scene* pScene);
 	
 	virtual void SetColour(const DirectX::XMFLOAT3& colour);
+	virtual void SetIntensity(float intensity);
 
 private:
 	DirectX::XMFLOAT3 m_colour;

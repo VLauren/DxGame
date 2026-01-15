@@ -292,3 +292,8 @@ void LightNode::SetColour(const DirectX::XMFLOAT3& colour)
 {
 	m_colour = colour;
 }
+
+void LightNode::SetIntensity(float intensity)
+{
+	m_intensity = intensity;
+}

@@ -7,27 +7,18 @@
 
 #include <stdio.h>
 
-// std::shared_ptr<CubeActor> testCube, testCube2;
-std::shared_ptr<CameraActor> testCam;
 std::shared_ptr<Actor> light;
 
 Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) {}
 
 void Game::Init()
 {
-	// auto cubeActor = std::make_shared<CubeActor>(NextId(), this);
-	// AddActor(cubeActor);
-	// auto cubeActor2 = std::make_shared<CubeActor>(NextId(), this);
-	// AddActor(cubeActor2);
+	// Camera
+	// --------
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);
+	camActor->SetPosition(DirectX::XMFLOAT3(0, 5, -7));
+	camActor->SetRotation(DirectX::XMFLOAT3(0.4f, 0, 0));
 	AddActor(camActor);
-
-	camActor->SetPosition(DirectX::XMFLOAT3(0, 2, -7));
-	camActor->SetRotation(DirectX::XMFLOAT3(0.2f, 0, 0));
-
-	// testCube = cubeActor;
-	// testCube2 = cubeActor2;
-	testCam = camActor;
 
 	// light
 	// --------
@@ -39,6 +30,15 @@ void Game::Init()
 	lightComponent->VInit(DirectX::XMFLOAT3(1, 0.7f, 0.2f), 1, att );
 	AddActor(light);
 
+	// Floor
+	// --------
+	auto floor = std::make_shared<CubeActor>(NextId(), this);
+	floor->SetPosition(DirectX::XMFLOAT3(0, 0, 0));
+	floor->SetScale(DirectX::XMFLOAT3(0.2f, 0.2f, 0.2));
+	AddActor(floor);
+
+	// Player
+	// --------
 	auto player = std::make_shared<Player>(NextId(), this);
 	AddActor(player);
 
@@ -87,25 +87,24 @@ void Game::Update(float deltaTime)
 
 	auto pos = light->GetPosition();
 	ImGui::SetNextWindowSize(ImVec2(800, 100), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(20, 145), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
 	ImGui::Begin("Light");
 	{
-		ImGui::SliderFloat3("Position", reinterpret_cast<float*>(&pos), -6, 6);
-	}
-	if (auto lightComponent = light->GetComponent<LightComponent>().lock())
-	{
-		auto dxCol = lightComponent->GetColour();
-		float col[3] = { dxCol.x, dxCol.y, dxCol.z };
-		ImGui::ColorEdit3("Colour", col);
-		lightComponent->SetColour(DirectX::XMFLOAT3(col[0], col[1], col[2]));
+		ImGui::SliderFloat3("Position", reinterpret_cast<float*>(&pos), -20, 20);
+		if (auto lightComponent = light->GetComponent<LightComponent>().lock())
+		{
+			auto dxCol = lightComponent->GetColour();
+			float col[3] = { dxCol.x, dxCol.y, dxCol.z };
+			float intensity = lightComponent->GetIntensity();
+			ImGui::ColorEdit3("Colour", col);
+			ImGui::SliderFloat("Intensity", &intensity, 0, 10);
+
+			lightComponent->SetColour(DirectX::XMFLOAT3(col[0], col[1], col[2]));
+			lightComponent->SetIntensity(intensity);
+		}
 	}
 	ImGui::End();
 
 	light->SetPosition(pos);
-
-	// GLFWgamepadstate gp;
-	// if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gp))
-		// testCam->SetRotation(DirectX::XMFLOAT3(testCam->GetRotation().x + gp.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] * deltaTime * 0.3f, 0, 0));
-
 }
 
