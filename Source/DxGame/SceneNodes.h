@@ -157,6 +157,8 @@ public:
 	virtual void VLoadResources(Scene* pScene);
 	virtual void VPreRender(Scene* pScene);
 	virtual void VRender(Scene* pScene);
+	
+	virtual void SetColour(const DirectX::XMFLOAT3& colour);
 
 private:
 	DirectX::XMFLOAT3 m_colour;

@@ -287,3 +287,8 @@ void LightNode::VRender(Scene* pScene)
 {
 	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, m_constantBuffer.GetAddressOf());
 }
+
+void LightNode::SetColour(const DirectX::XMFLOAT3& colour)
+{
+	m_colour = colour;
+}

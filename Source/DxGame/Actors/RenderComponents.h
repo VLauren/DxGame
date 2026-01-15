@@ -57,4 +57,10 @@ public:
     explicit LightComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
 
     void VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation);
+    void VUpdate(float deltaTime) override;
+    void SetColour(const DirectX::XMFLOAT3& colour);
+    DirectX::XMFLOAT3 GetColour() const { return m_colour; }
+
+private:
+	DirectX::XMFLOAT3 m_colour = DirectX::XMFLOAT3(1, 1, 1);
 };

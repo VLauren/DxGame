@@ -80,15 +80,23 @@ void Game::Update(float deltaTime)
 	// ------------
 
 	pos = light->GetPosition();
-	ImGui::SetNextWindowSize(ImVec2(800, 50), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(800, 100), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(20, 145), ImGuiCond_Once);
 	ImGui::Begin("Light");
 	{
 		ImGui::SliderFloat3("Position", reinterpret_cast<float*>(&pos), -6, 6);
 	}
+	if (auto lightComponent = light->GetComponent<LightComponent>().lock())
+	{
+		auto dxCol = lightComponent->GetColour();
+		float col[3] = { dxCol.x, dxCol.y, dxCol.z };
+		ImGui::ColorEdit3("Colour", col);
+		lightComponent->SetColour(DirectX::XMFLOAT3(col[0], col[1], col[2]));
+	}
 	ImGui::End();
 
 	light->SetPosition(pos);
+
 
 
 
