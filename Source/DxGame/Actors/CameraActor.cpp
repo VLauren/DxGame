@@ -1,5 +1,6 @@
 #include "CameraActor.h"
 #include "../Game.h"
+#include "Player.h"
 #include "imgui.h"
 
 CameraActor::CameraActor(int id, Game* game) : Actor(id, game)
@@ -18,7 +19,18 @@ void CameraActor::Init()
 
 void CameraActor::Update(float deltaTime)
 {
+	using namespace DirectX;
 
+	if (m_playerRef.expired())
+		m_playerRef = m_game->FindActor<Player>();
+
+	DirectX::XMFLOAT3 newPos = m_playerRef.lock()->GetPosition();
+	newPos.x += m_offset.x;
+	newPos.y += m_offset.y;
+	newPos.z = m_offset.z;
+	SetPosition(newPos);
+
+	/*
 	ImGui::SetNextWindowSize(ImVec2(200, 60), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(20, 600), ImGuiCond_Once);
 	ImGui::Begin("Camera controls");
@@ -43,6 +55,7 @@ void CameraActor::Update(float deltaTime)
 			m_position.x += deltaTime;
 	}
 	ImGui::End();
+	*/
 
 	Actor::Update(deltaTime);
 }
