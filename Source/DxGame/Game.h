@@ -17,14 +17,18 @@ public:
 	void Destroy();
 	void Update(float deltaTime);
 
-	void AddActor(std::shared_ptr<Actor> actor)
-	{
-		m_actors.emplace_back(actor);
-	}
+	void AddActor(std::shared_ptr<Actor> actor);
+	void RemoveActor(std::shared_ptr<Actor> actor);
 
-	void RemoveActor(std::shared_ptr<Actor> actor)
+	template<typename T>
+	std::shared_ptr<T> FindActor()
 	{
-		std::erase(m_actors, actor);
+		for (auto& actor : m_actors)
+		{
+			if (auto derived = std::dynamic_pointer_cast<T>(actor))
+				return derived;
+		}
+		return nullptr;
 	}
 
 	std::vector<std::shared_ptr<Actor>> GetActors() { return m_actors; }

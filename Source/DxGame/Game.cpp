@@ -115,3 +115,13 @@ void Game::Update(float deltaTime)
 	light->SetPosition(pos);
 }
 
+void Game::AddActor(std::shared_ptr<Actor> actor)
+{
+	m_actors.emplace_back(actor);
+}
+
+void Game::RemoveActor(std::shared_ptr<Actor> actor)
+{
+	std::erase(m_actors, actor);
+}
+
