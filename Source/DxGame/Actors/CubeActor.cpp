@@ -5,6 +5,11 @@ CubeActor::CubeActor(int id, Game* game) : Actor(id, game)
 {
 }
 
+CubeActor::CubeActor(int id, Game* game, const std::array<float,3>& scale) : CubeActor(id, game)
+{
+	SetScale(DirectX::XMFLOAT3(scale[0], scale[1], scale[2]));
+}
+
 void CubeActor::Init()
 {
 	auto self = shared_from_this();
