@@ -331,12 +331,12 @@ std::vector<VertexNormalUV> TextureCubeRenderComponent::GetVerts(float w, float 
 		verts.push_back({ p3, n, {0, 0} });
 	};
 
-	quad({ w,-h,-d }, { w, h,-d }, { w, h, d }, { w,-h, d }, { 1,0,0 }, d, h);
-	quad({ -w,-h, d }, { -w, h, d }, { -w, h,-d }, { -w,-h,-d }, { -1,0,0 }, d, h);
-	quad({ -w, h,-d }, { w, h,-d }, { w, h, d }, { -w, h, d }, { 0,1,0 }, d, w);
-	quad({ -w,-h, d }, { w,-h, d }, { w,-h,-d }, { -w,-h,-d }, { 0,-1,0 }, d, w);
-	quad({ -w,-h, d }, { -w, h, d }, { w, h, d }, { w,-h, d }, { 0,0,1 }, w, h);
-	quad({ w,-h,-d }, { w,h,-d }, { -w, h,-d }, { -w, -h,-d }, { 0,0,-1 }, w, h);
+	quad({ w,-h,-d }, { w, h,-d }, { w, h, d }, { w,-h, d }, { 1,0,0 }, h, d);
+	quad({ -w,-h, d }, { -w, h, d }, { -w, h,-d }, { -w,-h,-d }, { -1,0,0 }, h, d);
+	quad({ -w, h,-d }, { w, h,-d }, { w, h, d }, { -w, h, d }, { 0,1,0 }, w, d);
+	quad({ -w,-h, d }, { w,-h, d }, { w,-h,-d }, { -w,-h,-d }, { 0,-1,0 }, w, d);
+	quad({ -w,-h, d }, { -w, h, d }, { w, h, d }, { w,-h, d }, { 0,0,1 }, h, w);
+	quad({ w,-h,-d }, { w,h,-d }, { -w, h,-d }, { -w, -h,-d }, { 0,0,-1 }, h, w);
 
 	return verts;
 }

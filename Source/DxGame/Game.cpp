@@ -32,14 +32,14 @@ void Game::Init()
 
 	// Floor
 	// --------
-	auto floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{10, 0.2f, 10});
-	floor->SetPosition(DirectX::XMFLOAT3(0, -1.2f, 0));
+	auto floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{10, 0.2f, 7});
+	floor->SetPosition(DirectX::XMFLOAT3(0, -1.2f, 2));
 	AddActor(floor);
 
 	// Column
 	// --------
-	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 4, 1});
-	floor->SetPosition(DirectX::XMFLOAT3(5, 2, 5));
+	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 2, 1});
+	floor->SetPosition(DirectX::XMFLOAT3(5, 1, 2));
 	AddActor(floor);
 
 	// Player
@@ -91,7 +91,7 @@ void Game::Update(float deltaTime)
 	// ------------
 
 	auto pos = light->GetPosition();
-	ImGui::SetNextWindowSize(ImVec2(800, 100), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Once);
 	ImGui::Begin("Light");
 	{
