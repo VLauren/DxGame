@@ -10,6 +10,20 @@
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+struct VertexPositionColor
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 color;
+	DirectX::XMFLOAT3 normal;
+};
+
+struct VertexNormalUV
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT2 uv;
+};
+
 class Scene;
 
 class RenderComponent : public ActorComponent
@@ -49,6 +63,9 @@ public:
 
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
     ComPtr<ID3D11SamplerState> m_sampler = nullptr;
+
+private:
+    std::vector<VertexNormalUV> GetVerts(float w, float h, float d);
 };
 
 class LightComponent : public RenderComponent

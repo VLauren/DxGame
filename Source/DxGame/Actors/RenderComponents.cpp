@@ -13,20 +13,6 @@
 #endif
 #include <algorithm>
 
-struct VertexPositionColor
-{
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 color;
-	DirectX::XMFLOAT3 normal;
-};
-
-struct VertexNormalUV
-{
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT2 uv;
-};
-
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -234,39 +220,7 @@ void TextureCubeRenderComponent::VInit()
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
 	m_scene->AddChild(m_pOwner->GetId(), node);
 
-	static constexpr VertexNormalUV cubeVerts[24] =
-	{
-		{ { 1,-1,-1}, {1,0,0}, {0,1} },
-		{ { 1, 1,-1}, {1,0,0}, {1,1} },
-		{ { 1, 1, 1}, {1,0,0}, {1,0} },
-		{ { 1,-1, 1}, {1,0,0}, {0,0} },
-
-		{ {-1,-1, 1}, {-1,0,0}, {0,1} },
-		{ {-1, 1, 1}, {-1,0,0}, {1,1} },
-		{ {-1, 1,-1}, {-1,0,0}, {1,0} },
-		{ {-1,-1,-1}, {-1,0,0}, {0,0} },
-
-		{ {-1, 1,-1}, {0,1,0}, {0,1} },
-		{ { 1, 1,-1}, {0,1,0}, {1,1} },
-		{ { 1, 1, 1}, {0,1,0}, {1,0} },
-		{ {-1, 1, 1}, {0,1,0}, {0,0} },
-
-		{ {-1,-1, 1}, {0,-1,0}, {0,1} },
-		{ { 1,-1, 1}, {0,-1,0}, {1,1} },
-		{ { 1,-1,-1}, {0,-1,0}, {1,0} },
-		{ {-1,-1,-1}, {0,-1,0}, {0,0} },
-
-		{ {-1,-1, 1}, {0,0,1}, {0,1} },
-		{ {-1, 1, 1}, {0,0,1}, {1,1} },
-		{ { 1, 1, 1}, {0,0,1}, {1,0} },
-		{ { 1,-1, 1}, {0,0,1}, {0,0} },
-
-		{ { 1,-1,-1}, {0,0,-1}, {0,1} },
-		{ { 1, 1,-1}, {0,0,-1}, {1,1} },
-		{ {-1, 1,-1}, {0,0,-1}, {1,0} },
-		{ {-1,-1,-1}, {0,0,-1}, {0,0} }
-	};
-
+	std::vector<VertexNormalUV> vertices = GetVerts(1, 1, 1);
 	constexpr unsigned short cubeIdx[36] =
 	{
 		0, 1, 2,    0, 2, 3,
@@ -279,8 +233,8 @@ void TextureCubeRenderComponent::VInit()
 
 	ShaderMeshNode::GeometryDesc geometryDesc = {};
 	geometryDesc.vertexStride = sizeof(VertexNormalUV);
-	geometryDesc.vertexCount = 24;
-	geometryDesc.vertexData = cubeVerts;
+	geometryDesc.vertexCount = vertices.size();
+	geometryDesc.vertexData = vertices.data();
 	geometryDesc.indexCount = 36;
 	geometryDesc.indexData = cubeIdx;
 
@@ -353,6 +307,30 @@ void TextureCubeRenderComponent::VInit()
 	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
 
 	m_sceneNode = node;
+}
+
+inline std::vector<VertexNormalUV> TextureCubeRenderComponent::GetVerts(float w, float h, float d)
+{
+	using namespace DirectX;
+
+	std::vector<VertexNormalUV> verts;
+
+	auto quad = [&](XMFLOAT3 p0, XMFLOAT3 p1, XMFLOAT3 p2, XMFLOAT3 p3, XMFLOAT3 n, float uScale, float vScale)
+	{
+		verts.push_back({ p0, n, {0, vScale} });
+		verts.push_back({ p1, n, {uScale, vScale} });
+		verts.push_back({ p2, n, {uScale, 0} });
+		verts.push_back({ p3, n, {0, 0} });
+	};
+
+	quad({ w,-h,-d }, { w, h,-d }, { w, h, d }, { w,-h, d }, { 1,0,0 }, d, h);
+	quad({ -w,-h, d }, { -w, h, d }, { -w, h,-d }, { -w,-h,-d }, { -1,0,0 }, d, h);
+	quad({ -w, h,-d }, { w, h,-d }, { w, h, d }, { -w, h, d }, { 0,1,0 }, d, w);
+	quad({ -w,-h, d }, { w,-h, d }, { w,-h,-d }, { -w,-h,-d }, { 0,-1,0 }, d, w);
+	quad({ -w,-h, d }, { -w, h, d }, { w, h, d }, { w,-h, d }, { 0,0,1 }, w, h);
+	quad({ w,-h,-d }, { w,h,-d }, { -w, h,-d }, { -w, -h,-d }, { 0,0,-1 }, w, h);
+
+	return verts;
 }
 
 void LightComponent::VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation)
