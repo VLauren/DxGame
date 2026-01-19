@@ -5,7 +5,7 @@
 
 void Player::Init()
 {
-	AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene()));
+	AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
 	Actor::Init();
 }
 

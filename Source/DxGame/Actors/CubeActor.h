@@ -11,5 +11,7 @@ public:
 
 	void Init();
 	void Update(float deltaTime);
+private:
+	float w, h, d;
 };
 

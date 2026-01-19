@@ -157,6 +157,13 @@ void CubeRenderComponent::VInit()
 
 }
 
+TextureCubeRenderComponent::TextureCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth) : RenderComponent(std::move(owner), scene) 
+{
+	w = width;
+	h = height;
+	d = depth;
+}
+
 void TextureCubeRenderComponent::VInit()
 {
 	RenderComponent::VInit();
@@ -220,7 +227,8 @@ void TextureCubeRenderComponent::VInit()
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Cube render node"), DirectX::XMMatrixIdentity());
 	m_scene->AddChild(m_pOwner->GetId(), node);
 
-	std::vector<VertexNormalUV> vertices = GetVerts(1, 1, 1);
+	std::vector<VertexNormalUV> vertices = GetVerts(w, h, d);
+	// std::vector<VertexNormalUV> vertices = GetVerts(1, 1, 1);
 	constexpr unsigned short cubeIdx[36] =
 	{
 		0, 1, 2,    0, 2, 3,
@@ -309,7 +317,7 @@ void TextureCubeRenderComponent::VInit()
 	m_sceneNode = node;
 }
 
-inline std::vector<VertexNormalUV> TextureCubeRenderComponent::GetVerts(float w, float h, float d)
+std::vector<VertexNormalUV> TextureCubeRenderComponent::GetVerts(float w, float h, float d)
 {
 	using namespace DirectX;
 

@@ -38,9 +38,8 @@ void Game::Init()
 
 	// Column
 	// --------
-	floor = std::make_shared<CubeActor>(NextId(), this);
-	floor->SetPosition(DirectX::XMFLOAT3(5, 2, 4));
-	floor->SetScale(DirectX::XMFLOAT3(0.5f, 3, 0.5f));
+	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 4, 1});
+	floor->SetPosition(DirectX::XMFLOAT3(5, 2, 5));
 	AddActor(floor);
 
 	// Player

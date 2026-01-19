@@ -57,7 +57,7 @@ public:
 class TextureCubeRenderComponent : public RenderComponent
 {
 public:
-    explicit TextureCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
+	explicit TextureCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth);
 
     void VInit();
 
@@ -66,6 +66,7 @@ public:
 
 private:
     std::vector<VertexNormalUV> GetVerts(float w, float h, float d);
+    float w, h, d;
 };
 
 class LightComponent : public RenderComponent
