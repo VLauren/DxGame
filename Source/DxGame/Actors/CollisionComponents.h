@@ -12,11 +12,12 @@ struct CollisionResult
 	bool valid;
 };
 
-class CollisionComponent : public ActorComponent
+class CollisionComponent : public ActorComponent, public std::enable_shared_from_this<CollisionComponent>
 {
 public:
 	explicit CollisionComponent(std::shared_ptr<Actor> owner) : ActorComponent(std::move(owner)) {}
 
+	virtual void VInit();
 	virtual void VUpdate() = 0;
 	virtual bool CheckCollision(CollisionComponent other, const CollisionResult& result) = 0;
 };

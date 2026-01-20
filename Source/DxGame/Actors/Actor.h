@@ -46,7 +46,8 @@ public:
 
 	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
 
-	virtual void OnCollision(Actor* other) {}
+	virtual void OnCollision(Actor* other, CollisionResult result) {}
+	Game* GetGame() { return m_game; }
 
 protected:
 

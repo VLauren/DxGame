@@ -58,6 +58,8 @@ void Game::Destroy()
 
 void Game::Update(float deltaTime)
 {
+	CheckCollisions();
+
 	// Update all actors
 	for (auto& actor : m_actors) actor->Update(deltaTime);
 
@@ -121,5 +123,31 @@ void Game::AddActor(std::shared_ptr<Actor> actor)
 void Game::RemoveActor(std::shared_ptr<Actor> actor)
 {
 	std::erase(m_actors, actor);
+}
+
+void Game::RegisterCollider(std::weak_ptr<CollisionComponent> c) 
+{
+	m_colliders.push_back(c);
+}
+
+void Game::UnregisterCollider(std::weak_ptr<CollisionComponent> c) 
+{
+	auto component = c.lock();
+	if (component)
+	{
+		auto pred = [component](const std::weak_ptr<CollisionComponent>& w)
+			{
+				auto other = w.lock();
+				return !other || other == component;
+			};
+
+		m_colliders.erase(
+			std::remove_if(m_colliders.begin(), m_colliders.end(), pred),
+			m_colliders.end());
+	}
+}
+
+void Game::CheckCollisions() 
+{
 }
 

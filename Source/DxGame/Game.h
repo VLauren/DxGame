@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Actors/Actor.h"
+#include "Actors/CollisionComponents.h"
 
 class Scene;
 
@@ -37,11 +38,18 @@ public:
 
 	int NextId() { return m_idCount++; }
 
+	void RegisterCollider(std::weak_ptr<CollisionComponent> c);
+	void UnregisterCollider(std::weak_ptr<CollisionComponent> c);
+
 private:
 	std::vector<std::shared_ptr<Actor>> m_actors;
     Scene* m_scene;
 	GLFWwindow* m_window;
 
 	int m_idCount;
+
+	std::vector<std::weak_ptr<CollisionComponent>> m_colliders;
+
+	void CheckCollisions();
 };
 
