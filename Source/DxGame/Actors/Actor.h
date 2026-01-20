@@ -46,6 +46,8 @@ public:
 
 	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
 
+	virtual void OnCollision(Actor* other) {}
+
 protected:
 
 	int m_id;

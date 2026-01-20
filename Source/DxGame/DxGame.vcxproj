@@ -172,6 +172,7 @@
     <ClCompile Include="Actors\RenderComponents.cpp" />
     <ClCompile Include="Actors\CameraComponent.cpp" />
     <ClCompile Include="Actors\CameraActor.cpp" />
+    <ClCompile Include="Actors\CollisionComponents.cpp" />
     <ClCompile Include="DxGameApp.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="Actors\RenderComponents.h" />
     <ClInclude Include="Actors\CameraComponent.h" />
     <ClInclude Include="Actors\CameraActor.h" />
+    <ClInclude Include="Actors\CollisionComponents.h" />
     <ClInclude Include="DxGameApp.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Graphics\Graphics.h" />
