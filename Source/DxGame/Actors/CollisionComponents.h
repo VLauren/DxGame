@@ -19,7 +19,7 @@ public:
 
 	virtual void VInit();
 	virtual void VUpdate() = 0;
-	virtual bool CheckCollision(CollisionComponent other, const CollisionResult& result) = 0;
+	virtual bool CheckCollision(const CollisionComponent& other, const CollisionResult& result) = 0;
 };
 
 class  AABBColisionComponent

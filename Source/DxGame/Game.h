@@ -42,6 +42,8 @@ public:
 	void UnregisterCollider(std::weak_ptr<CollisionComponent> c);
 
 private:
+	void CheckCollisions();
+
 	std::vector<std::shared_ptr<Actor>> m_actors;
     Scene* m_scene;
 	GLFWwindow* m_window;
@@ -49,7 +51,5 @@ private:
 	int m_idCount;
 
 	std::vector<std::weak_ptr<CollisionComponent>> m_colliders;
-
-	void CheckCollisions();
 };
 

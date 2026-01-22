@@ -149,5 +149,20 @@ void Game::UnregisterCollider(std::weak_ptr<CollisionComponent> c)
 
 void Game::CheckCollisions() 
 {
+	for (auto& colA : m_colliders)
+	{
+		auto colliderA = colA.lock();
+		for (auto& colB : m_colliders)
+		{
+			auto colliderB = colB.lock();
+
+			if (colliderA == colliderB)
+				continue;
+
+			CollisionResult result;
+			if (colliderA->CheckCollision(*colliderB.get(), &result))
+				colliderA->GetOwner().lock()->OnCollision(colliderB->GetOwner().lock().get(), result);
+		}
+	}
 }
 
