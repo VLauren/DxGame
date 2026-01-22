@@ -7,6 +7,7 @@
 
 class ActorComponent;
 class Game;
+struct CollisionResult;
 
 class Actor : public std::enable_shared_from_this<Actor>
 {
@@ -46,7 +47,7 @@ public:
 
 	std::vector<std::shared_ptr<ActorComponent>> GetComponents() { return m_components; };
 
-	// virtual void OnCollision(Actor* other, CollisionResult result) {}
+	virtual void OnCollision(Actor* other, const CollisionResult& result) {}
 	Game* GetGame() { return m_game; }
 
 protected:
