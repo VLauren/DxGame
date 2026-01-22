@@ -40,6 +40,8 @@ void Game::Init()
 	// --------
 	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 2, 1});
 	floor->SetPosition(DirectX::XMFLOAT3(5, 1, 2));
+	auto col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
+	floor->AddComponent(col);
 	AddActor(floor);
 
 	// Player
