@@ -10,6 +10,8 @@ public:
 	void Init();
 	void Update(float deltaTime);
 
+	void OnCollision(Actor* other, const CollisionResult& result);
+
 private:
 	const float moveSpeed = 5;
 };

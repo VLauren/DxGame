@@ -55,3 +55,14 @@ void Player::Update(float deltaTime)
 
 	Actor::Update(deltaTime);
 }
+
+
+void Player::OnCollision(Actor* other, const CollisionResult& result)
+{
+	auto pos = GetPosition();
+	pos.x -= result.normal.x * result.penetrationDepth;
+	pos.y -= result.normal.y * result.penetrationDepth;
+	pos.z -= result.normal.z * result.penetrationDepth;
+	SetPosition(pos);
+	// TODO non axis aligned normal fix
+}
