@@ -65,4 +65,7 @@ void Player::OnCollision(Actor* other, const CollisionResult& result)
 	pos.z -= result.normal.z * result.penetrationDepth;
 	SetPosition(pos);
 	// TODO non axis aligned normal fix
+
+	// Hack to update renderer world matrix after changing position
+	GetComponent<RenderComponent>().lock()->VUpdate(0);
 }

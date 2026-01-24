@@ -39,11 +39,11 @@ bool AABBCollisionComponent::CheckCollision(const CollisionComponent& other, Col
 		float dx = std::min(maxAX, maxBX) - std::max(minAX, minBX);
 		float dy = std::min(maxAY, maxBY) - std::max(minAY, minBY);
 		float dz = std::min(maxAZ, maxBZ) - std::max(minAZ, minBZ);
-		if (dx < 0)
+		if (dx <= 0)
 			return false;
-		if (dy < 0)
+		if (dy <= 0)
 			return false;
-		if (dz < 0)
+		if (dz <= 0)
 			return false;
 
 		// Normal and penetration depth
