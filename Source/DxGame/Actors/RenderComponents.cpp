@@ -372,3 +372,12 @@ void LightComponent::SetIntensity(float intensity)
 {
 	m_intensity = intensity;
 }
+
+
+WireframeCubeRenderComponent::WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth) : RenderComponent(std::move(owner), scene) 
+{
+	w = width;
+	h = height;
+	d = depth;
+}
+

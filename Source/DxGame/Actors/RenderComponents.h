@@ -24,6 +24,11 @@ struct VertexNormalUV
 	DirectX::XMFLOAT2 uv;
 };
 
+struct Vertex
+{
+    DirectX::XMFLOAT3 position;
+};
+
 class Scene;
 
 class RenderComponent : public ActorComponent
@@ -84,4 +89,15 @@ public:
 private:
 	DirectX::XMFLOAT3 m_colour = DirectX::XMFLOAT3(1, 1, 1);
     float m_intensity;
+};
+
+class WireframeCubeRenderComponent : public RenderComponent
+{
+public:
+	explicit WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth);
+
+private:
+    DirectX::XMFLOAT4 m_colour;
+    std::vector<VertexNormalUV> GetVerts(float w, float h, float d);
+    float w, h, d;
 };
