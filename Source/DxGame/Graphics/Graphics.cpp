@@ -322,7 +322,7 @@ Graphics::ComPtr<ID3D11VertexShader> Graphics::CreateVertexShaderFromSource(cons
 
 Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShaderFromSource(const char* src)
 {
-    ComPtr<ID3DBlob> blob, error;
+    ComPtr<ID3DBlob> blob, errorBlob;
 	HRESULT hr = D3DCompile(src, strlen(src), "PS", nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorBlob);
     if (FAILED(hr))
     {

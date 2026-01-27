@@ -148,6 +148,7 @@ void CubeRenderComponent::VInit()
 	geometryDesc.vertexData = cubeVerts;
 	geometryDesc.indexCount = 36;
 	geometryDesc.indexData = cubeIdx;
+	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	node->SetGeometry(geometryDesc);
 	node->VLoadResources(m_scene);
@@ -245,6 +246,7 @@ void TextureCubeRenderComponent::VInit()
 	geometryDesc.vertexData = vertices.data();
 	geometryDesc.indexCount = 36;
 	geometryDesc.indexData = cubeIdx;
+	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	ComPtr<ID3D11Texture2D> tex;
 	ComPtr<ID3D11ShaderResourceView> srv;
@@ -374,10 +376,97 @@ void LightComponent::SetIntensity(float intensity)
 }
 
 
-WireframeCubeRenderComponent::WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth) : RenderComponent(std::move(owner), scene) 
+
+void WireframeCubeRenderComponent::VInit()
 {
-	w = width;
-	h = height;
-	d = depth;
+	using namespace DirectX;
+
+	RenderComponent::VInit();
+
+	const char* wireframeVS = R"(
+	cbuffer Constants : register(b0)
+	{
+		matrix world;
+		matrix viewProj;
+	};
+
+	struct VSInput
+	{
+		float3 pos : POSITION;
+	};
+
+	struct VSOutput
+	{
+		float4 pos : SV_Position;
+	};
+
+	VSOutput main(VSInput v)
+	{
+		VSOutput o;
+		o.pos = mul(mul(float4(v.pos, 1.0), world), viewProj);
+		return o;
+	}
+	)";
+
+		const char* wireframePS = R"(
+	float4 main(float4 pos : SV_Position) : SV_Target
+	{
+		return float4(0, 1, 0, 1);
+	}
+	)";
+
+	ComPtr<ID3DBlob> vsBlob;
+	auto vs = Graphics::CreateVertexShaderFromSource(wireframeVS, vsBlob);
+	auto ps = Graphics::CreatePixelShaderFromSource(wireframePS);
+
+	constexpr D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+	ComPtr<ID3D11InputLayout> inputLayout;
+	Graphics::GetDevice()->CreateInputLayout(layout, 1, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &inputLayout);
+
+	std::vector<Vertex> verts;
+	std::vector<uint16_t> idx;
+	BuildWireCube(verts, idx);
+
+	ShaderMeshNode::GeometryDesc desc{};
+	desc.vertexStride = sizeof(Vertex);
+	desc.vertexCount = static_cast<uint32_t>(verts.size());
+	desc.vertexData = verts.data();
+	desc.indexCount = static_cast<uint32_t>(idx.size());
+	desc.indexData = idx.data();
+	desc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	//desc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), "wireframe", XMMatrixIdentity());
+	m_scene->AddChild(m_pOwner->GetId(), node);
+
+	node->SetGeometry(desc);
+	node->VLoadResources(m_scene);
+	node->SetShadersAndLayout(vs, ps, inputLayout);
+
+	m_sceneNode = node;
 }
 
+void WireframeCubeRenderComponent::BuildWireCube(std::vector<Vertex>& verts, std::vector<uint16_t>& idx)
+{
+	DirectX::XMFLOAT3 corners[8] =
+	{
+		{-1, -1, -1},{1, -1, -1},{1, 1, -1},{-1, 1, -1},
+		{-1, -1, 1},{1, -1, 1},{1, 1, 1},{-1, 1, 1}
+	};
+
+	constexpr uint16_t edges[24] =
+	{
+		0,1, 1,2, 2,3, 3,0,
+		4,5, 5,6, 6,7, 7,4,
+		0,4, 1,5, 2,6, 3,7
+	};
+
+	for (int i = 0; i < 8; i++)
+		verts.push_back({corners[i]});
+
+	for (int i = 0; i < 24; i++)
+		idx.push_back({ edges[i] });
+}

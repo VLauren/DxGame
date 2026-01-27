@@ -129,7 +129,7 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	deviceContext->IASetInputLayout(m_vertexLayout.Get());
 	deviceContext->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &vertexStride, &vertexOffset);
 	deviceContext->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(m_geometryDesc.topology));
 
 	// Vertex Shader
 	deviceContext->VSSetShader(m_vertexShader.Get(), nullptr, 0);

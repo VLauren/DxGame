@@ -94,10 +94,10 @@ private:
 class WireframeCubeRenderComponent : public RenderComponent
 {
 public:
-	explicit WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth);
+    explicit WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
+
+    void VInit() override;
 
 private:
-    DirectX::XMFLOAT4 m_colour;
-    std::vector<VertexNormalUV> GetVerts(float w, float h, float d);
-    float w, h, d;
+    static void BuildWireCube(std::vector<Vertex>& verts, std::vector<uint16_t>& idx);
 };

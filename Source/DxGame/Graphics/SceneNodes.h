@@ -63,6 +63,8 @@ public:
 
 		int32_t indexCount = 0;
 		const void* indexData = nullptr;
+
+		byte topology;
 	};
 
 	struct VertexPositionColor
@@ -96,9 +98,6 @@ private:
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
 
     ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
-    // ComPtr<ID3D11Buffer> m_pixelConstantBuffer;
-
-	// uint32_t m_frame = 0;
 };
 
 
