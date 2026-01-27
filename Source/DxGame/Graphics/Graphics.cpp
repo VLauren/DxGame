@@ -303,3 +303,35 @@ Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShader(const std::wstri
 
     return pixelShader;
 }
+
+Graphics::ComPtr<ID3D11VertexShader> Graphics::CreateVertexShaderFromSource(const char* src, ComPtr<ID3DBlob>& blobOut)
+{
+    ComPtr<ID3DBlob> errorBlob;
+	HRESULT hr = D3DCompile(src, strlen(src), "VS", nullptr, nullptr, "main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blobOut, &errorBlob);
+    if (FAILED(hr))
+    {
+        printf("D3D11: Failed to compile vertex shader\n");
+        return nullptr;
+    }
+
+    ComPtr<ID3D11VertexShader> vertexShader;
+	GetDevice()->CreateVertexShader(blobOut->GetBufferPointer(), blobOut->GetBufferSize(), nullptr, vertexShader.GetAddressOf());
+
+    return vertexShader;
+}
+
+Graphics::ComPtr<ID3D11PixelShader> Graphics::CreatePixelShaderFromSource(const char* src)
+{
+    ComPtr<ID3DBlob> blob, error;
+	HRESULT hr = D3DCompile(src, strlen(src), "PS", nullptr, nullptr, "main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorBlob);
+    if (FAILED(hr))
+    {
+        printf("D3D11: Failed to compile pixel shader\n");
+        return nullptr;
+    }
+
+    ComPtr<ID3D11PixelShader> pixelShader;
+	GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, pixelShader.GetAddressOf());
+
+    return pixelShader;
+}

@@ -42,11 +42,11 @@ public:
         const std::string& profile,
         ComPtr<ID3DBlob>& shaderBlob);
 
-    [[nodiscard]] static ComPtr<ID3D11VertexShader> CreateVertexShader(
-        const std::wstring& fileName,
-        ComPtr<ID3DBlob>& vertexShaderBlob);
-
+	[[nodiscard]] static ComPtr<ID3D11VertexShader> CreateVertexShader(const std::wstring& fileName, ComPtr<ID3DBlob>& vertexShaderBlob);
     [[nodiscard]] static ComPtr<ID3D11PixelShader> CreatePixelShader(const std::wstring& fileName);
+
+	[[nodiscard]] static ComPtr<ID3D11VertexShader> CreateVertexShaderFromSource(const char* src, ComPtr<ID3DBlob>& vertexShaderBlob);
+    [[nodiscard]] static ComPtr<ID3D11PixelShader> CreatePixelShaderFromSource(const char* src);
 
     inline static Application* s_appRef;
 
