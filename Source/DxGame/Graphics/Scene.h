@@ -20,6 +20,7 @@ public:
 
 	void OnRender();
 	bool AddChild(int actorId, std::shared_ptr<SceneNode> child);
+	bool AddChildLast(int actorId, std::shared_ptr<SceneNode> child);
 	bool RemoveChild(int actorId);
 
 	DirectX::XMMATRIX GetViewProjMatrix() { return m_viewProj; }

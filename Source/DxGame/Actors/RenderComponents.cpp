@@ -437,10 +437,9 @@ void WireframeCubeRenderComponent::VInit()
 	desc.indexCount = static_cast<uint32_t>(idx.size());
 	desc.indexData = idx.data();
 	desc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-	//desc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), "wireframe", XMMatrixIdentity());
-	m_scene->AddChild(m_pOwner->GetId(), node);
+	m_scene->AddChildLast(m_pOwner->GetId(), node); // AddChildLast to draw over everything else
 
 	node->SetGeometry(desc);
 	node->VLoadResources(m_scene);

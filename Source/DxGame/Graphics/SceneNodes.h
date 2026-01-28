@@ -27,6 +27,7 @@ public:
 	virtual void VPostRender(Scene* pScene) {};
 
 	virtual bool VAddChild(std::shared_ptr<SceneNode> child);
+	virtual bool VAddChildLast(std::shared_ptr<SceneNode> child);
 	virtual bool VRemoveChild(int actorId);
 
 	virtual ~SceneNode() {}

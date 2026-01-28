@@ -29,6 +29,11 @@ bool Scene::AddChild(int actorId, std::shared_ptr<SceneNode> child)
 	return m_root->VAddChild(child);
 }
 
+bool Scene::AddChildLast(int actorId, std::shared_ptr<SceneNode> child)
+{
+	return m_root->VAddChildLast(child);
+}
+
 bool Scene::RemoveChild(int actorId)
 {
 	return m_root->VRemoveChild(actorId);

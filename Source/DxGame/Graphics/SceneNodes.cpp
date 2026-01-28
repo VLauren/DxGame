@@ -21,6 +21,12 @@ void SceneNode::VRenderChildren(Scene* pScene)
 
 bool SceneNode::VAddChild(std::shared_ptr<SceneNode> child) 
 {
+	m_children.insert(m_children.begin(), child);
+	return true;
+}
+
+bool SceneNode::VAddChildLast(std::shared_ptr<SceneNode> child)
+{
 	m_children.emplace_back(child);
 	return true;
 }
