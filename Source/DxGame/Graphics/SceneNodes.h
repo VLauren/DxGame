@@ -97,7 +97,8 @@ private:
     ComPtr<ID3D11PixelShader> m_pixelShader = nullptr;
     ComPtr<ID3D11InputLayout> m_vertexLayout = nullptr;
 
-    ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
+	ComPtr<ID3D11Buffer> m_vertexConstantBuffer;
+	ComPtr<ID3D11DepthStencilState> m_noZDepthStencilState;
 };
 
 

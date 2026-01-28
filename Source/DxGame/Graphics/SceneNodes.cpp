@@ -95,6 +95,20 @@ void ShaderMeshNode::VLoadResources(Scene* pScene)
 		printf("D3D11: Failed to create constant vertex buffer\n");
 		return;
 	}
+
+	// depth stencil that ignores depth if wireframe
+	if (m_geometryDesc.topology == D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST)
+	{
+		D3D11_DEPTH_STENCIL_DESC depthStencilDescriptor = {};
+		depthStencilDescriptor.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthStencilDescriptor.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+		if (FAILED(Graphics::GetDevice()->CreateDepthStencilState(&depthStencilDescriptor, &m_noZDepthStencilState)))
+		{
+			printf("D3D11: Failed to create depth stencil state\n");
+			return;
+		}
+
+	}
 }
 
 void ShaderMeshNode::SetShadersAndLayout(ComPtr<ID3D11VertexShader> vs, ComPtr<ID3D11PixelShader> ps, ComPtr<ID3D11InputLayout> il) 
@@ -137,10 +151,16 @@ void ShaderMeshNode::VRender(Scene* pScene)
 
 	// Pixel Shader
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	// deviceContext->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
+
+	// Output Merger
+	if (m_geometryDesc.topology == D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST)
+		deviceContext->OMSetDepthStencilState(m_noZDepthStencilState.Get(), 0);
 
 	// Draw
 	Graphics::GetDeviceContext()->DrawIndexed(m_geometryDesc.indexCount, 0, 0);
+
+	if (m_geometryDesc.topology == D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST)
+		deviceContext->OMSetDepthStencilState(nullptr, 0);
 }
 
 // ===========================

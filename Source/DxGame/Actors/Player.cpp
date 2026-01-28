@@ -8,7 +8,7 @@ void Player::Init()
 {
 	using namespace DirectX;
 
-	// AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
+	AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
 	AddComponent(std::make_shared<WireframeCubeRenderComponent>(shared_from_this(), m_game->GetScene()));
 	AddComponent(std::make_shared<AABBCollisionComponent>(shared_from_this(), XMFLOAT3(0, 0, 0), XMFLOAT3(1, 1, 1)));
 	Actor::Init();
