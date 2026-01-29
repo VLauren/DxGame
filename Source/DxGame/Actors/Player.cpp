@@ -69,4 +69,5 @@ void Player::OnCollision(Actor* other, const CollisionResult& result)
 
 	// Hack to update renderer world matrix after changing position
 	GetComponent<RenderComponent>().lock()->VUpdate(0);
+	GetComponent<WireframeCubeRenderComponent>().lock()->VUpdate(0);
 }
