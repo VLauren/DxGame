@@ -4,6 +4,7 @@
 #include "Actors/CubeActor.h"
 #include "Actors/CameraActor.h"
 #include "Actors/Player.h"
+#include "Graphics/Graphics.h"
 
 #include <stdio.h>
 
@@ -92,6 +93,12 @@ void Game::Update(float deltaTime)
 	ImGui::End();
 
 	light->SetPosition(pos);
+
+	ImGui::Begin("Colliders");
+	{
+		ImGui::Checkbox("Show colliders", &Graphics::s_showWireframe);
+	}
+	ImGui::End();
 }
 
 void Game::AddActor(std::shared_ptr<Actor> actor)

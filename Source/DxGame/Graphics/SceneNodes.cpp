@@ -128,6 +128,9 @@ void ShaderMeshNode::VRender(Scene* pScene)
 {
 	using namespace DirectX;
 
+	if (!Graphics::s_showWireframe && m_geometryDesc.topology == D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST)
+		return;
+
 	auto device = Graphics::GetDevice();
 	auto deviceContext = Graphics::GetDeviceContext();
 

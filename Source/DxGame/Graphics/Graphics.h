@@ -26,6 +26,7 @@ public:
     static const ComPtr<ID3D11Device>& GetDevice() { return s_device; }
     static const ComPtr<ID3D11DeviceContext>& GetDeviceContext() { return s_deviceContext; }
     static const Application* GetApplication() { return s_appRef; }
+    inline static bool s_showWireframe;
 	
 	bool Initialize();
 	void Render();
