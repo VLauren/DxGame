@@ -3,6 +3,8 @@
 #include "../Game.h"
 #include "RenderComponents.h"
 #include "CollisionComponents.h"
+#include <algorithm>
+#include <cmath>
 
 void Player::Init()
 {
@@ -53,6 +55,22 @@ void Player::Update(float deltaTime)
 	pos.x += deltaTime * moveSpeed * input.x;
 	pos.z += deltaTime * moveSpeed * input.y;
 	SetPosition(pos);
+
+	// player rotation towards movement direction
+	if (input.x != 0 || input.y != 0)
+	{
+		float rotationSpeed = 5;
+		auto rot = GetRotation();
+		float targetYaw = std::atan2(input.x, input.y);
+
+		if (targetYaw < 0 && rot.y > 0)
+			rot.y -= DirectX::XM_2PI;
+		if (targetYaw > 0 && rot.y < 0)
+			rot.y += DirectX::XM_2PI;
+
+		rot.y = std::clamp(targetYaw, rot.y - deltaTime * rotationSpeed, rot.y + deltaTime * rotationSpeed);
+		SetRotation({ rot.x, rot.y, rot.z });
+	}
 
 	Actor::Update(deltaTime);
 }
