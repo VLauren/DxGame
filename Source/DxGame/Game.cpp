@@ -34,14 +34,18 @@ void Game::Init()
 	// --------
 	auto floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{10, 0.2f, 7});
 	floor->SetPosition(DirectX::XMFLOAT3(0, -1.2f, 2));
+	auto col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(10, 0.2f, 7));
+	floor->AddComponent(col);
+	floor->AddComponent(std::make_shared<WireframeCubeRenderComponent>(floor, GetScene()));
 	AddActor(floor);
 
 	// Column
 	// --------
 	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 2, 1});
 	floor->SetPosition(DirectX::XMFLOAT3(5, 1, 2));
-	auto col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 1, 1));
+	col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 2, 1));
 	floor->AddComponent(col);
+	floor->AddComponent(std::make_shared<WireframeCubeRenderComponent>(floor, GetScene()));
 	AddActor(floor);
 
 	// Player

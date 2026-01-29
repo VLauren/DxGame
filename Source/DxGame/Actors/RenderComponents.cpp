@@ -448,6 +448,26 @@ void WireframeCubeRenderComponent::VInit()
 	m_sceneNode = node;
 }
 
+void WireframeCubeRenderComponent::VUpdate(float deltaTime)
+{
+	using namespace DirectX;
+
+	auto col = m_pOwner->GetComponent<AABBCollisionComponent>();
+	if (col.expired())
+		return;
+
+
+	XMFLOAT3 p = m_pOwner->GetPosition(); // + col.lock()->GetCenter();
+	XMFLOAT3 r = {0, 0, 0};
+	XMFLOAT3 s = col.lock()->GetExtents();
+	XMMATRIX world = XMMatrixScalingFromVector(XMLoadFloat3(&s)) *
+		XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&r)) *
+		XMMatrixTranslationFromVector(XMLoadFloat3(&p));
+
+	if(auto node = m_sceneNode.lock())
+		node->VSetTransform(world);
+}
+
 void WireframeCubeRenderComponent::BuildWireCube(std::vector<Vertex>& verts, std::vector<uint16_t>& idx)
 {
 	DirectX::XMFLOAT3 corners[8] =

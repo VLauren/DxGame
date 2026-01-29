@@ -32,6 +32,9 @@ public:
 
 	virtual bool CheckCollision(const CollisionComponent& other, CollisionResult* result);
 
+	DirectX::XMFLOAT3 GetExtents(){ return m_extents; }
+	DirectX::XMFLOAT3 GetCenter(){ return m_center; }
+
 private:
 	DirectX::XMFLOAT3 m_center;
 	DirectX::XMFLOAT3 m_extents;

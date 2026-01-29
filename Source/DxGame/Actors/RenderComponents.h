@@ -97,6 +97,7 @@ public:
     explicit WireframeCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene) : RenderComponent(std::move(owner), scene) {}
 
     void VInit() override;
+    void VUpdate(float deltaTime) override;
 
 private:
     static void BuildWireCube(std::vector<Vertex>& verts, std::vector<uint16_t>& idx);
