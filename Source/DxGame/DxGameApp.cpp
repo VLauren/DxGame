@@ -96,7 +96,9 @@ bool DxGameApp::Initialize()
 
 void DxGameApp::Cleanup()
 {
-    // TODO Delete game logic
+    // Delete game logic
+    m_game->Destroy();
+
     // TODO Delete event system and script manager
     // TODO Delete resource cache
 }
