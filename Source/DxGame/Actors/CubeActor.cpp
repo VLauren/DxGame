@@ -1,3 +1,6 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #include "CubeActor.h"
 #include "../Game.h"
 

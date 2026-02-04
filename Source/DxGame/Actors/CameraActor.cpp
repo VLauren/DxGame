@@ -1,3 +1,6 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #include "CameraActor.h"
 #include "../Game.h"
 #include "Player.h"

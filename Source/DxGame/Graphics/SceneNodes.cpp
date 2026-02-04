@@ -1,3 +1,6 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #include "Scene.h"
 #include "SceneNodes.h"
 #include "Graphics.h"

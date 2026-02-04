@@ -1,3 +1,5 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
 
 #include "imgui.h"
 #include "Game.h"
@@ -14,6 +16,7 @@ Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) 
 
 void Game::Init()
 {
+    return;
 	// Camera
 	// --------
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);

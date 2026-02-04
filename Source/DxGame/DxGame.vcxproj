@@ -157,7 +157,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\3rdParty\imgui\imgui.cpp" />
+    <ClCompile Include="..\3rdParty\imgui\imgui.cpp">
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ShowIncludes>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ShowIncludes>
+    </ClCompile>
     <ClCompile Include="..\3rdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\3rdParty\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\3rdParty\imgui\imgui_impl_dx11.cpp" />

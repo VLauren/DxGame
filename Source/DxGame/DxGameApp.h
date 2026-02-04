@@ -1,11 +1,14 @@
 #pragma once
 
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <wrl.h>
 
 #include <filesystem>
-#include <crtdbg.h>
+// #include <crtdbg.h>
 
 // TODO debug new
 #define DXG_NEW new
