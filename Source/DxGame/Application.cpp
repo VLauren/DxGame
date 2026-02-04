@@ -1,3 +1,5 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
 
 #include "Application.h"
 
@@ -23,6 +25,8 @@ void Application::Run()
 {
 	if (!Initialize())
 		return;
+
+    return;
 
 	if (!Load())
 		return;
@@ -53,8 +57,6 @@ void Application::Run()
 
 void Application::Cleanup()
 {
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
     if (m_window != nullptr)
@@ -62,6 +64,7 @@ void Application::Cleanup()
         glfwDestroyWindow(m_window);
         m_window = nullptr;
     }
+
     glfwTerminate();
 }
 

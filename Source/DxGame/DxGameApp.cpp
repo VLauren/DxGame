@@ -1,3 +1,6 @@
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
 #include "DxGameApp.h"
 
 #include "imgui.h"
@@ -31,6 +34,7 @@ DxGameApp::~DxGameApp()
 
 bool DxGameApp::Initialize()
 {
+
     // Check if there already is an instance of the game running
     if (!IsOnlyInstance())
     {
@@ -77,17 +81,18 @@ bool DxGameApp::Initialize()
     m_gfx = std::make_unique<Graphics>(this);
     if (!m_gfx->Initialize())
         return false;
+
     m_scene = std::make_unique<Scene>();
 
     // Setup Dear Imgui Platform/Renderer backends
     ImGui_ImplGlfw_InitForOther(m_window, true);
     ImGui_ImplDX11_Init(Graphics::GetDevice().Get(), Graphics::GetDeviceContext().Get());
-
     // -----------------
 
     // WIP Create game logic and game view
     m_game = std::make_unique<Game>(m_scene.get(), m_window);
     m_game->Init();
+    return true;
 
     // TODO Preload selected resources
 
@@ -96,6 +101,10 @@ bool DxGameApp::Initialize()
 
 void DxGameApp::Cleanup()
 {
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplDX11_Shutdown();
+    return;
+
     // Delete game logic
     m_game->Destroy();
 
