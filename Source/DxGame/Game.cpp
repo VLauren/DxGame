@@ -10,13 +10,10 @@
 
 #include <stdio.h>
 
-std::shared_ptr<Actor> light;
-
 Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) {}
 
 void Game::Init()
 {
-    return;
 	// Camera
 	// --------
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);

@@ -1,5 +1,5 @@
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
+// #define _CRTDBG_MAP_ALLOC
+// #include <crtdbg.h>
 
 #include "DxGameApp.h"
 
@@ -34,7 +34,6 @@ DxGameApp::~DxGameApp()
 
 bool DxGameApp::Initialize()
 {
-
     // Check if there already is an instance of the game running
     if (!IsOnlyInstance())
     {
@@ -92,7 +91,6 @@ bool DxGameApp::Initialize()
     // WIP Create game logic and game view
     m_game = std::make_unique<Game>(m_scene.get(), m_window);
     m_game->Init();
-    return true;
 
     // TODO Preload selected resources
 

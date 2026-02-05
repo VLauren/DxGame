@@ -17,10 +17,8 @@ int main(int argc, char* argv[])
 
 	// TODO init logging system
 
-	{
-		DxGameApp application{ "DxGame" };
-		application.Run();
-	}
+	DxGameApp application{ "DxGame" };
+	application.Run();
 
 	// Reports leaks to stderr
 	_CrtDumpMemoryLeaks();

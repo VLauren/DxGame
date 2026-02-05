@@ -1,5 +1,5 @@
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
+// #define _CRTDBG_MAP_ALLOC
+// #include <crtdbg.h>
 
 #include "Application.h"
 
@@ -25,8 +25,6 @@ void Application::Run()
 {
 	if (!Initialize())
 		return;
-
-    return;
 
 	if (!Load())
 		return;

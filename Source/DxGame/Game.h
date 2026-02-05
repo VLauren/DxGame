@@ -51,5 +51,6 @@ private:
 	int m_idCount;
 
 	std::vector<std::weak_ptr<CollisionComponent>> m_colliders;
+	std::shared_ptr<Actor> light;
 };
 
