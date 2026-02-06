@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Allow 3D model .obj in assets
+![Aa]ssets/**/*.obj
