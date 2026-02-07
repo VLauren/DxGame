@@ -102,3 +102,17 @@ public:
 private:
     static void BuildWireCube(std::vector<Vertex>& verts, std::vector<uint16_t>& idx);
 };
+
+class MeshRenderComponent : public RenderComponent
+{
+public:
+    explicit MeshRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, std::string fileName) : 
+        RenderComponent(std::move(owner), scene), m_fileName(fileName) {}
+
+    void VInit() override;
+
+private:
+    std::string m_fileName;
+
+    bool LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx);
+};

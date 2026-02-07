@@ -54,6 +54,10 @@ void Game::Init()
 	auto player = std::make_shared<Player>(NextId(), this);
 	AddActor(player);
 
+	// Model Test
+	// --------
+	auto modelActor = std::make_shared<Actor>(NextId(), this);
+
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();
 }

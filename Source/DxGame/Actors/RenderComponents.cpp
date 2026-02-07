@@ -5,6 +5,9 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include "../Graphics/Scene.h"
 #include "../Graphics/Graphics.h"
 
@@ -491,4 +494,107 @@ void WireframeCubeRenderComponent::BuildWireCube(std::vector<Vertex>& verts, std
 
 	for (int i = 0; i < 24; i++)
 		idx.push_back({ edges[i] });
+}
+
+void MeshRenderComponent::VInit() 
+{
+	RenderComponent::VInit();
+
+	auto device = Graphics::GetDevice();
+
+#ifdef _DEBUG
+	std::wstring basePath = L"../Shaders/";
+#else
+	std::wstring basePath = L"";
+#endif
+
+	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Main.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Main.ps.hlsl");
+
+	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
+	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
+
+	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
+	{
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, position),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"NORMAL",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, normal),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, uv),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+	};
+
+	if (FAILED(device->CreateInputLayout(
+		vertexInputLayoutInfo,
+		_countof(vertexInputLayoutInfo),
+		vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize(),
+		&m_vertexLayout)))
+	{
+		printf("D3D11: Failed to create default vertex input layout\n");
+	}
+
+	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Mesh"), DirectX::XMMatrixIdentity());
+	m_scene->AddChild(m_pOwner->GetId(), node);
+
+	// Import model
+	// ==============
+	std::vector<VertexNormalUV> verts;
+    std::vector<uint16_t> idx;
+    if (!LoadFromAssimp(verts, idx))
+        return;
+
+    ShaderMeshNode::GeometryDesc geometryDesc{};
+    geometryDesc.vertexStride = sizeof(VertexNormalUV);
+    geometryDesc.vertexCount  = static_cast<uint32_t>(verts.size());
+    geometryDesc.vertexData   = verts.data();
+    geometryDesc.indexCount   = static_cast<uint32_t>(idx.size());
+    geometryDesc.indexData    = idx.data();
+    geometryDesc.topology     = static_cast<uint8_t>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	node->SetGeometry(geometryDesc);
+	node->VLoadResources(m_scene);
+	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
+
+	m_sceneNode = node;
+}
+
+bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx)
+{
+#ifdef _DEBUG
+	std::string modelPath = "../../Assets/Models/";
+#else
+	std::string modelPath = "Models/";
+#endif
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(modelPath + "munyeco.obj", aiProcess_Triangulate);
+	if (!scene)
+		printf("no hay modelo pisha\n");
+	else
+		printf("num vertices: %u\n", scene->mMeshes[0]->mNumVertices);
+
+	return true;
 }
