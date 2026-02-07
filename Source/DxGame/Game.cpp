@@ -57,6 +57,10 @@ void Game::Init()
 	// Model Test
 	// --------
 	auto modelActor = std::make_shared<Actor>(NextId(), this);
+	auto mesh = std::make_shared<MeshRenderComponent>(modelActor, GetScene(), "munyeco.obj");
+	modelActor->AddComponent(mesh);
+	modelActor->SetPosition({ 0, 1, 0 });
+	AddActor(modelActor);
 
 	// Init all actors
 	for (auto& actor : m_actors) actor->Init();

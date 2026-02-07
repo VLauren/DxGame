@@ -509,8 +509,8 @@ void MeshRenderComponent::VInit()
 #endif
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Main.vs.hlsl", vertexShaderBlob);
-	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Main.ps.hlsl");
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
 
 	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
 	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
@@ -591,10 +591,44 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(modelPath + "munyeco.obj", aiProcess_Triangulate);
-	if (!scene)
-		printf("no hay modelo pisha\n");
-	else
-		printf("num vertices: %u\n", scene->mMeshes[0]->mNumVertices);
+
+	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE)
+	{
+		printf("Assimp failed: %s\n", importer.GetErrorString());
+		return false;
+	}
+
+	const aiMesh* mesh = scene->mMeshes[0];
+
+	outVerts.reserve(mesh->mNumVertices);
+	for (size_t i = 0; i < mesh->mNumVertices; i++)
+	{
+		VertexNormalUV v{};
+		v.position =
+		{
+			mesh->mVertices[i].x,
+			mesh->mVertices[i].y,
+			mesh->mVertices[i].z
+		};
+		v.normal =
+		{
+			mesh->mNormals[i].x,
+			mesh->mNormals[i].y,
+			mesh->mNormals[i].z
+		};
+		v.uv = { 0,0 }; // TODO parse uvs
+		outVerts.push_back(v);
+		printf("v\n");
+	}
+
+	outIdx.reserve(mesh->mNumFaces * 3);
+	for (size_t i = 0; i < mesh->mNumFaces; i++)
+	{
+		const aiFace& face = mesh->mFaces[i];
+		for (size_t j = 0; j < face.mNumIndices; j++)
+			outIdx.push_back(static_cast<uint16_t>(face.mIndices[i]));
+		printf("idx\n");
+	}
 
 	return true;
 }
