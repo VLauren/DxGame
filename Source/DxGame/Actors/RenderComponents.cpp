@@ -566,13 +566,69 @@ void MeshRenderComponent::VInit()
     if (!LoadFromAssimp(verts, idx))
         return;
 
-    ShaderMeshNode::GeometryDesc geometryDesc{};
-    geometryDesc.vertexStride = sizeof(VertexNormalUV);
-    geometryDesc.vertexCount  = static_cast<uint32_t>(verts.size());
-    geometryDesc.vertexData   = verts.data();
-    geometryDesc.indexCount   = static_cast<uint32_t>(idx.size());
-    geometryDesc.indexData    = idx.data();
-    geometryDesc.topology     = static_cast<uint8_t>(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	ShaderMeshNode::GeometryDesc geometryDesc{};
+	geometryDesc.vertexStride = sizeof(VertexNormalUV);
+	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
+	geometryDesc.vertexData = verts.data();
+	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
+	geometryDesc.indexData = idx.data();
+	// geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+
+	/*
+	ComPtr<ID3D11Texture2D> tex;
+	ComPtr<ID3D11ShaderResourceView> srv;
+
+	constexpr int TEX = 128;
+	constexpr int border = 6;
+	std::vector<UINT32> pixels(TEX* TEX);
+
+	std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+	for (int y = 0; y < TEX; ++y)
+		for (int x = 0; x < TEX; ++x)
+		{
+			float dark = 0.10f * std::pow((std::rand() % 100) / 100.0f, 2);
+			float edge = 0.50 * !(x<border || y<border || (x + border)>TEX || (y + border)>TEX) + 0.5f;
+			float grey = std::min(1 - dark, edge);
+			uint8_t v = static_cast<uint8_t>(grey * 255.0f);
+
+			pixels[y * TEX + x] = 0xFF000000u | (v << 16) | (v << 8) | v;
+		}
+
+	D3D11_TEXTURE2D_DESC td = {};
+	td.Width = td.Height = TEX;
+	td.MipLevels = 1;
+	td.ArraySize = 1;
+	td.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	td.SampleDesc = { 1, 0 };
+	td.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
+	td.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
+
+	D3D11_SUBRESOURCE_DATA init = {};
+	init.pSysMem = pixels.data();
+	init.SysMemPitch = TEX * sizeof(uint32_t);
+
+	device->CreateTexture2D(&td, &init, tex.GetAddressOf());
+	device->CreateShaderResourceView(tex.Get(), nullptr, srv.GetAddressOf());
+
+	// CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
+	CD3D11_SAMPLER_DESC samplDesc = {};
+	samplDesc.Filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplDesc.AddressU = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressV = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.AddressW = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+	samplDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ComPtr<ID3D11SamplerState> sampler;
+	device->CreateSamplerState(&samplDesc, sampler.GetAddressOf());
+
+	m_diffuseSRV = srv;
+	m_sampler = sampler;
+
+	Graphics::GetDeviceContext()->PSSetShaderResources(0, 1, m_diffuseSRV.GetAddressOf());
+	Graphics::GetDeviceContext()->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
+	*/
 
 	node->SetGeometry(geometryDesc);
 	node->VLoadResources(m_scene);
@@ -618,7 +674,6 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 		};
 		v.uv = { 0,0 }; // TODO parse uvs
 		outVerts.push_back(v);
-		printf("v\n");
 	}
 
 	outIdx.reserve(mesh->mNumFaces * 3);
@@ -626,8 +681,7 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 	{
 		const aiFace& face = mesh->mFaces[i];
 		for (size_t j = 0; j < face.mNumIndices; j++)
-			outIdx.push_back(static_cast<uint16_t>(face.mIndices[i]));
-		printf("idx\n");
+			outIdx.push_back(static_cast<uint16_t>(face.mIndices[j]));
 	}
 
 	return true;

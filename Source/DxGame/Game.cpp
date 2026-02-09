@@ -1,5 +1,5 @@
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
+// #define _CRTDBG_MAP_ALLOC
+// #include <crtdbg.h>
 
 #include "imgui.h"
 #include "Game.h"
@@ -9,6 +9,8 @@
 #include "Graphics/Graphics.h"
 
 #include <stdio.h>
+
+#define TAU DirectX::XM_2PI
 
 Game::Game(Scene* scene, GLFWwindow* window) : m_scene(scene), m_window(window) {}
 
@@ -59,7 +61,9 @@ void Game::Init()
 	auto modelActor = std::make_shared<Actor>(NextId(), this);
 	auto mesh = std::make_shared<MeshRenderComponent>(modelActor, GetScene(), "munyeco.obj");
 	modelActor->AddComponent(mesh);
-	modelActor->SetPosition({ 0, 1, 0 });
+	modelActor->SetPosition({ -4, 1.2f, 2 });
+	modelActor->SetRotation({ 0, TAU * 0.4f, 0 });
+	modelActor->SetScale({ 0.5f, 0.5f, 0.5f });
 	AddActor(modelActor);
 
 	// Init all actors

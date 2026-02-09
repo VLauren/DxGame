@@ -114,5 +114,8 @@ public:
 private:
     std::string m_fileName;
 
+    ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
+    ComPtr<ID3D11SamplerState> m_sampler = nullptr;
+
     bool LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx);
 };
