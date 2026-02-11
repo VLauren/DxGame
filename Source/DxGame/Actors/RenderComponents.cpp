@@ -22,6 +22,10 @@
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+// =================
+// Render Component
+// =================
+
 void RenderComponent::VInit()
 {
 }
@@ -41,6 +45,10 @@ void RenderComponent::VUpdate(float deltaTime)
 		node->VSetTransform(world);
 }
 
+
+// ======================
+// Cube Render Component
+// ======================
 
 void CubeRenderComponent::VInit()
 {
@@ -163,6 +171,10 @@ void CubeRenderComponent::VInit()
 	m_sceneNode = node;
 
 }
+
+// =============================
+// Texture Cube Render Component
+// =============================
 
 TextureCubeRenderComponent::TextureCubeRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, float width, float height, float depth) : RenderComponent(std::move(owner), scene) 
 {
@@ -349,6 +361,10 @@ std::vector<VertexNormalUV> TextureCubeRenderComponent::GetVerts(float w, float 
 	return verts;
 }
 
+// =================
+// Light Component
+// =================
+
 void LightComponent::VInit(DirectX::XMFLOAT3 colour, float intensity, std::array<float,3> attenuation)
 {
 	m_colour = colour;
@@ -381,7 +397,9 @@ void LightComponent::SetIntensity(float intensity)
 	m_intensity = intensity;
 }
 
-
+// ================================
+// Wirefframe Cube Render Component
+// ================================
 
 void WireframeCubeRenderComponent::VInit()
 {
@@ -496,6 +514,10 @@ void WireframeCubeRenderComponent::BuildWireCube(std::vector<Vertex>& verts, std
 		idx.push_back({ edges[i] });
 }
 
+// =====================
+// Mesh Render Component
+// =====================
+
 void MeshRenderComponent::VInit() 
 {
 	RenderComponent::VInit();
@@ -572,9 +594,7 @@ void MeshRenderComponent::VInit()
 	geometryDesc.vertexData = verts.data();
 	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
 	geometryDesc.indexData = idx.data();
-	// geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
 
 	/*
 	ComPtr<ID3D11Texture2D> tex;
@@ -685,4 +705,18 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 	}
 
 	return true;
+}
+
+// =============================
+// Skinned Mesh Render Component
+// =============================
+
+void SkinnedMeshRenderComponent::VInit()
+{
+	MeshRenderComponent::VInit();
+}
+
+bool SkinnedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx)
+{
+
 }

@@ -24,6 +24,15 @@ struct VertexNormalUV
 	DirectX::XMFLOAT2 uv;
 };
 
+struct VertexSkin
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT2 uv;
+    uint8_t boneIds[4];
+    float weights[4];
+};
+
 struct Vertex
 {
     DirectX::XMFLOAT3 position;
@@ -109,13 +118,25 @@ public:
     explicit MeshRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, std::string fileName) : 
         RenderComponent(std::move(owner), scene), m_fileName(fileName) {}
 
-    void VInit() override;
+    virtual void VInit() override;
 
-private:
+protected:
     std::string m_fileName;
 
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
     ComPtr<ID3D11SamplerState> m_sampler = nullptr;
 
     bool LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx);
+};
+
+class SkinnedMeshRenderComponent : public MeshRenderComponent
+{
+public:
+    explicit SkinnedMeshRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, std::string fileName)
+        : MeshRenderComponent(std::move(owner), scene, fileName) {}
+
+    void VInit() override;
+
+protected:
+    bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx);
 };
