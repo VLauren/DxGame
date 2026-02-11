@@ -19,24 +19,24 @@ void Game::Init()
 	// Camera
 	// --------
 	auto camActor = std::make_shared<CameraActor>(NextId(), this);
-	camActor->SetPosition(DirectX::XMFLOAT3(0, 6, -9));
-	camActor->SetRotation(DirectX::XMFLOAT3(0.7f, 0, 0));
+	camActor->SetPosition({ 0, 6, -9 });
+	camActor->SetRotation({ 0.7f, 0, 0 });
 	AddActor(camActor);
 
 	// light
 	// --------
 	light = std::make_shared<Actor>(NextId(), this);
-	light->SetPosition(DirectX::XMFLOAT3(-2, 2, -2));
+	light->SetPosition({-2, 2, -2});
 	auto lightComponent	 = std::make_shared<LightComponent>(light, GetScene());
 	light->AddComponent(lightComponent);
 	std::array<float,3> att = { 1.0f, 0.09f, 0.032f };
-	lightComponent->VInit(DirectX::XMFLOAT3(1, 0.7f, 0.2f), 1, att );
+	lightComponent->VInit({1, 0.7f, 0.2f}, 1, att );
 	AddActor(light);
 
 	// Floor
 	// --------
 	auto floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{10, 0.2f, 7});
-	floor->SetPosition(DirectX::XMFLOAT3(0, -1.2f, 2));
+	floor->SetPosition({0, -1.2f, 2});
 	auto col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(10, 0.2f, 7));
 	floor->AddComponent(col);
 	floor->AddComponent(std::make_shared<WireframeCubeRenderComponent>(floor, GetScene()));
@@ -45,7 +45,7 @@ void Game::Init()
 	// Column
 	// --------
 	floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{1, 2, 1});
-	floor->SetPosition(DirectX::XMFLOAT3(5, 1, 2));
+	floor->SetPosition({5, 1, 2});
 	col = std::make_shared<AABBCollisionComponent>(floor, DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(1, 2, 1));
 	floor->AddComponent(col);
 	floor->AddComponent(std::make_shared<WireframeCubeRenderComponent>(floor, GetScene()));
@@ -98,7 +98,7 @@ void Game::Update(float deltaTime)
 			ImGui::ColorEdit3("Colour", col);
 			ImGui::SliderFloat("Intensity", &intensity, 0, 10);
 
-			lightComponent->SetColour(DirectX::XMFLOAT3(col[0], col[1], col[2]));
+			lightComponent->SetColour({col[0], col[1], col[2]});
 			lightComponent->SetIntensity(intensity);
 		}
 	}

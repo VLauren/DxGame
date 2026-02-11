@@ -537,64 +537,10 @@ void MeshRenderComponent::VInit()
 	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
 	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
 
-	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
-	{
-		{
-			"POSITION",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			offsetof(VertexNormalUV, position),
-			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"NORMAL",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			offsetof(VertexNormalUV, normal),
-			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		{
-			"TEXCOORD",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-			0,
-			offsetof(VertexNormalUV, uv),
-			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-	};
-
-	if (FAILED(device->CreateInputLayout(
-		vertexInputLayoutInfo,
-		_countof(vertexInputLayoutInfo),
-		vertexShaderBlob->GetBufferPointer(),
-		vertexShaderBlob->GetBufferSize(),
-		&m_vertexLayout)))
-	{
-		printf("D3D11: Failed to create default vertex input layout\n");
-	}
+	CreateInputLayout();
 
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Mesh"), DirectX::XMMatrixIdentity());
 	m_scene->AddChild(m_pOwner->GetId(), node);
-
-	// Import model
-	// ==============
-	std::vector<VertexNormalUV> verts;
-    std::vector<uint16_t> idx;
-    if (!LoadFromAssimp(verts, idx))
-        return;
-
-	ShaderMeshNode::GeometryDesc geometryDesc{};
-	geometryDesc.vertexStride = sizeof(VertexNormalUV);
-	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
-	geometryDesc.vertexData = verts.data();
-	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
-	geometryDesc.indexData = idx.data();
-	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	/*
 	ComPtr<ID3D11Texture2D> tex;
@@ -650,11 +596,74 @@ void MeshRenderComponent::VInit()
 	Graphics::GetDeviceContext()->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
 	*/
 
-	node->SetGeometry(geometryDesc);
+	node->SetGeometry(GetGeometryDescriptor());
 	node->VLoadResources(m_scene);
 	node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
 
 	m_sceneNode = node;
+}
+
+void MeshRenderComponent::CreateInputLayout()
+{
+	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
+	{
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, position),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"NORMAL",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, normal),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			offsetof(VertexNormalUV, uv),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+	};
+
+	if (FAILED(device->CreateInputLayout(
+		vertexInputLayoutInfo,
+		_countof(vertexInputLayoutInfo),
+		vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize(),
+		&m_vertexLayout)))
+	{
+		printf("D3D11: Failed to create default vertex input layout\n");
+	}
+}
+
+ShaderMeshNode::GeometryDesc MeshRenderComponent::GetGeometryDescriptor()
+{
+	// Import model
+	std::vector<VertexNormalUV> verts;
+    std::vector<uint16_t> idx;
+    if (!LoadFromAssimp(verts, idx))
+        return;
+
+	ShaderMeshNode::GeometryDesc geometryDesc{};
+	geometryDesc.vertexStride = sizeof(VertexNormalUV);
+	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
+	geometryDesc.vertexData = verts.data();
+	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
+	geometryDesc.indexData = idx.data();
+	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	return geometryDesc;
 }
 
 bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx)
@@ -666,7 +675,7 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 #endif
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(modelPath + "munyeco.obj", aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(modelPath + m_fileName, aiProcess_Triangulate);
 
 	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE)
 	{
@@ -716,7 +725,70 @@ void SkinnedMeshRenderComponent::VInit()
 	MeshRenderComponent::VInit();
 }
 
+void SkinnedMeshRenderComponent::CreateInputLayout()
+{
+	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
+	{
+		{
+			"POSITION",	0,	DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,	0,
+			offsetof(VertexSkin, position),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
+		},
+		{
+			"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			offsetof(VertexSkin, normal),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
+		},
+		{
+			"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0,
+			offsetof(VertexSkin, uv),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
+		},
+		{
+			"BLENDINDICES", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0,
+			offsetof(VertexSkin, boneIds),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
+		},
+		{
+			"BLENDWEIGHT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0,
+			offsetof(VertexSkin, weights),
+			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
+		},
+	};
+
+	if (FAILED(device->CreateInputLayout(
+		vertexInputLayoutInfo,
+		_countof(vertexInputLayoutInfo),
+		vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize(),
+		&m_vertexLayout)))
+	{
+		printf("D3D11: Failed to create default vertex input layout\n");
+	}
+
+}
+
+ShaderMeshNode::GeometryDesc SkinnedMeshRenderComponent::GetGeometryDescriptor()
+{
+	// Import model
+	std::vector<VertexSkin> verts;
+    std::vector<uint16_t> idx;
+    if (!LoadFromAssimp(verts, idx))
+        return;
+
+	ShaderMeshNode::GeometryDesc geometryDesc{};
+	geometryDesc.vertexStride = sizeof(VertexSkin);
+	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
+	geometryDesc.vertexData = verts.data();
+	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
+	geometryDesc.indexData = idx.data();
+	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	return geometryDesc;
+
+}
+
 bool SkinnedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx)
 {
-
+	return true;
 }
