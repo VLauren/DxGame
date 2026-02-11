@@ -524,19 +524,6 @@ void MeshRenderComponent::VInit()
 
 	auto device = Graphics::GetDevice();
 
-#ifdef _DEBUG
-	std::wstring basePath = L"../Shaders/";
-#else
-	std::wstring basePath = L"";
-#endif
-
-	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
-	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
-
-	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
-	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
-
 	CreateInputLayout();
 
 	auto node = std::make_shared<ShaderMeshNode>(m_pOwner->GetId(), std::string("Mesh"), DirectX::XMMatrixIdentity());
@@ -605,6 +592,19 @@ void MeshRenderComponent::VInit()
 
 void MeshRenderComponent::CreateInputLayout()
 {
+#ifdef _DEBUG
+	std::wstring basePath = L"../Shaders/";
+#else
+	std::wstring basePath = L"";
+#endif
+
+	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
+
+	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
+	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
+
 	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
 	{
 		{
@@ -636,7 +636,7 @@ void MeshRenderComponent::CreateInputLayout()
 		},
 	};
 
-	if (FAILED(device->CreateInputLayout(
+	if (FAILED(Graphics::GetDevice()->CreateInputLayout(
 		vertexInputLayoutInfo,
 		_countof(vertexInputLayoutInfo),
 		vertexShaderBlob->GetBufferPointer(),
@@ -653,7 +653,7 @@ ShaderMeshNode::GeometryDesc MeshRenderComponent::GetGeometryDescriptor()
 	std::vector<VertexNormalUV> verts;
     std::vector<uint16_t> idx;
     if (!LoadFromAssimp(verts, idx))
-        return;
+		return {};
 
 	ShaderMeshNode::GeometryDesc geometryDesc{};
 	geometryDesc.vertexStride = sizeof(VertexNormalUV);
@@ -720,13 +720,26 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 // Skinned Mesh Render Component
 // =============================
 
-void SkinnedMeshRenderComponent::VInit()
+void AnimatedMeshRenderComponent::VInit()
 {
 	MeshRenderComponent::VInit();
 }
 
-void SkinnedMeshRenderComponent::CreateInputLayout()
+void AnimatedMeshRenderComponent::CreateInputLayout()
 {
+#ifdef _DEBUG
+	std::wstring basePath = L"../Shaders/";
+#else
+	std::wstring basePath = L"";
+#endif
+
+	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
+	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
+	m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
+
+	assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
+	assert(m_pixelShader != nullptr && "Error creating pixel shader from file");
+
 	constexpr D3D11_INPUT_ELEMENT_DESC vertexInputLayoutInfo[] =
 	{
 		{
@@ -756,7 +769,7 @@ void SkinnedMeshRenderComponent::CreateInputLayout()
 		},
 	};
 
-	if (FAILED(device->CreateInputLayout(
+	if (FAILED(Graphics::GetDevice()->CreateInputLayout(
 		vertexInputLayoutInfo,
 		_countof(vertexInputLayoutInfo),
 		vertexShaderBlob->GetBufferPointer(),
@@ -768,13 +781,13 @@ void SkinnedMeshRenderComponent::CreateInputLayout()
 
 }
 
-ShaderMeshNode::GeometryDesc SkinnedMeshRenderComponent::GetGeometryDescriptor()
+ShaderMeshNode::GeometryDesc AnimatedMeshRenderComponent::GetGeometryDescriptor()
 {
 	// Import model
 	std::vector<VertexSkin> verts;
     std::vector<uint16_t> idx;
     if (!LoadFromAssimp(verts, idx))
-        return;
+		return {};
 
 	ShaderMeshNode::GeometryDesc geometryDesc{};
 	geometryDesc.vertexStride = sizeof(VertexSkin);
@@ -788,7 +801,52 @@ ShaderMeshNode::GeometryDesc SkinnedMeshRenderComponent::GetGeometryDescriptor()
 
 }
 
-bool SkinnedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx)
+bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx)
 {
+#ifdef _DEBUG
+	std::string modelPath = "../../Assets/Models/";
+#else
+	std::string modelPath = "Models/";
+#endif
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(modelPath + m_fileName, aiProcess_Triangulate);
+
+	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE)
+	{
+		printf("Assimp failed: %s\n", importer.GetErrorString());
+		return false;
+	}
+
+	const aiMesh* mesh = scene->mMeshes[0];
+
+	outVerts.reserve(mesh->mNumVertices);
+	for (size_t i = 0; i < mesh->mNumVertices; i++)
+	{
+		VertexSkin v{};
+		v.position =
+		{
+			mesh->mVertices[i].x,
+			mesh->mVertices[i].y,
+			mesh->mVertices[i].z
+		};
+		v.normal =
+		{
+			mesh->mNormals[i].x,
+			mesh->mNormals[i].y,
+			mesh->mNormals[i].z
+		};
+		v.uv = { 0,0 }; // TODO parse uvs
+		outVerts.push_back(v);
+	}
+
+	outIdx.reserve(mesh->mNumFaces * 3);
+	for (size_t i = 0; i < mesh->mNumFaces; i++)
+	{
+		const aiFace& face = mesh->mFaces[i];
+		for (size_t j = 0; j < face.mNumIndices; j++)
+			outIdx.push_back(static_cast<uint16_t>(face.mIndices[j]));
+	}
+
 	return true;
 }

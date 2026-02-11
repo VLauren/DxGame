@@ -126,17 +126,21 @@ protected:
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
     ComPtr<ID3D11SamplerState> m_sampler = nullptr;
 
+    virtual void CreateInputLayout();
+    virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor();
     bool LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx);
 };
 
-class SkinnedMeshRenderComponent : public MeshRenderComponent
+class AnimatedMeshRenderComponent : public MeshRenderComponent
 {
 public:
-    explicit SkinnedMeshRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, std::string fileName)
+    explicit AnimatedMeshRenderComponent(std::shared_ptr<Actor> owner, Scene* scene, std::string fileName)
         : MeshRenderComponent(std::move(owner), scene, fileName) {}
 
     void VInit() override;
 
 protected:
+    virtual void CreateInputLayout() override;
+    virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;
     bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx);
 };
