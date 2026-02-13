@@ -1,6 +1,6 @@
 # DxGame
 
-![Game](docs/images/game.gif)
+![Game](Docs/images/game.gif)
 
 A lightweight **DirectX 11** game engine built from scratch with **GLFW** and modern C++17.  
 
