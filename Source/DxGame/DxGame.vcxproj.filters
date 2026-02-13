@@ -76,6 +76,9 @@
     <ClCompile Include="Actors\CollisionComponents.cpp">
       <Filter>Actors</Filter>
     </ClCompile>
+    <ClCompile Include="Actors\Skeleton.cpp">
+      <Filter>Actors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors\Actor.h">
@@ -115,6 +118,9 @@
       <Filter>Actors</Filter>
     </ClInclude>
     <ClInclude Include="Actors\CollisionComponents.h">
+      <Filter>Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Actors\Skeleton.h">
       <Filter>Actors</Filter>
     </ClInclude>
   </ItemGroup>

@@ -199,6 +199,7 @@
     <ClCompile Include="Actors\Player.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Graphics\SceneNodes.cpp" />
+    <ClCompile Include="Actors\Skeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Graphics\SceneNodes.h" />
+    <ClInclude Include="Actors\Skeleton.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\Main.ps.hlsl">
