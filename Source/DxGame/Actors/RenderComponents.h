@@ -143,6 +143,9 @@ public:
     void VInit() override;
 
 protected:
+    std::vector<VertexSkin> m_verts;
+    std::vector<uint16_t> m_idx;
+
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;
     bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx);

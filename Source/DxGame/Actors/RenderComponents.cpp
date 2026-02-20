@@ -675,7 +675,7 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(modelPath + m_fileName, aiProcess_Triangulate);
 
-	if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE)
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
 	{
 		printf("Assimp failed: %s\n", importer.GetErrorString());
 		return false;
@@ -756,12 +756,12 @@ void AnimatedMeshRenderComponent::CreateInputLayout()
 			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
 		},
 		{
-			"BLENDINDICES", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0,
+			"BLENDINDICES", 0, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UINT, 0,
 			offsetof(VertexSkin, boneIds),
 			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
 		},
 		{
-			"BLENDWEIGHT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0,
+			"BLENDWEIGHT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
 			offsetof(VertexSkin, weights),
 			D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0
 		},
@@ -782,17 +782,15 @@ void AnimatedMeshRenderComponent::CreateInputLayout()
 ShaderMeshNode::GeometryDesc AnimatedMeshRenderComponent::GetGeometryDescriptor()
 {
 	// Import model
-	std::vector<VertexSkin> verts;
-    std::vector<uint16_t> idx;
-    if (!LoadFromAssimp(verts, idx))
+    if (!LoadFromAssimp(m_verts, m_idx))
 		return {};
 
 	ShaderMeshNode::GeometryDesc geometryDesc{};
 	geometryDesc.vertexStride = sizeof(VertexSkin);
-	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
-	geometryDesc.vertexData = verts.data();
-	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
-	geometryDesc.indexData = idx.data();
+	geometryDesc.vertexCount = static_cast<uint32_t>(m_verts.size());
+	geometryDesc.vertexData = m_verts.data();
+	geometryDesc.indexCount = static_cast<uint32_t>(m_idx.size());
+	geometryDesc.indexData = m_idx.data();
 	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	return geometryDesc;

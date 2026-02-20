@@ -59,7 +59,7 @@ void Game::Init()
 	// Model Test
 	// --------
 	auto modelActor = std::make_shared<Actor>(NextId(), this);
-	auto mesh = std::make_shared<MeshRenderComponent>(modelActor, GetScene(), "munyeco.obj");
+	auto mesh = std::make_shared<AnimatedMeshRenderComponent>(modelActor, GetScene(), "munyeco.obj");
 	modelActor->AddComponent(mesh);
 	modelActor->SetPosition({ -4, 1.2f, 2 });
 	modelActor->SetRotation({ 0, TAU * 0.4f, 0 });
