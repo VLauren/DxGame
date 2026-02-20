@@ -650,17 +650,15 @@ void MeshRenderComponent::CreateInputLayout()
 ShaderMeshNode::GeometryDesc MeshRenderComponent::GetGeometryDescriptor()
 {
 	// Import model
-	std::vector<VertexNormalUV> verts;
-    std::vector<uint16_t> idx;
-    if (!LoadFromAssimp(verts, idx))
+    if (!LoadFromAssimp(m_verts, m_idx))
 		return {};
 
 	ShaderMeshNode::GeometryDesc geometryDesc{};
 	geometryDesc.vertexStride = sizeof(VertexNormalUV);
-	geometryDesc.vertexCount = static_cast<uint32_t>(verts.size());
-	geometryDesc.vertexData = verts.data();
-	geometryDesc.indexCount = static_cast<uint32_t>(idx.size());
-	geometryDesc.indexData = idx.data();
+	geometryDesc.vertexCount = static_cast<uint32_t>(m_verts.size());
+	geometryDesc.vertexData = m_verts.data();
+	geometryDesc.indexCount = static_cast<uint32_t>(m_idx.size());
+	geometryDesc.indexData = m_idx.data();
 	geometryDesc.topology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	return geometryDesc;

@@ -126,6 +126,9 @@ protected:
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
     ComPtr<ID3D11SamplerState> m_sampler = nullptr;
 
+    std::vector<VertexNormalUV> m_verts;
+    std::vector<uint16_t> m_idx;
+
     virtual void CreateInputLayout();
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor();
     bool LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx);
