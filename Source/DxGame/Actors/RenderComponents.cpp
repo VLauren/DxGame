@@ -715,7 +715,7 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 }
 
 // =============================
-// Skinned Mesh Render Component
+// Animated Mesh Render Component
 // =============================
 
 void AnimatedMeshRenderComponent::VInit()
@@ -842,6 +842,14 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		const aiFace& face = mesh->mFaces[i];
 		for (size_t j = 0; j < face.mNumIndices; j++)
 			outIdx.push_back(static_cast<uint16_t>(face.mIndices[j]));
+	}
+
+	printf("Animations: %d\n", scene->mNumAnimations);
+
+	for (size_t i = 0; i < scene->mNumAnimations; i++)
+	{
+		aiAnimation* anim = scene->mAnimations[i];
+		printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
 	}
 
 	return true;
