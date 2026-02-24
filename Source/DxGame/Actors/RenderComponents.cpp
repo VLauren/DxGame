@@ -797,7 +797,7 @@ ShaderMeshNode::GeometryDesc AnimatedMeshRenderComponent::GetGeometryDescriptor(
 
 }
 
-bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx)
+bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx, Skeleton& outSkeleton)
 {
 #ifdef _DEBUG
 	std::string modelPath = "../../Assets/Models/";
@@ -813,6 +813,9 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		printf("Assimp failed: %s\n", importer.GetErrorString());
 		return false;
 	}
+
+	// ----------------------
+	// Mesh
 
 	const aiMesh* mesh = scene->mMeshes[0];
 
@@ -843,6 +846,31 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		for (size_t j = 0; j < face.mNumIndices; j++)
 			outIdx.push_back(static_cast<uint16_t>(face.mIndices[j]));
 	}
+
+	// ----------------------
+	// Bones
+
+	std::vector<std::vector<std::pair<int, float>>> vertexWeights(mesh->mNumVertices);
+	for (size_t b = 0; b < mesh->mNumBones; b++)
+	{
+		aiBone* bone = mesh->mBones[b];
+		std::string boneName = bone->mName.C_Str();
+
+		Skeleton::Bone newBone = {};
+		newBone.name = boneName;
+		// newBone.transform = bone->mOffsetMatrix;
+		outSkeleton.m_bones.push_back(newBone);
+
+		for (size_t w = 0; w < bone->mNumWeights; w++)
+		{
+			uint32_t vertexId = bone->mWeights[w].mVertexId;
+			float weight = bone->mWeights[w].mWeight;
+			vertexWeights[vertexId].push_back({ b, weight });
+		}
+	}
+
+	// ----------------------
+	// Animation
 
 	printf("Animations: %d\n", scene->mNumAnimations);
 
