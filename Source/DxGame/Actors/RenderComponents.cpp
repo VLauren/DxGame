@@ -782,7 +782,7 @@ void AnimatedMeshRenderComponent::CreateInputLayout()
 ShaderMeshNode::GeometryDesc AnimatedMeshRenderComponent::GetGeometryDescriptor()
 {
 	// Import model
-    if (!LoadFromAssimp(m_verts, m_idx))
+    if (!LoadFromAssimp(m_verts, m_idx, m_skeleton))
 		return {};
 
 	ShaderMeshNode::GeometryDesc geometryDesc{};

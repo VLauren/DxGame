@@ -14,7 +14,7 @@ public:
 		DirectX::XMFLOAT4X4 transform;
 	};
 
-private:
+// private:
 	std::vector<Bone> m_bones;
 };
 

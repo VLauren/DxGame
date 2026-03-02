@@ -6,6 +6,7 @@
 
 #include "ActorComponent.h"
 #include "../Graphics/SceneNodes.h"
+#include "Skeleton.h"
 
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -145,8 +146,9 @@ public:
 protected:
     std::vector<VertexSkin> m_verts;
     std::vector<uint16_t> m_idx;
+    Skeleton m_skeleton;
 
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;
-    bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx);
+    bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx, Skeleton& outSkeleton);
 };
