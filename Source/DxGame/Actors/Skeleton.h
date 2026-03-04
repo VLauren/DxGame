@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+#include <unordered_map>
 
 class Skeleton
 {
@@ -16,5 +17,6 @@ public:
 
 // private:
 	std::vector<Bone> m_bones;
+	std::unordered_map<std::string, int> boneNameToIndex;
 };
 

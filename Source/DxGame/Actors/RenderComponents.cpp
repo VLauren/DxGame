@@ -856,17 +856,22 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		aiBone* bone = mesh->mBones[b];
 		std::string boneName = bone->mName.C_Str();
 
+		int boneIndex = outSkeleton.m_bones.size();
+
 		Skeleton::Bone newBone = {};
 		newBone.name = boneName;
 		// newBone.transform = bone->mOffsetMatrix;
 		outSkeleton.m_bones.push_back(newBone);
+		outSkeleton.m_boneNameToIndex[boneName] = boneIndex;
 
 		for (size_t w = 0; w < bone->mNumWeights; w++)
 		{
 			uint32_t vertexId = bone->mWeights[w].mVertexId;
 			float weight = bone->mWeights[w].mWeight;
-			vertexWeights[vertexId].push_back({ b, weight });
+			vertexWeights[vertexId].push_back({ boneIndex, weight });
 		}
+
+		printf("%s\n", newBone.name.c_str());
 	}
 
 	// ----------------------
