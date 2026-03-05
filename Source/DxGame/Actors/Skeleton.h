@@ -17,6 +17,6 @@ public:
 
 // private:
 	std::vector<Bone> m_bones;
-	std::unordered_map<std::string, int> boneNameToIndex;
+	std::unordered_map<std::string, int> m_boneNameToIndex;
 };
 
