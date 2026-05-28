@@ -56,11 +56,7 @@ void CubeRenderComponent::VInit()
 
 	auto device = Graphics::GetDevice();
 
-#ifdef _DEBUG
-	std::wstring basePath = L"../Shaders/";
-#else
-	std::wstring basePath = L"";
-#endif
+	std::wstring basePath = L"Shaders/";
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
 	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Main.vs.hlsl", vertexShaderBlob);
@@ -189,11 +185,7 @@ void TextureCubeRenderComponent::VInit()
 
 	auto device = Graphics::GetDevice();
 	
-#ifdef _DEBUG
-	std::wstring basePath = L"../Shaders/";
-#else
-	std::wstring basePath = L"";
-#endif
+	std::wstring basePath = L"Shaders/";
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
 	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
@@ -592,11 +584,7 @@ void MeshRenderComponent::VInit()
 
 void MeshRenderComponent::CreateInputLayout()
 {
-#ifdef _DEBUG
-	std::wstring basePath = L"../Shaders/";
-#else
-	std::wstring basePath = L"";
-#endif
+	std::wstring basePath = L"Shaders/";
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
 	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
@@ -667,9 +655,9 @@ ShaderMeshNode::GeometryDesc MeshRenderComponent::GetGeometryDescriptor()
 bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, std::vector<uint16_t>& outIdx)
 {
 #ifdef _DEBUG
-	std::string modelPath = "../../Assets/Models/";
+	std::string modelPath = "Assets/Models/";
 #else
-	std::string modelPath = "Models/";
+	std::string modelPath = "Assets/Models/";
 #endif
 
 	Assimp::Importer importer;
@@ -725,11 +713,7 @@ void AnimatedMeshRenderComponent::VInit()
 
 void AnimatedMeshRenderComponent::CreateInputLayout()
 {
-#ifdef _DEBUG
-	std::wstring basePath = L"../Shaders/";
-#else
-	std::wstring basePath = L"";
-#endif
+	std::wstring basePath = L"Shaders/";
 
 	ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
 	m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
@@ -800,9 +784,9 @@ ShaderMeshNode::GeometryDesc AnimatedMeshRenderComponent::GetGeometryDescriptor(
 bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx, Skeleton& outSkeleton)
 {
 #ifdef _DEBUG
-	std::string modelPath = "../../Assets/Models/";
+	std::string modelPath = "Assets/Models/";
 #else
-	std::string modelPath = "Models/";
+	std::string modelPath = "Assets/Models/";
 #endif
 
 	Assimp::Importer importer;

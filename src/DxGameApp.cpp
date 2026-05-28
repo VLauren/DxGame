@@ -181,7 +181,7 @@ bool DxGameApp::CheckMemory(DWORDLONG physicalRAMNeeded, const DWORDLONG virtual
 
 bool DxGameApp::LoadStrings(std::string language)
 {
-    std::string langFile = R"(..\..\Assets\Strings\)" + language + ".xml";
+    std::string langFile = R"(Assets\Strings\)" + language + ".xml";
 
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(langFile.c_str()) != tinyxml2::XMLError::XML_SUCCESS)

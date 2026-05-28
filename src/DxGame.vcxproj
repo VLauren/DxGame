@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -70,21 +70,11 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\..\..\Game\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\..\..\Temp\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\..\..\Game\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\..\..\Temp\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\..\..\Game\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\..\..\Temp\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\..\..\Game\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\..\..\Temp\$(Configuration)\</IntDir>
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\build\$(Configuration)\</IntDir>
+    <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,19 +82,21 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2;$(SolutionDir)\..\3rdParty\imgui;$(SolutionDir)\..\3rdParty\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\glfw-3.3.6\include;$(ProjectDir)..\external\tinyxml2;$(ProjectDir)..\external\imgui;$(ProjectDir)..\external\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\lib-vc2022\;$(SolutionDir)\..\3rdParty\assimp\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\;$(ProjectDir)..\external\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\external\assimp\bin\assimp-vc143-mt.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\glfw3.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\Assets" "$(OutDir)Assets" /E /Y /I /D
+xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -114,20 +106,23 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2;$(SolutionDir)\..\3rdParty\imgui;$(SolutionDir)\..\3rdParty\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\glfw-3.3.6\include;$(ProjectDir)..\external\tinyxml2;$(ProjectDir)..\external\imgui;$(ProjectDir)..\external\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\lib-vc2022\;$(SolutionDir)\..\3rdParty\assimp\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\;$(ProjectDir)..\external\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\external\assimp\bin\assimp-vc143-mt.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\glfw3.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\Assets" "$(OutDir)Assets" /E /Y /I /D
+xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -135,19 +130,21 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2;$(SolutionDir)\..\3rdParty\imgui;$(SolutionDir)\..\3rdParty\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\glfw-3.3.6\include;$(ProjectDir)..\external\tinyxml2;$(ProjectDir)..\external\imgui;$(ProjectDir)..\external\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\lib-vc2022\;$(SolutionDir)\..\3rdParty\assimp\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\;$(ProjectDir)..\external\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\external\assimp\bin\assimp-vc143-mt.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\glfw3.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\Assets" "$(OutDir)Assets" /E /Y /I /D
+xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -157,33 +154,33 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\include;$(SolutionDir)\..\3rdParty\tinyxml2;$(SolutionDir)\..\3rdParty\imgui;$(SolutionDir)\..\3rdParty\assimp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\external\glfw-3.3.6\include;$(ProjectDir)..\external\tinyxml2;$(ProjectDir)..\external\imgui;$(ProjectDir)..\external\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\..\3rdParty\glfw-3.3.6\lib-vc2022\;$(SolutionDir)\..\3rdParty\assimp\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\;$(ProjectDir)..\external\assimp\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)..\external\assimp\bin\assimp-vc143-mt.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\external\glfw-3.3.6\lib-vc2022\glfw3.dll" "$(OutDir)" /Y /D
+xcopy "$(ProjectDir)..\Assets" "$(OutDir)Assets" /E /Y /I /D
+xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\3rdParty\imgui\imgui.cpp">
-      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ShowIncludes>
-      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ShowIncludes>
-    </ClCompile>
-    <ClCompile Include="..\3rdParty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\3rdParty\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\external\imgui\imgui.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\external\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="Actors\Actor.cpp" />
     <ClCompile Include="Actors\ActorComponent.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -202,7 +199,7 @@
     <ClCompile Include="Actors\Skeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\3rdParty\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="..\external\tinyxml2\tinyxml2.h" />
     <ClInclude Include="Actors\Actor.h" />
     <ClInclude Include="Actors\ActorComponent.h" />
     <ClInclude Include="Application.h" />
@@ -220,25 +217,25 @@
     <ClInclude Include="Actors\Skeleton.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Shaders\Main.ps.hlsl">
+    <FxCompile Include="Shaders\Main.ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Main.vs.hlsl">
+    <FxCompile Include="Shaders\Main.vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Textured.ps.hlsl">
+    <FxCompile Include="Shaders\Textured.ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\Shaders\Textured.vs.hlsl">
+    <FxCompile Include="Shaders\Textured.vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
