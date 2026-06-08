@@ -844,7 +844,14 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 
 		Skeleton::Bone newBone = {};
 		newBone.name = boneName;
-		// newBone.transform = bone->mOffsetMatrix;
+		auto m = bone->mOffsetMatrix;
+		newBone.transform = DirectX::XMFLOAT4X4(
+			m.a1, m.a2, m.a3, m.a4,
+			m.b1, m.b2, m.b3, m.b4,
+			m.c1, m.c2, m.c3, m.c4,
+			m.d1, m.d2, m.d3, m.d4
+			);
+
 		outSkeleton.m_bones.push_back(newBone);
 		outSkeleton.m_boneNameToIndex[boneName] = boneIndex;
 
@@ -856,6 +863,17 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		}
 
 		printf("%s\n", newBone.name.c_str());
+	}
+
+	for (size_t i = 0; i < outVerts.size(); i++)
+	{
+		const auto& vertWeight = vertexWeights[i];
+
+		for (size_t j = 0; j < 4 && j < vertWeight.size(); j++)
+		{
+			outVerts[i].boneIds[j] = vertWeight[j].first;
+			outVerts[i].weights[j] = vertWeight[j].second;
+		}
 	}
 
 	// ----------------------
