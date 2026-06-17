@@ -420,3 +420,9 @@ FodyWeavers.xsd
 
 # Allow 3D model .obj in assets
 ![Aa]ssets/**/*.obj
+
+# Rider
+.idea/
+*.sln.iml
+*.iws
+out/
