@@ -865,6 +865,44 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 		printf("%s\n", newBone.name.c_str());
 	}
 
+	// Bone hierarchy
+	
+	std::unordered_map<std::string, aiNode*> nameToNodeMap;
+	auto buildNodeMap = [&](aiNode* node)
+	{
+		if (!node)
+			return;
+		nameToNodeMap[node->mName.C_Str()] = node;
+		for (size_t i = 0; i < node->mNumChildren; i++)
+			buildNodeMap(node->mChildren[i]);
+	};
+	buildNodeMap(scene->mRootNode); // all aiNodes in the scene tree by name
+	
+	for (size_t i=0; i < outSkeleton.m_bones.size(); i++)
+	{
+		Skeleton::Bone& bone = outSkeleton.m_bones[i];
+		bone.parentIndex = -1;
+		auto it = nameToNodeMap.find(bone.name);
+		if (it != nameToNodeMap.end())
+		{
+			aiNode* parentNode = it->second->mParent;
+			
+			while (parentNode != nullptr) // bone ancestor found
+			{
+				std::string parentName = parentNode->mName.C_Str();
+				auto parentIt = outSkeleton.m_boneNameToIndex.find(parentName);
+				
+				if (parentIt != outSkeleton.m_boneNameToIndex.end()) // closest parent bone found
+				{
+					bone.parentIndex = parentIt->second;
+					break;
+				}
+				
+				parentNode = parentNode->mParent;
+			}
+		}
+	}
+	
 	for (size_t i = 0; i < outVerts.size(); i++)
 	{
 		const auto& vertWeight = vertexWeights[i];
