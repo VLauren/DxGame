@@ -147,6 +147,7 @@ protected:
     std::vector<VertexSkin> m_verts;
     std::vector<uint16_t> m_idx;
     Skeleton m_skeleton;
+    std::vector<DirectX::XMFLOAT4X4> m_poseMatrices;
 
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;

@@ -5,6 +5,7 @@
 
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <functional>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -868,7 +869,7 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 	// Bone hierarchy
 	
 	std::unordered_map<std::string, aiNode*> nameToNodeMap;
-	auto buildNodeMap = [&](aiNode* node)
+	std::function<void(aiNode*)> buildNodeMap = [&](aiNode* node)
 	{
 		if (!node)
 			return;
@@ -919,10 +920,28 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 
 	printf("Animations: %d\n", scene->mNumAnimations);
 
-	for (size_t i = 0; i < scene->mNumAnimations; i++)
+	// for (size_t i = 0; i < scene->mNumAnimations; i++)
+	// {
+	// 	aiAnimation* anim = scene->mAnimations[i];
+	// 	printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
+	// }
+	
+	if (scene->mNumMeshes > 0)
 	{
-		aiAnimation* anim = scene->mAnimations[i];
-		printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
+		aiAnimation* anim = scene->mAnimations[0];
+		for (size_t i = 0; i < anim->mNumChannels; i++)
+		{
+			aiNodeAnim* channel = anim->mChannels[i];
+			std::string nodeName = channel->mNodeName.C_Str();
+			
+			aiVector3D pos = channel->mPositionKeys[0].mValue;
+			aiQuaternion rot = channel->mRotationKeys[0].mValue;
+			aiVector3D scale = channel->mScalingKeys[0].mValue;
+			
+			printf(" translation [%f, %f, %f]", pos.x, pos.y, pos.z);
+			printf(" rotation [%f, %f, %f, %f]", rot.x, rot.y, rot.z, rot.w);
+			printf(" scale [%f, %f, %f]\n---\n", scale.x, scale.y, scale.z);
+		}
 	}
 
 	return true;
