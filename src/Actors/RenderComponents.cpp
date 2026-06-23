@@ -940,7 +940,8 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     // 	printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
     // }
 
-    if (scene->mNumMeshes > 0)
+    std::unordered_map<std::string, DirectX::XMMATRIX> animatedLocalTransforms;
+    if (scene->mNumAnimations > 0)
     {
         aiAnimation* anim = scene->mAnimations[0];
         for (size_t i = 0; i < anim->mNumChannels; i++)
@@ -958,8 +959,11 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 
             DirectX::XMMATRIX localTransform = scaleMatrix * rotationMatrix * translationMatrix;
+            
+            animatedLocalTransforms[nodeName] = localTransform;
         }
     }
+    
 
     return true;
 }
