@@ -142,12 +142,14 @@ public:
         : MeshRenderComponent(std::move(owner), scene, fileName) {}
 
     void VInit() override;
+    void ComputePoseMatrices();
 
 protected:
     std::vector<VertexSkin> m_verts;
     std::vector<uint16_t> m_idx;
     Skeleton m_skeleton;
     std::vector<DirectX::XMFLOAT4X4> m_poseMatrices;
+    std::unordered_map<std::string, DirectX::XMMATRIX> m_animatedLocalTransforms;
 
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;

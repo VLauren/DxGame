@@ -725,6 +725,19 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 void AnimatedMeshRenderComponent::VInit()
 {
     MeshRenderComponent::VInit();
+    ComputePoseMatrices();
+}
+
+void AnimatedMeshRenderComponent::ComputePoseMatrices()
+{
+    size_t boneCount = m_skeleton.m_bones.size();
+    std::vector<DirectX::XMMATRIX> globalTransforms(boneCount);
+    m_poseMatrices.resize(boneCount);
+    
+    for (size_t i = 0; i < boneCount; i++)
+    {
+        // TODO calculate m_poseMatrices
+    }
 }
 
 void AnimatedMeshRenderComponent::CreateInputLayout()
@@ -940,7 +953,6 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     // 	printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
     // }
 
-    std::unordered_map<std::string, DirectX::XMMATRIX> animatedLocalTransforms;
     if (scene->mNumAnimations > 0)
     {
         aiAnimation* anim = scene->mAnimations[0];
@@ -960,7 +972,7 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 
             DirectX::XMMATRIX localTransform = scaleMatrix * rotationMatrix * translationMatrix;
             
-            animatedLocalTransforms[nodeName] = localTransform;
+            m_animatedLocalTransforms[nodeName] = localTransform;
         }
     }
     
