@@ -30,7 +30,7 @@ inline DirectX::XMMATRIX AssimpToDxMatrix(const aiMatrix4x4& m)
         m.a2, m.b2, m.c2, m.d2,
         m.a3, m.b3, m.c3, m.d3,
         m.a4, m.b4, m.c4, m.d4
-        );
+    );
 }
 
 // =================
@@ -730,13 +730,35 @@ void AnimatedMeshRenderComponent::VInit()
 
 void AnimatedMeshRenderComponent::ComputePoseMatrices()
 {
+    using namespace DirectX;
+
     size_t boneCount = m_skeleton.m_bones.size();
     std::vector<DirectX::XMMATRIX> globalTransforms(boneCount);
     m_poseMatrices.resize(boneCount);
-    
+
     for (size_t i = 0; i < boneCount; i++)
     {
-        // TODO calculate m_poseMatrices
+        const auto& bone = m_skeleton.m_bones[i];
+
+        XMMATRIX localTransform = XMMatrixIdentity();
+        auto it = m_animatedLocalTransforms.find(bone.name);
+        if (it != m_animatedLocalTransforms.end())
+            localTransform = it->second;
+
+        if (bone.parentIndex != -1)
+        {
+            XMMATRIX parentGlobal = globalTransforms[bone.parentIndex];
+            globalTransforms[i] = XMMatrixMultiply(localTransform, parentGlobal);
+        }
+        else
+        {
+            globalTransforms[i] = localTransform;
+        }
+        
+        XMMATRIX offsetMatrix = XMLoadFloat4x4(&bone.transform);
+        XMMATRIX poseMatrix = XMMatrixMultiply(offsetMatrix, globalTransforms[i]);
+        
+        XMStoreFloat4x4(&m_poseMatrices[i], poseMatrix);
     }
 }
 
@@ -971,11 +993,11 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 
             DirectX::XMMATRIX localTransform = scaleMatrix * rotationMatrix * translationMatrix;
-            
+
             m_animatedLocalTransforms[nodeName] = localTransform;
         }
     }
-    
+
 
     return true;
 }
