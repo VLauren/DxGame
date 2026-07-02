@@ -176,6 +176,24 @@ void ShaderMeshNode::VRender(Scene* pScene)
 }
 
 // ===========================
+//		Skinned Mesh Node
+// ===========================
+
+void SkinnedMeshNode::VLoadResources(Scene* pScene)
+{
+	ShaderMeshNode::VLoadResources(pScene);
+}
+
+void SkinnedMeshNode::UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose)
+{
+}
+
+void SkinnedMeshNode::VRender(Scene* pScene)
+{
+	ShaderMeshNode::VRender(pScene);
+}
+
+// ===========================
 //		Camera Node
 // ===========================
 
