@@ -724,7 +724,21 @@ bool MeshRenderComponent::LoadFromAssimp(std::vector<VertexNormalUV>& outVerts, 
 
 void AnimatedMeshRenderComponent::VInit()
 {
-    MeshRenderComponent::VInit();
+    RenderComponent::VInit();
+
+    auto device = Graphics::GetDevice();
+
+    CreateInputLayout();
+
+    auto node = std::make_shared<SkinnedMeshNode>(m_pOwner->GetId(), std::string("Mesh"), DirectX::XMMatrixIdentity());
+    m_scene->AddChild(m_pOwner->GetId(), node);
+    
+    node->SetGeometry(GetGeometryDescriptor());
+    node->VLoadResources(m_scene);
+    node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
+
+    m_sceneNode = node;
+    
     ComputePoseMatrices();
 }
 
