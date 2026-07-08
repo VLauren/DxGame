@@ -182,6 +182,21 @@ void ShaderMeshNode::VRender(Scene* pScene)
 void SkinnedMeshNode::VLoadResources(Scene* pScene)
 {
 	ShaderMeshNode::VLoadResources(pScene);
+	
+	constexpr UINT MAX_BONES = 256;
+	D3D11_BUFFER_DESC boneBufferDesc = {};
+	boneBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+	boneBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+	boneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
+	boneBufferDesc.ByteWidth = sizeof(DirectX::XMMATRIX) * MAX_BONES;
+	if (FAILED(Graphics::GetDevice()->CreateBuffer(
+		&boneBufferDesc,
+		nullptr,
+		&m_boneConstantBuffer)))
+	{
+		printf("D3D11: Failed to create bone constant buffer\n");
+		return;
+	}
 }
 
 void SkinnedMeshNode::UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose)
