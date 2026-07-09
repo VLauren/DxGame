@@ -740,6 +740,8 @@ void AnimatedMeshRenderComponent::VInit()
     m_sceneNode = node;
     
     ComputePoseMatrices();
+    
+    node->UpdateBones(m_poseMatrices);
 }
 
 void AnimatedMeshRenderComponent::ComputePoseMatrices()
@@ -781,7 +783,7 @@ void AnimatedMeshRenderComponent::CreateInputLayout()
     std::wstring basePath = L"Shaders/";
 
     ComPtr<ID3DBlob> vertexShaderBlob = nullptr;
-    m_vertexShader = Graphics::CreateVertexShader(basePath + L"Textured.vs.hlsl", vertexShaderBlob);
+    m_vertexShader = Graphics::CreateVertexShader(basePath + L"Animated.vs.hlsl", vertexShaderBlob);
     m_pixelShader = Graphics::CreatePixelShader(basePath + L"Textured.ps.hlsl");
 
     assert(m_vertexShader != nullptr && "Error creating vertex shader from file");
