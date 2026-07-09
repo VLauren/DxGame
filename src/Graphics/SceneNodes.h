@@ -127,9 +127,8 @@ public:
     
     void VLoadResources(Scene* pScene) override;
     void UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose);
-    
-protected:;
-    void VRender(Scene* pScene) override;
+
+    void VPreRender(Scene* pScene) override;
     
     ComPtr<ID3D11Buffer> m_boneConstantBuffer = nullptr;
 };
