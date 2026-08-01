@@ -3,6 +3,8 @@
 #include <d3d11.h>
 #include <dxgi1_3.h>
 #include <wrl.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
 
 #include "ActorComponent.h"
 #include "../Graphics/SceneNodes.h"
@@ -143,13 +145,18 @@ public:
 
     void VInit() override;
     void ComputePoseMatrices();
+    void ReadNodeHierarchy(const aiNode* node, DirectX::CXMMATRIX parentTransform);
 
 protected:
+    Assimp::Importer m_importer;
+    const aiScene* m_assimpScene = nullptr;
+
     std::vector<VertexSkin> m_verts;
     std::vector<uint16_t> m_idx;
     Skeleton m_skeleton;
     std::vector<DirectX::XMFLOAT4X4> m_poseMatrices;
     std::unordered_map<std::string, DirectX::XMMATRIX> m_animatedLocalTransforms;
+    DirectX::XMMATRIX m_globalInverseTransform;
 
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;

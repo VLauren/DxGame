@@ -749,33 +749,56 @@ void AnimatedMeshRenderComponent::ComputePoseMatrices()
     using namespace DirectX;
 
     size_t boneCount = m_skeleton.m_bones.size();
-    std::vector<DirectX::XMMATRIX> globalTransforms(boneCount);
     m_poseMatrices.resize(boneCount);
 
-    for (size_t i = 0; i < boneCount; i++)
+    if (m_assimpScene && m_assimpScene->mRootNode)
+        ReadNodeHierarchy(m_assimpScene->mRootNode, XMMatrixIdentity());
+
+    if (!m_verts.empty())
+        auto& v = m_verts[0];
+}
+
+void AnimatedMeshRenderComponent::ReadNodeHierarchy(const aiNode* node, DirectX::CXMMATRIX parentTransform)
+{
+    using namespace DirectX;
+    std::string nodeName = node->mName.C_Str();
+
+    XMMATRIX nodeTransform = XMMatrixIdentity();
+    auto it = m_animatedLocalTransforms.find(nodeName);
+    if (it != m_animatedLocalTransforms.end())
     {
-        const auto& bone = m_skeleton.m_bones[i];
-
-        XMMATRIX localTransform = XMMatrixIdentity();
-        auto it = m_animatedLocalTransforms.find(bone.name);
-        if (it != m_animatedLocalTransforms.end())
-            localTransform = it->second;
-
-        if (bone.parentIndex != -1)
-        {
-            XMMATRIX parentGlobal = globalTransforms[bone.parentIndex];
-            globalTransforms[i] = XMMatrixMultiply(localTransform, parentGlobal);
-        }
-        else
-        {
-            globalTransforms[i] = localTransform;
-        }
-        
-        XMMATRIX offsetMatrix = XMLoadFloat4x4(&bone.transform);
-        XMMATRIX poseMatrix = XMMatrixMultiply(offsetMatrix, globalTransforms[i]);
-        
-        XMStoreFloat4x4(&m_poseMatrices[i], poseMatrix);
+        nodeTransform = it->second;
     }
+    else
+    {
+        auto& t = node->mTransformation;
+        nodeTransform = XMMatrixTranspose(XMMATRIX(
+            t.a1, t.a2, t.a3, t.a4,
+            t.b1, t.b2, t.b3, t.b4,
+            t.c1, t.c2, t.c3, t.c4,
+            t.d1, t.d2, t.d3, t.d4
+        ));
+    }
+
+    // Row-vector multiplication order: NodeTransform * ParentTransform
+    XMMATRIX globalTransform = XMMatrixMultiply(nodeTransform, parentTransform);
+
+    // If this node corresponds to a bone, compute the final pose matrix
+    auto boneIt = m_skeleton.m_boneNameToIndex.find(nodeName);
+    if (boneIt != m_skeleton.m_boneNameToIndex.end())
+    {
+        int boneIndex = boneIt->second;
+        XMMATRIX offsetMatrix = XMLoadFloat4x4(&m_skeleton.m_bones[boneIndex].transform);
+
+        // Row-vector order: Pose = Offset * Global * GlobalInverse
+        XMMATRIX poseMatrix = XMMatrixMultiply(offsetMatrix, globalTransform);
+        poseMatrix = XMMatrixMultiply(poseMatrix, m_globalInverseTransform);
+
+        XMStoreFloat4x4(&m_poseMatrices[boneIndex], poseMatrix);
+    }
+
+    for (size_t i = 0; i < node->mNumChildren; i++)
+        ReadNodeHierarchy(node->mChildren[i], globalTransform);
 }
 
 void AnimatedMeshRenderComponent::CreateInputLayout()
@@ -855,14 +878,15 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     std::string modelPath = "Assets/Models/";
 #endif
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(modelPath + m_fileName, aiProcess_Triangulate);
+    m_assimpScene = m_importer.ReadFile(modelPath + m_fileName, aiProcess_Triangulate);
 
-    if (!scene || scene->mFlags && AI_SCENE_FLAGS_INCOMPLETE)
+    if (!m_assimpScene || m_assimpScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
     {
-        printf("Assimp failed: %s\n", importer.GetErrorString());
+        printf("Assimp failed: %s\n", m_importer.GetErrorString());
         return false;
     }
+
+    const aiScene* scene = m_assimpScene;
 
     // ----------------------
     // Mesh
@@ -911,11 +935,13 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
         Skeleton::Bone newBone = {};
         newBone.name = boneName;
         auto m = bone->mOffsetMatrix;
+        
+        // Transpose to convert between conventions.
         newBone.transform = DirectX::XMFLOAT4X4(
-            m.a1, m.a2, m.a3, m.a4,
-            m.b1, m.b2, m.b3, m.b4,
-            m.c1, m.c2, m.c3, m.c4,
-            m.d1, m.d2, m.d3, m.d4
+            m.a1, m.b1, m.c1, m.d1,
+            m.a2, m.b2, m.c2, m.d2,
+            m.a3, m.b3, m.c3, m.d3,
+            m.a4, m.b4, m.c4, m.d4
         );
 
         outSkeleton.m_bones.push_back(newBone);
@@ -927,8 +953,6 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             float weight = bone->mWeights[w].mWeight;
             vertexWeights[vertexId].push_back({boneIndex, weight});
         }
-
-        printf("%s\n", newBone.name.c_str());
     }
 
     // Bone hierarchy
@@ -943,6 +967,17 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             buildNodeMap(node->mChildren[i]);
     };
     buildNodeMap(scene->mRootNode); // all aiNodes in the scene tree by name
+
+    auto& t = scene->mRootNode->mTransformation;
+    DirectX::XMMATRIX rootTransform = DirectX::XMMatrixTranspose(DirectX::XMMATRIX(
+        t.a1, t.a2, t.a3, t.a4,
+        t.b1, t.b2, t.b3, t.b4,
+        t.c1, t.c2, t.c3, t.c4,
+        t.d1, t.d2, t.d3, t.d4));
+    m_globalInverseTransform = DirectX::XMMatrixInverse(nullptr, rootTransform);
+
+    DirectX::XMFLOAT4X4 gi;
+    DirectX::XMStoreFloat4x4(&gi, m_globalInverseTransform);
 
     for (size_t i = 0; i < outSkeleton.m_bones.size(); i++)
     {
@@ -981,15 +1016,9 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     }
 
     // ----------------------
-    // Animation
+    // Animation (First keyframe)
 
     printf("Animations: %d\n", scene->mNumAnimations);
-
-    // for (size_t i = 0; i < scene->mNumAnimations; i++)
-    // {
-    // 	aiAnimation* anim = scene->mAnimations[i];
-    // 	printf("- name: %s, ticksPerSecond: %f, duration: %f\n", anim->mName.C_Str(), anim->mTicksPerSecond, anim->mDuration);
-    // }
 
     if (scene->mNumAnimations > 0)
     {
@@ -1013,7 +1042,6 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             m_animatedLocalTransforms[nodeName] = localTransform;
         }
     }
-
 
     return true;
 }

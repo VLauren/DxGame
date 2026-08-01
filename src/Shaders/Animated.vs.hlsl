@@ -32,22 +32,35 @@ VSOutput main(VSInput input)
     float3 blendedPos = float3(0, 0, 0);
     float3 blendedNormal = float3(0, 0, 0);
 
+    float skinDebug = 1.0; //  1 = full pose, 0 = no skinning
+
     for (int i = 0; i < 4; i++)
     {
         if (input.boneWeights[i] <= 0.0)
             break;
-        blendedPos += input.boneWeights[i] * mul(float4(input.position, 1.0), boneMatrices[input.boneIndices[i]]).xyz;
-        blendedNormal += input.boneWeights[i] * mul(input.normal, (float3x3)boneMatrices[input.boneIndices[i]]);
+
+        matrix boneMatrix = lerp(float4x4(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ), boneMatrices[input.boneIndices[i]], skinDebug);
+
+        float4 skinnedPos = mul(float4(input.position, 1.0), boneMatrix);
+        blendedPos += input.boneWeights[i] * skinnedPos.xyz;
+
+        float3 skinnedNormal = mul(input.normal, (float3x3)boneMatrix);
+        blendedNormal += input.boneWeights[i] * skinnedNormal;
     }
 
-    // float4 worldPos = mul(float4(input.position, 1.0), transform);
     float4 worldPos = mul(float4(blendedPos, 1.0), transform);
+
     float4 clipPos = mul(worldPos, viewProj);
 
     VSOutput output;
     output.position = clipPos;
     output.worldPos = worldPos.xyz;
-    output.normalW = normalize(mul(input.normal, (float3x3)transform));
+    output.normalW = normalize(blendedNormal);
     output.uv = input.uv;
 
     return output;

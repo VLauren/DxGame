@@ -205,7 +205,12 @@ void SkinnedMeshNode::UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose)
 	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(m_boneConstantBuffer.Get(), 0,
 		D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
 	{
-		memcpy(mapped.pData, pose.data(), sizeof(DirectX::XMFLOAT4X4) * pose.size());
+		auto* dst = static_cast<DirectX::XMFLOAT4X4*>(mapped.pData);
+		for (size_t i = 0; i < pose.size(); i++)
+		{
+			DirectX::XMMATRIX m = DirectX::XMLoadFloat4x4(&pose[i]);
+			DirectX::XMStoreFloat4x4(&dst[i], DirectX::XMMatrixTranspose(m));
+		}
 		Graphics::GetDeviceContext()->Unmap(m_boneConstantBuffer.Get(), 0);
 	}
 }
@@ -213,7 +218,7 @@ void SkinnedMeshNode::UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose)
 void SkinnedMeshNode::VPreRender(Scene* pScene)
 {
 	auto boneSlot = 1;
-	Graphics::GetDeviceContext()->VSGetConstantBuffers(boneSlot, 1, m_boneConstantBuffer.GetAddressOf());
+	Graphics::GetDeviceContext()->VSSetConstantBuffers(boneSlot, 1, m_boneConstantBuffer.GetAddressOf());
 }
 
 // ===========================

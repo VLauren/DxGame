@@ -15,6 +15,7 @@ public:
 
 private:
 	std::weak_ptr<Player> m_playerRef;
-	DirectX::XMFLOAT3 m_offset{ 0, 6, -9 };
+	DirectX::XMFLOAT3 m_offset{ 0, 14, -13 };
+	// DirectX::XMFLOAT3 m_offset{ 0, 35, -25 };
 };
 
