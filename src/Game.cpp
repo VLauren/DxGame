@@ -61,7 +61,7 @@ void Game::Init()
 	auto modelActor = std::make_shared<Actor>(NextId(), this);
 	auto mesh = std::make_shared<AnimatedMeshRenderComponent>(modelActor, GetScene(), "Idle.fbx");
 	modelActor->AddComponent(mesh);
-	modelActor->SetPosition({ -4, 1.2f, 2 });
+	modelActor->SetPosition({ -4, -1.0f, 2 });
 	modelActor->SetRotation({ 0, TAU * 0.4f, 0 });
 	modelActor->SetScale({ 0.5f, 0.5f, 0.5f });
 	AddActor(modelActor);

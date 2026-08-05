@@ -144,10 +144,14 @@ public:
         : MeshRenderComponent(std::move(owner), scene, fileName) {}
 
     void VInit() override;
+	void VUpdate(float deltaTime) override;
     void ComputePoseMatrices();
     void ReadNodeHierarchy(const aiNode* node, DirectX::CXMMATRIX parentTransform);
 
 protected:
+    float m_animSpeed;
+    float m_animTime;
+    
     Assimp::Importer m_importer;
     const aiScene* m_assimpScene = nullptr;
 

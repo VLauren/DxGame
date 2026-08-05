@@ -738,10 +738,23 @@ void AnimatedMeshRenderComponent::VInit()
     node->SetShadersAndLayout(m_vertexShader, m_pixelShader, m_vertexLayout);
 
     m_sceneNode = node;
+}
+
+void AnimatedMeshRenderComponent::VUpdate(float deltaTime)
+{
+    MeshRenderComponent::VUpdate(deltaTime);
+    
+    if (!m_assimpScene || m_assimpScene->mNumAnimations == 0)
+        return;
+
+    m_animTime = deltaTime * m_animSpeed;
+    
+    // TODO
+    // EvaluateAnimation(m_animTime);
     
     ComputePoseMatrices();
     
-    node->UpdateBones(m_poseMatrices);
+    std::dynamic_pointer_cast<SkinnedMeshNode>(m_sceneNode.lock())->UpdateBones(m_poseMatrices);
 }
 
 void AnimatedMeshRenderComponent::ComputePoseMatrices()
@@ -1020,6 +1033,7 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 
     printf("Animations: %d\n", scene->mNumAnimations);
 
+    size_t frame = 15;
     if (scene->mNumAnimations > 0)
     {
         aiAnimation* anim = scene->mAnimations[0];
@@ -1028,9 +1042,13 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
             aiNodeAnim* channel = anim->mChannels[i];
             std::string nodeName = channel->mNodeName.C_Str();
 
-            aiVector3D pos = channel->mPositionKeys[0].mValue;
-            aiQuaternion rot = channel->mRotationKeys[0].mValue;
-            aiVector3D scale = channel->mScalingKeys[0].mValue;
+            size_t posIdx   = (channel->mNumPositionKeys > 0) ? std::min(frame, (size_t)channel->mNumPositionKeys - 1) : 0;
+            size_t rotIdx   = (channel->mNumRotationKeys > 0) ? std::min(frame, (size_t)channel->mNumRotationKeys - 1) : 0;
+            size_t scaleIdx = (channel->mNumScalingKeys > 0)  ? std::min(frame, (size_t)channel->mNumScalingKeys - 1)  : 0;
+            
+            aiVector3D pos = channel->mPositionKeys[posIdx].mValue;
+            aiQuaternion rot = channel->mRotationKeys[rotIdx].mValue;
+            aiVector3D scale = channel->mScalingKeys[scaleIdx].mValue;
 
             DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
             DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationQuaternion(
