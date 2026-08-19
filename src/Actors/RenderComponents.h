@@ -41,6 +41,14 @@ struct Vertex
     DirectX::XMFLOAT3 position;
 };
 
+struct AnimationChannel
+{
+    std::string nodeName;
+    std::vector<std::pair<double, DirectX::XMFLOAT3>> positionKeys;
+    std::vector<std::pair<double, DirectX::XMFLOAT4>> rotationKeys;
+    std::vector<std::pair<double, DirectX::XMFLOAT3>> scaleKeys;
+};
+
 class Scene;
 
 class RenderComponent : public ActorComponent
@@ -152,6 +160,7 @@ protected:
     float m_animSpeed;
     float m_animTime;
     
+    std::vector<AnimationChannel> m_channels;
     Assimp::Importer m_importer;
     const aiScene* m_assimpScene = nullptr;
 
@@ -161,6 +170,10 @@ protected:
     std::vector<DirectX::XMFLOAT4X4> m_poseMatrices;
     std::unordered_map<std::string, DirectX::XMMATRIX> m_animatedLocalTransforms;
     DirectX::XMMATRIX m_globalInverseTransform;
+    
+    
+    float m_animDuration;
+    float m_animTicksPerSecond;
 
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;

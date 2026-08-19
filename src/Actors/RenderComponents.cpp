@@ -1037,11 +1037,37 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     if (scene->mNumAnimations > 0)
     {
         aiAnimation* anim = scene->mAnimations[0];
+
+        m_animDuration = anim->mDuration;
+        m_animTicksPerSecond = anim->mTicksPerSecond;
+        
         for (size_t i = 0; i < anim->mNumChannels; i++)
         {
             aiNodeAnim* channel = anim->mChannels[i];
-            std::string nodeName = channel->mNodeName.C_Str();
+            AnimationChannel ch;
+            ch.nodeName = channel->mNodeName.C_Str();
 
+            size_t fbxPos = ch.nodeName.find("_$AssimpFbx$_");
+            if (fbxPos != std::string::npos)
+            {
+                ch.nodeName = ch.nodeName.substr(0, fbxPos);
+            }
+
+            for (size_t k = 0; k < channel->mNumPositionKeys; k++)
+                ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
+                    {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
+            
+            for (size_t k = 0; k < channel->mNumPositionKeys; k++)
+                ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
+                    {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
+            
+            for (size_t k = 0; k < channel->mNumPositionKeys; k++)
+                ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
+                    {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
+                
+            m_channels.push_back(std::move(ch));
+            
+            /*
             size_t posIdx   = (channel->mNumPositionKeys > 0) ? std::min(frame, (size_t)channel->mNumPositionKeys - 1) : 0;
             size_t rotIdx   = (channel->mNumRotationKeys > 0) ? std::min(frame, (size_t)channel->mNumRotationKeys - 1) : 0;
             size_t scaleIdx = (channel->mNumScalingKeys > 0)  ? std::min(frame, (size_t)channel->mNumScalingKeys - 1)  : 0;
@@ -1057,7 +1083,8 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
 
             DirectX::XMMATRIX localTransform = scaleMatrix * rotationMatrix * translationMatrix;
 
-            m_animatedLocalTransforms[nodeName] = localTransform;
+            m_animatedLocalTransforms[ch.nodeName] = localTransform;
+             */
         }
     }
 
