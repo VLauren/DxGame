@@ -178,4 +178,5 @@ protected:
     virtual void CreateInputLayout() override;
     virtual ShaderMeshNode::GeometryDesc GetGeometryDescriptor() override;
     bool LoadFromAssimp(std::vector<VertexSkin>& outVerts, std::vector<uint16_t>& outIdx, Skeleton& outSkeleton);
+    void EvaluateAnimation(float timeInTicks);
 };

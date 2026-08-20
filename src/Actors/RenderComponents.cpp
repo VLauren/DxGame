@@ -748,10 +748,11 @@ void AnimatedMeshRenderComponent::VUpdate(float deltaTime)
         return;
 
     m_animTime = deltaTime * m_animSpeed;
-    
-    // TODO
-    // EvaluateAnimation(m_animTime);
-    
+
+    float timeInTicks = fmod(m_animTime * m_animTicksPerSecond, m_animDuration);
+
+    EvaluateAnimation(timeInTicks);
+
     ComputePoseMatrices();
     
     std::dynamic_pointer_cast<SkinnedMeshNode>(m_sceneNode.lock())->UpdateBones(m_poseMatrices);
@@ -1089,4 +1090,53 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     }
 
     return true;
+}
+
+void AnimatedMeshRenderComponent::EvaluateAnimation(float timeInTicks)
+{
+    for (auto& ch : m_channels)
+    {
+        auto& posKeys = ch.positionKeys;
+        auto& rotKeys = ch.rotationKeys;
+        auto& scaleKeys = ch.scaleKeys;
+
+        size_t posIdx = 0;
+        size_t rotIdx = 0;
+        size_t scaleIdx = 0;
+
+        for (size_t i = 0; i+1 < posKeys.size(); i++)
+        {
+            if (timeInTicks >= posKeys[i].first && timeInTicks < posKeys[i+1].first)
+            {
+                posIdx = i;
+                break;
+            }
+        }
+        for (size_t i = 0; i+1 < rotKeys.size(); i++)
+        {
+            if (timeInTicks >= rotKeys[i].first && timeInTicks < rotKeys[i+1].first)
+            {
+                rotIdx = i;
+                break;
+            }
+        }
+        for (size_t i = 0; i+1 < scaleKeys.size(); i++)
+        {
+            if (timeInTicks >= scaleKeys[i].first && timeInTicks < scaleKeys[i+1].first)
+            {
+                scaleIdx = i;
+                break;
+            }
+        }
+
+        auto& pos = posKeys[posIdx].second;
+        auto& rot = rotKeys[rotIdx].second;
+        auto& scale = scaleKeys[scaleIdx].second;
+
+        DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+        DirectX::XMMATRIX R = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(rot.x, rot.y, rot.z, rot.w));
+        DirectX::XMMATRIX S = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+
+        m_animatedLocalTransforms[ch.nodeName] = S * R * T;
+    }
 }
