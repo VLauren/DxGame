@@ -157,8 +157,8 @@ public:
     void ReadNodeHierarchy(const aiNode* node, DirectX::CXMMATRIX parentTransform);
 
 protected:
-    float m_animSpeed;
-    float m_animTime;
+    float m_animTime = 0.0f;
+    float m_animSpeed = 1.0f;
     
     std::vector<AnimationChannel> m_channels;
     Assimp::Importer m_importer;

@@ -747,7 +747,7 @@ void AnimatedMeshRenderComponent::VUpdate(float deltaTime)
     if (!m_assimpScene || m_assimpScene->mNumAnimations == 0)
         return;
 
-    m_animTime = deltaTime * m_animSpeed;
+    m_animTime += deltaTime * m_animSpeed;
 
     float timeInTicks = fmod(m_animTime * m_animTicksPerSecond, m_animDuration);
 
@@ -1030,7 +1030,7 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
     }
 
     // ----------------------
-    // Animation (First keyframe)
+    // Animation
 
     printf("Animations: %d\n", scene->mNumAnimations);
 
@@ -1058,13 +1058,13 @@ bool AnimatedMeshRenderComponent::LoadFromAssimp(std::vector<VertexSkin>& outVer
                 ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
                     {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
             
-            for (size_t k = 0; k < channel->mNumPositionKeys; k++)
-                ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
-                    {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
+            for (size_t k = 0; k < channel->mNumRotationKeys; k++)
+                ch.rotationKeys.push_back({channel->mRotationKeys[k].mTime,
+                    {channel->mRotationKeys[k].mValue.x, channel->mRotationKeys[k].mValue.y, channel->mRotationKeys[k].mValue.z, channel->mRotationKeys[k].mValue.w }});
             
-            for (size_t k = 0; k < channel->mNumPositionKeys; k++)
-                ch.positionKeys.push_back({channel->mPositionKeys[k].mTime,
-                    {channel->mPositionKeys[k].mValue.x, channel->mPositionKeys[k].mValue.y, channel->mPositionKeys[k].mValue.z }});
+            for (size_t k = 0; k < channel->mNumScalingKeys; k++)
+                ch.scaleKeys.push_back({channel->mScalingKeys[k].mTime,
+                    {channel->mScalingKeys[k].mValue.x, channel->mScalingKeys[k].mValue.y, channel->mScalingKeys[k].mValue.z }});
                 
             m_channels.push_back(std::move(ch));
             
@@ -1100,38 +1100,51 @@ void AnimatedMeshRenderComponent::EvaluateAnimation(float timeInTicks)
         auto& rotKeys = ch.rotationKeys;
         auto& scaleKeys = ch.scaleKeys;
 
-        size_t posIdx = 0;
-        size_t rotIdx = 0;
-        size_t scaleIdx = 0;
+        DirectX::XMFLOAT3 pos = {0, 0, 0};
+        DirectX::XMFLOAT4 rot = {0, 0, 0, 1};
+        DirectX::XMFLOAT3 scale = {1, 1, 1};
 
-        for (size_t i = 0; i+1 < posKeys.size(); i++)
+        if (posKeys.size() > 0)
         {
-            if (timeInTicks >= posKeys[i].first && timeInTicks < posKeys[i+1].first)
+            size_t posIdx = 0;
+            for (size_t i = 0; i + 1 < posKeys.size(); i++)
             {
-                posIdx = i;
-                break;
+                if (timeInTicks >= posKeys[i].first && timeInTicks < posKeys[i + 1].first)
+                {
+                    posIdx = i;
+                    break;
+                }
             }
+            pos = posKeys[posIdx].second;
         }
-        for (size_t i = 0; i+1 < rotKeys.size(); i++)
+        
+        if (rotKeys.size() > 0)
         {
-            if (timeInTicks >= rotKeys[i].first && timeInTicks < rotKeys[i+1].first)
+            size_t rotIdx = 0;
+            for (size_t i = 0; i+1 < rotKeys.size(); i++)
             {
-                rotIdx = i;
-                break;
+                if (timeInTicks >= rotKeys[i].first && timeInTicks < rotKeys[i+1].first)
+                {
+                    rotIdx = i;
+                    break;
+                }
             }
+            rot = rotKeys[rotIdx].second;
         }
-        for (size_t i = 0; i+1 < scaleKeys.size(); i++)
+        
+        if (scaleKeys.size() > 0)
         {
-            if (timeInTicks >= scaleKeys[i].first && timeInTicks < scaleKeys[i+1].first)
+            size_t scaleIdx = 0;
+            for (size_t i = 0; i+1 < scaleKeys.size(); i++)
             {
-                scaleIdx = i;
-                break;
+                if (timeInTicks >= scaleKeys[i].first && timeInTicks < scaleKeys[i+1].first)
+                {
+                    scaleIdx = i;
+                    break;
+                }
             }
+            scale = scaleKeys[scaleIdx].second;
         }
-
-        auto& pos = posKeys[posIdx].second;
-        auto& rot = rotKeys[rotIdx].second;
-        auto& scale = scaleKeys[scaleIdx].second;
 
         DirectX::XMMATRIX T = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
         DirectX::XMMATRIX R = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(rot.x, rot.y, rot.z, rot.w));
