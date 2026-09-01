@@ -59,7 +59,8 @@ void Game::Init()
 	// Model Test
 	// --------
 	auto modelActor = std::make_shared<Actor>(NextId(), this);
-	auto mesh = std::make_shared<AnimatedMeshRenderComponent>(modelActor, GetScene(), "Idle.fbx");
+	// auto mesh = std::make_shared<AnimatedMeshRenderComponent>(modelActor, GetScene(), "Idle.fbx");
+	auto mesh = std::make_shared<AnimatedMeshRenderComponent>(modelActor, GetScene(), "Running.fbx");
 	modelActor->AddComponent(mesh);
 	modelActor->SetPosition({ -4, -1.0f, 2 });
 	modelActor->SetRotation({ 0, TAU * 0.4f, 0 });
