@@ -38,6 +38,9 @@ public:
     virtual bool VAddChildLast(std::shared_ptr<SceneNode> child);
     virtual bool VRemoveChild(int actorId);
 
+    virtual void SetVisible(bool visible) { m_visible = visible; }
+    virtual bool IsVisible() const { return m_visible; }
+
     virtual ~SceneNode()
     {
     }
@@ -46,6 +49,7 @@ protected:
     int m_actorId;
     std::string m_name;
     DirectX::XMMATRIX m_worldMatrix;
+    bool m_visible = true;
 
     std::vector<std::shared_ptr<SceneNode>> m_children;
     SceneNode* m_pParent;

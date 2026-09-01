@@ -129,6 +129,9 @@ void ShaderMeshNode::SetShadersAndLayout(ComPtr<ID3D11VertexShader> vs, ComPtr<I
 
 void ShaderMeshNode::VRender(Scene* pScene)
 {
+	if (!m_visible)
+		return;
+	
 	using namespace DirectX;
 
 	if (!Graphics::s_showWireframe && m_geometryDesc.topology == D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST)

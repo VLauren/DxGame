@@ -59,6 +59,9 @@ public:
 	void VInit();
 
 	void VUpdate(float deltaTime) override;
+    
+    void SetVisible(bool visible);
+    bool IsVisible() const;
 
 protected:
 
