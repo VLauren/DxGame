@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor.h"
+#include "RenderComponents.h"
 
 class Player : public Actor
 {
@@ -14,5 +15,8 @@ public:
 
 private:
 	const float moveSpeed = 5;
+	
+	std::weak_ptr<MeshRenderComponent> m_modelIdle;
+	std::weak_ptr<MeshRenderComponent> m_modelRun;
 };
 

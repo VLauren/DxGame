@@ -12,9 +12,20 @@ void Player::Init()
 {
 	using namespace DirectX;
 
-	AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
+	// AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
 	AddComponent(std::make_shared<WireframeCubeRenderComponent>(shared_from_this(), m_game->GetScene()));
 	AddComponent(std::make_shared<AABBCollisionComponent>(shared_from_this(), XMFLOAT3(0, 0, 0), XMFLOAT3(1, 1, 1)));
+	
+	auto model = std::make_shared<AnimatedMeshRenderComponent>(shared_from_this(), m_game->GetScene(), "Idle.fbx");
+	// model.SetScale({ 0.5f, 0.5f, 0.5f });
+	AddComponent(model);
+	m_modelIdle = model;
+	auto model2 = std::make_shared<AnimatedMeshRenderComponent>(shared_from_this(), m_game->GetScene(), "Running.fbx");
+	// model.SetScale({ 0.5f, 0.5f, 0.5f });
+	AddComponent(model2);
+	m_modelRun = model2;
+	m_modelRun.lock()->SetVisible(false);
+	
 	Actor::Init();
 }
 
@@ -50,14 +61,14 @@ void Player::Update(float deltaTime)
 		input.y -= 1;
 	if (glfwGetKey(m_game->GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
 		input.x += 1;
-
+	
 	XMStoreFloat2(&input, XMVector2Normalize(XMLoadFloat2(&input)));
 
 	auto pos = GetPosition();
 	pos.x += deltaTime * moveSpeed * input.x;
 	pos.z += deltaTime * moveSpeed * input.y;
 	SetPosition(pos);
-
+	
 	// player rotation towards movement direction
 	if (input.x != 0 || input.y != 0)
 	{
@@ -72,8 +83,16 @@ void Player::Update(float deltaTime)
 
 		rot.y = std::clamp(targetYaw, rot.y - deltaTime * rotationSpeed, rot.y + deltaTime * rotationSpeed);
 		SetRotation({ rot.x, rot.y, rot.z });
+		
+		m_modelIdle.lock()->SetVisible(false);
+		m_modelRun.lock()->SetVisible(true);
 	}
-
+	else
+	{
+		m_modelIdle.lock()->SetVisible(true);
+		m_modelRun.lock()->SetVisible(false);
+	}
+	
 	Actor::Update(deltaTime);
 }
 
