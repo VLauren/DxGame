@@ -132,7 +132,7 @@ public:
     void VLoadResources(Scene* pScene) override;
     void UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose);
 
-    void VPreRender(Scene* pScene) override;
+    void VRender(Scene* pScene) override;
     
     ComPtr<ID3D11Buffer> m_boneConstantBuffer = nullptr;
 };

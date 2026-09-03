@@ -218,10 +218,12 @@ void SkinnedMeshNode::UpdateBones(const std::vector<DirectX::XMFLOAT4X4>& pose)
 	}
 }
 
-void SkinnedMeshNode::VPreRender(Scene* pScene)
+void SkinnedMeshNode::VRender(Scene* pScene)
 {
 	auto boneSlot = 1;
 	Graphics::GetDeviceContext()->VSSetConstantBuffers(boneSlot, 1, m_boneConstantBuffer.GetAddressOf());
+	
+	ShaderMeshNode::VRender(pScene);
 }
 
 // ===========================
