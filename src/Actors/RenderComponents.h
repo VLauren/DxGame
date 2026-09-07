@@ -63,7 +63,11 @@ public:
     void SetVisible(bool visible);
     bool IsVisible() const;
 
+    void SetScale (const DirectX::XMFLOAT3& s) { m_scale = s; }
+    DirectX::XMFLOAT3 GetScale() const { return m_scale; }
+
 protected:
+    DirectX::XMFLOAT3 m_scale = {1, 1, 1};
 
     Scene* m_scene;
 
@@ -133,8 +137,9 @@ public:
         RenderComponent(std::move(owner), scene), m_fileName(fileName) {}
 
     virtual void VInit() override;
-
+    
 protected:
+    
     std::string m_fileName;
 
     ComPtr<ID3D11ShaderResourceView> m_diffuseSRV = nullptr;
