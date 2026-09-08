@@ -63,10 +63,17 @@ public:
     void SetVisible(bool visible);
     bool IsVisible() const;
 
+    void SetPosition (const DirectX::XMFLOAT3& s) { m_position = s; }
+    void SetRotation (const DirectX::XMFLOAT3& s) { m_rotation = s; }
     void SetScale (const DirectX::XMFLOAT3& s) { m_scale = s; }
+    
+    DirectX::XMFLOAT3 GetPosition() const { return m_position; }
+    DirectX::XMFLOAT3 GetRotation() const { return m_rotation; }
     DirectX::XMFLOAT3 GetScale() const { return m_scale; }
 
 protected:
+    DirectX::XMFLOAT3 m_position = {0, 0, 0};
+    DirectX::XMFLOAT3 m_rotation = {0, 0, 0};
     DirectX::XMFLOAT3 m_scale = {1, 1, 1};
 
     Scene* m_scene;

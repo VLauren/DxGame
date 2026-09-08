@@ -17,10 +17,12 @@ void Player::Init()
 	AddComponent(std::make_shared<AABBCollisionComponent>(shared_from_this(), XMFLOAT3(0, 0, 0), XMFLOAT3(1, 1, 1)));
 	
 	auto model = std::make_shared<AnimatedMeshRenderComponent>(shared_from_this(), m_game->GetScene(), "Idle.fbx");
+	model->SetPosition({ 0, -1.0f, 0 });
 	model->SetScale({ 0.5f, 0.5f, 0.5f });
 	AddComponent(model);
 	m_modelIdle = model;
 	auto model2 = std::make_shared<AnimatedMeshRenderComponent>(shared_from_this(), m_game->GetScene(), "Running.fbx");
+	model2->SetPosition({ 0, -1.0f, 0 });
 	model2->SetScale({ 0.5f, 0.5f, 0.5f });
 	AddComponent(model2);
 	m_modelRun = model2;

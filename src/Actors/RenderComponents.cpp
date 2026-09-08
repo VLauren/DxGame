@@ -45,10 +45,12 @@ void RenderComponent::VUpdate(float deltaTime)
 {
     using namespace DirectX;
 
+    XMFLOAT3 position = m_pOwner->GetPosition();
+    XMFLOAT3 rotation = m_pOwner->GetRotation();
     XMFLOAT3 scale = m_pOwner->GetScale();
     
-    XMFLOAT3 p = m_pOwner->GetPosition();
-    XMFLOAT3 r = m_pOwner->GetRotation();
+    XMFLOAT3 p = {position.x + m_position.x, position.y + m_position.y, position.z + m_position.z};
+    XMFLOAT3 r = {rotation.x + m_rotation.x, rotation.y + m_rotation.y, rotation.z + m_rotation.z};
     XMFLOAT3 s = {scale.x * m_scale.x, scale.y * m_scale.y, scale.z * m_scale.z};
     
     XMMATRIX world = XMMatrixScalingFromVector(XMLoadFloat3(&s)) *
