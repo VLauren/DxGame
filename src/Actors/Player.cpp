@@ -14,7 +14,7 @@ void Player::Init()
 
 	// AddComponent(std::make_shared<TextureCubeRenderComponent>(shared_from_this(), m_game->GetScene(), 1, 1, 1));
 	AddComponent(std::make_shared<WireframeCubeRenderComponent>(shared_from_this(), m_game->GetScene()));
-	AddComponent(std::make_shared<AABBCollisionComponent>(shared_from_this(), XMFLOAT3(0, 0, 0), XMFLOAT3(1, 1, 1)));
+	AddComponent(std::make_shared<AABBCollisionComponent>(shared_from_this(), XMFLOAT3(0, 1, 0), XMFLOAT3(0.7f, 1.5f, 0.7f)));
 	
 	auto model = std::make_shared<AnimatedMeshRenderComponent>(shared_from_this(), m_game->GetScene(), "Idle.fbx");
 	model->SetPosition({ 0, -1.0f, 0 });

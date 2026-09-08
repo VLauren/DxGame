@@ -14,7 +14,7 @@ public:
 	void OnCollision(Actor* other, const CollisionResult& result);
 
 private:
-	const float moveSpeed = 5;
+	const float moveSpeed = 6.0f;
 	
 	std::weak_ptr<MeshRenderComponent> m_modelIdle;
 	std::weak_ptr<MeshRenderComponent> m_modelRun;
