@@ -4,24 +4,24 @@ static const float3 ambient = { 0.15f, 0.15f, 0.15f };
 Texture2D g_Diffuse : register(t0);
 SamplerState g_Sampler : register(s0);
 
-cbuffer cbLight : register(b1)
+struct Light
 {
-    float3 g_lightPos;
+    float3 pos;
     float pad0;
-    float3 g_diffuseColor;
+    float3 color;
     float pad1;
-    float g_diffuseIntensity;
-    float g_attConst;
-    float g_attLin;
-    float g_attQuad;
+    float intensity;
+    float attConst;
+    float attLin;
+    float attQuad;
 };
 
-// static const float3 lightPos = { -2.0f, 2.0f, -2.0f };
-// static const float3 diffuseColor = { 1.0f, 1.0f, 1.0f };
-// static const float diffuseIntensity = 1.0f;
-// static const float attConst = 1.0f;
-// static const float attLin = 0.09f;
-// static const float attQuad = 0.032f;
+cbuffer cbLight : register(b1)
+{
+    Light g_lights[16];
+    int g_numLights;
+    float3 _pad;
+};
 
 struct PSInput
 {
@@ -41,17 +41,21 @@ PSOutput main(PSInput input)
     PSOutput output = (PSOutput) 0;
 
     float3 tex = g_Diffuse.Sample(g_Sampler, input.uv.xy).rgb;
+    float3 diffuse = 0.0f;
 
-    // Point light 
-    const float3 vToL = g_lightPos - input.worldPos;
-    const float distToL = length(vToL);
-    const float3 dirToL = vToL / distToL;
-    // diffuse attenuation
-    const float att = 1.0 / (g_attConst + g_attLin * distToL + g_attQuad * (distToL * distToL));
-    // diffuse intensity
-    const float3 diffuse = g_diffuseColor * g_diffuseIntensity * att * max(0.0f, dot(dirToL, input.normalW)) * tex;
-    float3 final = saturate(diffuse + ambient * tex);
-    
+    for (int i = 0; i < g_numLights; i++)
+    {
+        // Point light
+        const float3 vToL = g_lights[i].pos - input.worldPos;
+        const float distToL = length(vToL);
+        const float3 dirToL = vToL / distToL;
+        // diffuse attenuation
+        const float att = 1.0 / (g_lights[i].attConst + g_lights[i].attLin * distToL + g_lights[i].attQuad * (distToL * distToL));
+        // diffuse intensity
+        diffuse += g_lights[i].color * g_lights[i].intensity * att * max(0.0f, dot(dirToL, input.normalW));
+    }
+
+    float3 final = saturate(diffuse * tex + ambient * tex);
     output.color = float4(final, 1.0);
     return output;
 }

@@ -33,6 +33,16 @@ void Game::Init()
 	lightComponent->VInit({1, 0.7f, 0.2f}, 1, att );
 	AddActor(light);
 
+	// light 2
+	// --------
+	light2 = std::make_shared<Actor>(NextId(), this);
+	light2->SetPosition({3, 3, 1});
+	auto lightComponent2 = std::make_shared<LightComponent>(light2, GetScene());
+	light2->AddComponent(lightComponent2);
+	std::array<float,3> att2 = { 1.0f, 0.09f, 0.032f };
+	lightComponent2->VInit({0.2f, 0.4f, 1}, 1.5f, att2);
+	AddActor(light2);
+
 	// Floor
 	// --------
 	auto floor = std::make_shared<CubeActor>(NextId(), this, std::array<float,3>{10, 0.2f, 7});
@@ -95,6 +105,28 @@ void Game::Update(float deltaTime)
 	ImGui::End();
 
 	light->SetPosition(pos);
+
+	auto pos2 = light2->GetPosition();
+	ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(20, 140), ImGuiCond_Once);
+	ImGui::Begin("Light 2");
+	{
+		ImGui::SliderFloat3("Position", reinterpret_cast<float*>(&pos2), -20, 20);
+		if (auto lightComponent2 = light2->GetComponent<LightComponent>().lock())
+		{
+			auto dxCol = lightComponent2->GetColour();
+			float col[3] = { dxCol.x, dxCol.y, dxCol.z };
+			float intensity = lightComponent2->GetIntensity();
+			ImGui::ColorEdit3("Colour", col);
+			ImGui::SliderFloat("Intensity", &intensity, 0, 10);
+
+			lightComponent2->SetColour({col[0], col[1], col[2]});
+			lightComponent2->SetIntensity(intensity);
+		}
+	}
+	ImGui::End();
+
+	light2->SetPosition(pos2);
 
 	ImGui::Begin("Colliders");
 	{

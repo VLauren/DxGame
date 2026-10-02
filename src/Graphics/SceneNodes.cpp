@@ -165,6 +165,7 @@ void ShaderMeshNode::VRender(Scene* pScene)
 	deviceContext->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
 	// Pixel Shader
+	LightNode::FlushLights();
 	deviceContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 
 	// Output Merger
@@ -262,69 +263,63 @@ void CameraNode::VPostRender(Scene* pScene)
 //		Light Node
 // ===========================
 
-void LightNode::VLoadResources(Scene* pScene)
+void LightNode::ResetLights()
 {
-	using namespace DirectX;
+	s_lightData = {};
+	s_dirty = true;
+}
 
-	static_assert(sizeof(LightConstantBuf) % 16 == 0);
-
-	XMFLOAT3 pos;
-	XMStoreFloat3(&pos, m_worldMatrix.r[3]);
-	LightConstantBuf lightBuf = {};
-	lightBuf.Pos = pos;
-	lightBuf.Color = m_colour;
-	lightBuf.Intensity = m_intensity;
-	lightBuf.AttConst = m_attenuation[0];
-	lightBuf.AttLin = m_attenuation[1];
-	lightBuf.AttQuad = m_attenuation[2];
-
-	D3D11_BUFFER_DESC constVertBufferInfo = {};
-	constVertBufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-	constVertBufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-	constVertBufferInfo.CPUAccessFlags = D3D11_CPU_ACCESS_FLAG::D3D11_CPU_ACCESS_WRITE;
-	constVertBufferInfo.ByteWidth = sizeof(LightConstantBuf);
-
-	D3D11_SUBRESOURCE_DATA constVertResourceData = { &lightBuf };
-
-	if (FAILED(Graphics::GetDevice()->CreateBuffer(
-		&constVertBufferInfo,
-		&constVertResourceData,
-		&m_constantBuffer)))
+void LightNode::FlushLights()
+{
+	if (!s_lightBuffer.Get())
 	{
-		// HRESULT reason = Graphics::GetDevice()->GetDeviceRemovedReason();
-		// printf("D3D11: Failed to create light constant vertex buffer: 0x%08X device removed 0x%08X\n", );
-		printf("D3D11: Failed to create light constant vertex buffer\n");
-		return;
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = sizeof(MultiLightConstantBuf);
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		if (FAILED(Graphics::GetDevice()->CreateBuffer(&desc, nullptr, &s_lightBuffer)))
+		{
+			printf("D3D11: Failed to create light constant buffer\n");
+			return;
+		}
 	}
+
+	if (s_dirty)
+	{
+		D3D11_MAPPED_SUBRESOURCE mr;
+		if (SUCCEEDED(Graphics::GetDeviceContext()->Map(
+			s_lightBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mr)))
+		{
+			*static_cast<MultiLightConstantBuf*>(mr.pData) = s_lightData;
+			Graphics::GetDeviceContext()->Unmap(s_lightBuffer.Get(), 0);
+		}
+		s_dirty = false;
+	}
+
+	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, s_lightBuffer.GetAddressOf());
 }
 
 void LightNode::VPreRender(Scene* pScene)
 {
 	using namespace DirectX;
 
+	if (s_lightData.NumLights >= MAX_LIGHTS)
+		return;
+
 	XMFLOAT3 pos;
 	XMStoreFloat3(&pos, m_worldMatrix.r[3]);
-	LightConstantBuf lightBuf = {};
-	lightBuf.Pos = pos;
-	lightBuf.Color = m_colour;
-	lightBuf.Intensity = m_intensity;
-	lightBuf.AttConst = m_attenuation[0];
-	lightBuf.AttLin = m_attenuation[1];
-	lightBuf.AttQuad = m_attenuation[2];
 
-	D3D11_MAPPED_SUBRESOURCE mr;
-	if (SUCCEEDED(Graphics::GetDeviceContext()->Map(
-		m_constantBuffer.Get(),
-		0,
-		D3D11_MAP::D3D11_MAP_WRITE_DISCARD,
-		0,
-		&mr)))
-	{
-		*static_cast<LightConstantBuf*>(mr.pData) = lightBuf;
-		Graphics::GetDeviceContext()->Unmap(m_constantBuffer.Get(), 0);
-	}
-
-	Graphics::GetDeviceContext()->PSSetConstantBuffers(1, 1, m_constantBuffer.GetAddressOf());
+	LightConstantBuf& l = s_lightData.Lights[s_lightData.NumLights];
+	l.Pos = pos;
+	l.Color = m_colour;
+	l.Intensity = m_intensity;
+	l.AttConst = m_attenuation[0];
+	l.AttLin = m_attenuation[1];
+	l.AttQuad = m_attenuation[2];
+	s_lightData.NumLights++;
+	s_dirty = true;
 }
 
 void LightNode::SetColour(const DirectX::XMFLOAT3& colour)

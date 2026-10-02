@@ -15,6 +15,8 @@ Scene::Scene()
 
 void Scene::OnRender()
 {
+	LightNode::ResetLights();
+
 	if (m_cameraNode)
 		m_cameraNode->VRender(this);
 	else

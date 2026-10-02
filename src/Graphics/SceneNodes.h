@@ -169,6 +169,12 @@ private:
 
 class LightNode : public SceneNode
 {
+    template <typename T>
+    using ComPtr = Microsoft::WRL::ComPtr<T>;
+    
+public:
+    static constexpr int MAX_LIGHTS = 16;
+
     struct LightConstantBuf
     {
         DirectX::XMFLOAT3 Pos;
@@ -181,10 +187,15 @@ class LightNode : public SceneNode
         float AttQuad;
     };
 
-    template <typename T>
-    using ComPtr = Microsoft::WRL::ComPtr<T>;
+    struct MultiLightConstantBuf
+    {
+        LightConstantBuf Lights[MAX_LIGHTS];
+        int NumLights;
+        float _pad0;
+        float _pad1;
+        float _pad2;
+    };
 
-public:
     LightNode(int actorId, std::string name, DirectX::XMMATRIX worldMatrix, DirectX::XMFLOAT3 colour, float intensity,
               const std::array<float, 3>& attenuation)
         : SceneNode(actorId, name, worldMatrix)
@@ -194,16 +205,20 @@ public:
     {
     }
 
-    virtual void VLoadResources(Scene* pScene);
+    static void ResetLights();
+    static void FlushLights();
+
     virtual void VPreRender(Scene* pScene);
 
     virtual void SetColour(const DirectX::XMFLOAT3& colour);
     virtual void SetIntensity(float intensity);
 
 private:
+    inline static ComPtr<ID3D11Buffer> s_lightBuffer;
+    inline static MultiLightConstantBuf s_lightData;
+    inline static bool s_dirty;
+
     DirectX::XMFLOAT3 m_colour;
     float m_intensity;
     std::array<float, 3> m_attenuation;
-
-    ComPtr<ID3D11Buffer> m_constantBuffer;
 };
