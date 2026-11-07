@@ -197,6 +197,9 @@ xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Graphics\SceneNodes.cpp" />
     <ClCompile Include="Actors\Skeleton.cpp" />
+    <ClCompile Include="Memory\IResourceFile.cpp" />
+    <ClCompile Include="Memory\ResHandle.cpp" />
+    <ClCompile Include="Memory\Resource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\tinyxml2\tinyxml2.h" />
@@ -215,6 +218,9 @@ xcopy "$(ProjectDir)Shaders" "$(OutDir)Shaders" /E /Y /I /D</Command>
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Graphics\SceneNodes.h" />
     <ClInclude Include="Actors\Skeleton.h" />
+    <ClInclude Include="Memory\IResourceFile.h" />
+    <ClInclude Include="Memory\ResHandle.h" />
+    <ClInclude Include="Memory\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Animated.vs.hlsl">
