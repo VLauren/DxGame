@@ -1,4 +1,5 @@
 ﻿#include "ResHandle.h"
+#include "ResCache.h"
 
 ResHandle::ResHandle(Resource& resource, char* buffer, unsigned int size, ResCache* pResCache) : m_resource(resource)
 {
@@ -9,6 +10,6 @@ ResHandle::ResHandle(Resource& resource, char* buffer, unsigned int size, ResCac
 
 ResHandle::~ResHandle()
 {
-    SAFE_DELETE_ARRAY(m_buffer);
+    // SAFE_DELETE_ARRAY(m_buffer);
     m_pResCache->MemoryHasBeenFreed(m_size);
 }

@@ -12,6 +12,11 @@ public:
     ResCache(const unsigned int sizeInMb, IResourceFile *resFile);
     ~ResCache();
     
+    bool Init();
+    
+    std::shared_ptr<ResHandle> GetHandle(Resource* r);
+    // TODO Preload, Flush
+    
 protected:
     std::list<std::shared_ptr<ResHandle>> m_lru;
     std::map<std::string, std::shared_ptr<ResHandle>> m_resources;
